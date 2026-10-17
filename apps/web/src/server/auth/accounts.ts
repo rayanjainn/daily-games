@@ -62,13 +62,11 @@ export async function createAccount(input: {
       await tx
         .insert(users)
         .values({ id: input.userId, username: input.username, timezone: input.timezone });
-      await tx
-        .insert(passkeyCredentials)
-        .values({
-          userId: input.userId,
-          credentialId: input.credential.id,
-          ...credentialColumns(input.credential),
-        });
+      await tx.insert(passkeyCredentials).values({
+        userId: input.userId,
+        credentialId: input.credential.id,
+        ...credentialColumns(input.credential),
+      });
       await tx
         .insert(recoveryPhraseHashes)
         .values({ userId: input.userId, hash: input.recoveryHash });
