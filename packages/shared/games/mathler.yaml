@@ -1,0 +1,28 @@
+slug: 'mathler'
+name: 'Mathler'
+publisher: 'Mathler'
+description: 'Find the equation that equals the day’s number.'
+url: 'https://www.mathler.com/'
+category: 'math'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#2A9D8F'
+icon: 'calculator'
+attribution: 'Made and hosted by Mathler.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

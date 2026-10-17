@@ -1,0 +1,31 @@
+slug: 'nyt-crossword'
+name: 'The Crossword'
+publisher: 'The New York Times'
+description: 'The daily New York Times crossword, easiest on Monday, hardest on Saturday.'
+url: 'https://www.nytimes.com/crosswords/game/daily'
+category: 'crossword'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'fixed'
+  timezone: 'America/New_York'
+  hour: -2
+  graceHours: 4
+  note: 'New puzzle at 10 p.m. Eastern the evening before (6 p.m. on weekends).'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#2B2D42'
+icon: 'crossword'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

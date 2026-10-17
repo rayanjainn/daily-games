@@ -1,0 +1,33 @@
+slug: 'angle'
+name: 'Angle'
+publisher: 'Angle'
+description: 'Estimate the angle in four guesses.'
+url: 'https://www.angle.wtf/'
+category: 'math'
+difficulty: 'easy'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'attempts'
+  maxAttempts: 4
+shareTextSamples:
+  - |-
+    #Angle #1023 2/4
+    ⬆️⬆️⬆️⬆️⬇️
+    🎉🎉🎉
+    https://www.angle.wtf
+accentColor: '#3D5A80'
+icon: 'angle'
+attribution: 'Made by the Angle team.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

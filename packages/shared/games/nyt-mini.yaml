@@ -1,0 +1,36 @@
+slug: 'nyt-mini'
+name: 'The Mini'
+publisher: 'The New York Times'
+description: 'A five-by-five crossword you can finish in about a minute.'
+url: 'https://www.nytimes.com/crosswords/game/mini'
+category: 'crossword'
+difficulty: 'easy'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'fixed'
+  timezone: 'America/New_York'
+  hour: -2
+  graceHours: 4
+  note: 'New puzzle at 10 p.m. Eastern the evening before (6 p.m. on weekends).'
+numbering:
+  epoch: '2014-08-21'
+  epochNumber: 1
+  public: false
+parserId: 'nyt-mini'
+scoring:
+  type: 'time'
+  unit: 'seconds'
+shareTextSamples:
+  - |-
+    I solved the daily mini!
+    https://www.nytimes.com/badges/games/mini.html?d=2026-10-17&t=42&c=8f3c2b1d0e9a&smid=url-share
+  - 'https://www.nytimes.com/shared/v2/mini-xwd.html?d=2026-10-16&t=97&c=1a2b3c4d5e6f'
+accentColor: '#4A90E2'
+icon: 'mini-grid'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

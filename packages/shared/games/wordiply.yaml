@@ -1,0 +1,28 @@
+slug: 'wordiply'
+name: 'Wordiply'
+publisher: 'The Guardian'
+description: 'Find the longest word containing the day’s letters.'
+url: 'https://www.wordiply.com/'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#052962'
+icon: 'book'
+attribution: 'Made and hosted by The Guardian.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

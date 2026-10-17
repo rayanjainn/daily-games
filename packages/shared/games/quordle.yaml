@@ -1,0 +1,39 @@
+slug: 'quordle'
+name: 'Quordle'
+publisher: 'Merriam-Webster'
+description: 'Solve four five-letter words at once in nine guesses.'
+url: 'https://www.merriam-webster.com/games/quordle/'
+category: 'word'
+difficulty: 'hard'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2022-01-25'
+  epochNumber: 1
+  public: true
+parserId: 'quordle'
+scoring:
+  type: 'attempts'
+  maxAttempts: 9
+shareTextSamples:
+  - |-
+    🙂 Daily Quordle 1727
+    5️⃣7️⃣
+    8️⃣4️⃣
+    m-w.com/games/quordle/
+  - |-
+    🙂 Daily Quordle 1726
+    6️⃣🟥
+    9️⃣8️⃣
+    m-w.com/games/quordle/
+accentColor: '#F2B134'
+icon: 'grid-multi'
+attribution: 'Published by Merriam-Webster.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'multi-board'

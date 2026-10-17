@@ -1,0 +1,28 @@
+slug: 'immaculate-grid'
+name: 'Immaculate Grid'
+publisher: 'Sports Reference'
+description: 'Name baseball players who fit each row and column.'
+url: 'https://www.sports-reference.com/immaculate-grid/'
+category: 'trivia'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#C9184A'
+icon: 'ball'
+attribution: 'Made and hosted by Sports Reference.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

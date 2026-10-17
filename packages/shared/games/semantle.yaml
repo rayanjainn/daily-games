@@ -1,0 +1,28 @@
+slug: 'semantle'
+name: 'Semantle'
+publisher: 'Semantle'
+description: 'Find the secret word by meaning, guided by similarity scores.'
+url: 'https://semantle.com/'
+category: 'word'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#5F0F40'
+icon: 'brain'
+attribution: 'Made and hosted by Semantle.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

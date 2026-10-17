@@ -1,0 +1,28 @@
+slug: 'redactle'
+name: 'Redactle'
+publisher: 'Redactle'
+description: 'Uncover a hidden Wikipedia article by guessing words.'
+url: 'https://redactle.net/'
+category: 'trivia'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#495057'
+icon: 'magnify'
+attribution: 'Made and hosted by Redactle.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

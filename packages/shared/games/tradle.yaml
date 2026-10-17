@@ -1,0 +1,28 @@
+slug: 'tradle'
+name: 'Tradle'
+publisher: 'OEC'
+description: 'Guess the country from what it exports.'
+url: 'https://oec.world/en/games/tradle'
+category: 'geography'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#4361EE'
+icon: 'trade'
+attribution: 'Made and hosted by OEC.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

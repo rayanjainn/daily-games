@@ -1,0 +1,28 @@
+slug: 'spotle'
+name: 'Spotle'
+publisher: 'Spotle'
+description: 'Guess the artist from their stats in ten tries.'
+url: 'https://spotle.io/'
+category: 'music'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#1DB954'
+icon: 'music'
+attribution: 'Made and hosted by Spotle.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

@@ -1,0 +1,28 @@
+slug: 'weaver'
+name: 'Weaver'
+publisher: 'Weaver Games'
+description: 'Turn one four-letter word into another, one letter at a time.'
+url: 'https://wordwormdormdork.com/'
+category: 'word'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#06A77D'
+icon: 'path'
+attribution: 'Made and hosted by Weaver Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

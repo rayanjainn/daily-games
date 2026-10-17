@@ -1,0 +1,30 @@
+slug: 'letter-boxed'
+name: 'Letter Boxed'
+publisher: 'The New York Times'
+description: 'Use every letter around the box in as few words as possible.'
+url: 'https://www.nytimes.com/puzzles/letter-boxed'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'fixed'
+  timezone: 'America/New_York'
+  hour: 3
+  note: 'New puzzle at 3:00 a.m. Eastern.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#FC716B'
+icon: 'square-box'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

@@ -1,0 +1,43 @@
+slug: 'globle'
+name: 'Globle'
+publisher: 'Globle Game'
+description: 'Find the mystery country; each guess shows how close you are on a globe.'
+url: 'https://globle-game.com/'
+category: 'geography'
+difficulty: 'easy'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2022-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'globle'
+scoring:
+  type: 'distance'
+  unit: 'guesses'
+shareTextSamples:
+  - |-
+    🌎 Oct 17, 2026 🌍
+    🔥 12 | Avg. Guesses: 6.42
+    🟨🟧🟥🟥🟩 = 5
+
+    https://globle-game.com
+    #globle
+  - |-
+    🌎 Oct 16, 2026 🌍
+    🔥 11 | Avg. Guesses: 6.5
+    🟨🟨🟧🟧🟥🟥🟥🟩 = 8
+
+    https://globle-game.com
+    #globle
+accentColor: '#3FA34D'
+icon: 'globe'
+attribution: 'Made and hosted by the Globle team at globle-game.com.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'countries'

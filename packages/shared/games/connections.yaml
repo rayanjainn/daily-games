@@ -1,0 +1,44 @@
+slug: 'connections'
+name: 'Connections'
+publisher: 'The New York Times'
+description: 'Sort sixteen words into four hidden groups of four.'
+url: 'https://www.nytimes.com/games/connections'
+category: 'word'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2023-06-12'
+  epochNumber: 1
+  public: true
+parserId: 'connections'
+scoring:
+  type: 'distance'
+  unit: 'mistakes'
+shareTextSamples:
+  - |-
+    Connections
+    Puzzle #1224
+    🟨🟨🟨🟨
+    🟩🟦🟩🟩
+    🟩🟩🟩🟩
+    🟦🟦🟦🟦
+    🟪🟪🟪🟪
+  - |-
+    Connections
+    Puzzle #1223
+    🟪🟪🟪🟪
+    🟨🟨🟨🟨
+    🟩🟩🟩🟩
+    🟦🟦🟦🟦
+accentColor: '#B9A0F0'
+icon: 'link'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

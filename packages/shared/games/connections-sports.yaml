@@ -1,0 +1,27 @@
+slug: 'connections-sports'
+name: 'Connections: Sports Edition'
+publisher: 'The Athletic'
+description: 'Group sixteen sports terms into four sets of four.'
+url: 'https://www.nytimes.com/athletic/connections-sports-edition/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#1F7A8C'
+icon: 'ball'
+attribution: 'Made and hosted by The Athletic.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

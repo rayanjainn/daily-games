@@ -1,0 +1,40 @@
+slug: 'minute-cryptic'
+name: 'Minute Cryptic'
+publisher: 'Minute Cryptic'
+description: 'One cryptic crossword clue a day, with optional hints.'
+url: 'https://www.minutecryptic.com/'
+category: 'crossword'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2024-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'minute-cryptic'
+scoring:
+  type: 'distance'
+  unit: 'hints'
+shareTextSamples:
+  - |-
+    Minute Cryptic - 17 October, 2026
+    "Shy about the start of every new day (5)"
+    ⚪️🟣🟣🟣🟣
+    https://www.minutecryptic.com/?utm_source=share
+  - |-
+    Minute Cryptic - 16 October, 2026
+    "Ring back about a lost bird (4)"
+    🟣🟣🟣🟣
+    1 under par
+    https://www.minutecryptic.com/?utm_source=share
+accentColor: '#C03D63'
+icon: 'cryptic'
+attribution: 'Made by the Minute Cryptic team.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'cryptic'

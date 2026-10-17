@@ -1,0 +1,34 @@
+slug: 'bandle'
+name: 'Bandle'
+publisher: 'Bandle'
+description: 'Guess the song as instruments are added one at a time.'
+url: 'https://bandle.app/'
+category: 'music'
+difficulty: 'medium'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    Bandle #1102 3/6
+    🟥🟨🟩⬜⬜⬜
+    Found: 141/150 (94%)
+    Current Streak: 12 (max 30)
+    #Bandle
+accentColor: '#7A55D6'
+icon: 'music'
+attribution: 'Made by the Bandle team.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

@@ -1,0 +1,28 @@
+slug: 'zip'
+name: 'Zip'
+publisher: 'LinkedIn'
+description: 'Draw one path through every cell, in number order.'
+url: 'https://www.linkedin.com/games/zip'
+category: 'logic'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher. Requires a LinkedIn account.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#EA580C'
+icon: 'path'
+attribution: 'Made and hosted by LinkedIn.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []
