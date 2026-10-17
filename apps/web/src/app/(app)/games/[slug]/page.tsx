@@ -1,18 +1,20 @@
-import { ArrowLeft, CalendarDays, ExternalLink, Info, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Info, TriangleAlert } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import { clockFromGame } from '@everydaily/shared/registry';
-import { FollowButton } from '@/components/game/follow-button';
+import { formatResult } from '@everydaily/shared/stats/format';
+import { currentPuzzle } from '@everydaily/shared/time/puzzle';
+import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
+import { TodayLog } from '@/components/game/today-log';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { EmptyState } from '@/components/ui/empty-state';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING, siteOf } from '@/lib/catalog-labels';
 import { describeReset } from '@/lib/reset-copy';
 import { attributionLine, getGameBySlug, isFollowing, toCatalogGame } from '@/server/catalog';
+import { existingResult } from '@/server/results';
 import { requireSession } from '@/server/session';
 import { ReportDialog } from './report-dialog';
 
@@ -40,6 +42,21 @@ export default async function GamePage({ params }: { params: Params }) {
   const following = await isFollowing(user.id, row.id);
   const reset = describeReset(clockFromGame(row).reset, user.timezone);
   const site = siteOf(game.url);
+  const todays = await existingResult(
+    user.id,
+    row.id,
+    currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
+  );
+  const loggable = {
+    slug: row.slug,
+    name: row.name,
+    url: row.url,
+    embedMode: row.embedMode,
+    tier: row.tier,
+    scoringType: row.scoringType,
+    maxAttempts: row.maxAttempts,
+    scoringUnit: row.scoringUnit,
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -82,24 +99,16 @@ export default async function GamePage({ params }: { params: Params }) {
             </div>
           </div>
         </div>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg">
-            <a href={game.url} target="_blank" rel="noopener noreferrer">
-              Play on {site}
-              <ExternalLink aria-hidden />
-              <span className="sr-only">(opens in a new tab)</span>
-            </a>
-          </Button>
-          <FollowButton
-            gameId={game.id}
-            gameName={game.name}
-            following={following}
-            className="h-14 rounded-lg px-7 text-lg"
-          />
-        </div>
+        <GameActions
+          game={loggable}
+          gameId={game.id}
+          following={following}
+          loggedToday={Boolean(todays)}
+          playLabel={`Play on ${site}`}
+        />
       </Card>
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-3 md:items-start">
         <Card asSection className="flex flex-col gap-3 p-5" aria-labelledby="today-heading">
           <h2 id="today-heading" className="flex items-center gap-2 text-xl">
             <CalendarDays className="size-5 text-ink-soft" aria-hidden />
@@ -124,13 +133,30 @@ export default async function GamePage({ params }: { params: Params }) {
             {reset.headline}.{reset.detail ? ` ${reset.detail}` : ''}
           </p>
         </Card>
-        <Card asSection className="md:col-span-2" aria-labelledby="stats-heading">
-          <h2 id="stats-heading" className="sr-only">
-            Your stats
+        <Card
+          asSection
+          id="log-panel"
+          tabIndex={-1}
+          className="p-5 outline-none focus-visible:ring-4 focus-visible:ring-focus/40 md:col-span-2"
+          aria-labelledby="log-heading"
+        >
+          <h2 id="log-heading" className="mb-3 text-xl">
+            {game.tier === 3 ? 'Done today?' : "Log today's result"}
           </h2>
-          <EmptyState title="No results yet" className="h-full py-8">
-            {TRACKING[game.tier].hint} Your streak and history will show up here.
-          </EmptyState>
+          <TodayLog
+            game={loggable}
+            logged={
+              todays
+                ? {
+                    id: todays.id,
+                    summary: formatResult(todays, {
+                      type: row.scoringType,
+                      unit: row.scoringUnit,
+                    }),
+                  }
+                : null
+            }
+          />
         </Card>
       </div>
 

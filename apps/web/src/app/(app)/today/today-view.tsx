@@ -1,17 +1,20 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Check, ExternalLink, ListOrdered, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ListOrdered, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { confettiBurst } from '@/components/game/confetti';
 import { FollowButton } from '@/components/game/follow-button';
 import { GameIcon } from '@/components/game/game-icon';
+import { LogPanel } from '@/components/game/log-panel';
+import { PlayButton } from '@/components/game/play-button';
 import { ProgressRing } from '@/components/game/progress-ring';
 import { StreakFlame } from '@/components/game/streak-flame';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/ui/toast';
 import { api, ApiError } from '@/lib/api';
@@ -193,6 +196,8 @@ function ChecklistRow({
   onMove: (by: -1 | 1) => void;
 }) {
   const { game, done, streak } = item;
+  // Set when the player comes back from playing, which opens the log sheet.
+  const [returned, setReturned] = useState(false);
   return (
     <li
       data-testid="checklist-item"
@@ -202,15 +207,19 @@ function ChecklistRow({
         done ? 'bg-success-soft' : 'bg-surface',
       )}
     >
-      <span
-        className={cn(
-          'grid size-8 shrink-0 place-items-center rounded-full border-[length:var(--bw)] border-line',
-          done ? 'bg-mint text-on-mint' : 'bg-surface-2 text-transparent',
-        )}
-        aria-hidden
-      >
-        <Check className="size-5" strokeWidth={3} />
-      </span>
+      {done || editing ? (
+        <span
+          className={cn(
+            'grid size-9 shrink-0 place-items-center rounded-full border-[length:var(--bw)] border-line',
+            done ? 'bg-mint text-on-mint' : 'bg-surface-2 text-transparent',
+          )}
+          aria-hidden
+        >
+          <Check className="size-5" strokeWidth={3} />
+        </span>
+      ) : (
+        <LogTrigger game={game} returned={returned} onSheetClosed={() => setReturned(false)} />
+      )}
       <GameIcon icon={game.icon} color={game.accentColor} size="sm" className="size-9 sm:size-10" />
       <div className="min-w-0 flex-1">
         <Link
@@ -267,15 +276,85 @@ function ChecklistRow({
           {done.summary}
         </Badge>
       ) : (
-        <Button asChild size="sm" className="shrink-0">
-          <a href={game.url} target="_blank" rel="noopener noreferrer">
-            Play
-            <ExternalLink aria-hidden />
-            <span className="sr-only"> {game.name} (opens in a new tab)</span>
-          </a>
-        </Button>
+        <PlayButton
+          game={game}
+          size="sm"
+          className="shrink-0"
+          onReturn={game.tier === 3 ? undefined : () => setReturned(true)}
+        />
       )}
     </li>
+  );
+}
+
+/** The checklist circle: one tap marks a check-off game done; other games open the log sheet. */
+function LogTrigger({
+  game,
+  returned,
+  onSheetClosed,
+}: {
+  game: CatalogGame;
+  returned: boolean;
+  onSheetClosed: () => void;
+}) {
+  const router = useRouter();
+  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (returned) setOpen(true);
+  }, [returned]);
+
+  const circle =
+    'grid size-9 shrink-0 place-items-center rounded-full border-[length:var(--bw)] border-line bg-surface-2 text-ink-faint transition-colors hover:bg-mint hover:text-on-mint focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus/40';
+
+  if (game.tier === 3) {
+    return (
+      <button
+        type="button"
+        className={circle}
+        aria-label={`Mark ${game.name} done`}
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            await api('/api/results', { source: 'checkbox', slug: game.slug });
+            router.refresh();
+          } catch (err) {
+            toast({
+              tone: 'error',
+              title: err instanceof ApiError ? err.message : 'Could not save.',
+            });
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <Check className="size-5" strokeWidth={3} aria-hidden />
+      </button>
+    );
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) onSheetClosed();
+      }}
+    >
+      <DialogTrigger asChild>
+        <button type="button" className={circle} aria-label={`Log ${game.name} result`}>
+          <Check className="size-5" strokeWidth={3} aria-hidden />
+        </button>
+      </DialogTrigger>
+      <DialogContent
+        title={`Log ${game.name}`}
+        description="Paste the share text or enter your score."
+      >
+        <LogPanel game={game} onLogged={() => setTimeout(() => setOpen(false), 1200)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
