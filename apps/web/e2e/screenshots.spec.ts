@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
-import { addVirtualAuthenticator, expect, test } from './support/fixtures';
+import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 import { THEMES, VIEWPORTS, capture, shotsDir } from './support/shots';
 
 /**
@@ -41,6 +41,20 @@ const noAutofill = async (page: Page) => {
   });
   await page.reload();
 };
+
+/** Starts a pairing request in a separate "laptop" context and returns its approval path. */
+async function pendingPairing(page: Page) {
+  const ctx = await page
+    .context()
+    .browser()!
+    .newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
+  const laptop = await ctx.newPage();
+  await laptop.goto('/login/pair');
+  await expect(laptop.getByTestId('pair-number')).toBeVisible();
+  const number = Number(await laptop.getByTestId('pair-number').innerText());
+  const path = new URL(await laptop.getByTestId('pair-url').innerText()).pathname;
+  return { number, path, close: () => ctx.close() };
+}
 
 const SETS: Record<string, Screen[]> = {
   styleguide: [
@@ -102,6 +116,62 @@ const SETS: Record<string, Screen[]> = {
         await signedIn(page);
         await page.goto('/login/add-passkey?next=/today');
         await expect(page.getByRole('heading', { name: "You're in!" })).toBeVisible();
+      },
+    },
+  ],
+  pairing: [
+    {
+      name: 'pair-new-device',
+      path: '/login/pair',
+      setup: async (page) => {
+        await expect(page.getByTestId('pair-number')).toBeVisible();
+      },
+    },
+    {
+      name: 'pair-approve',
+      path: '/',
+      setup: async (page) => {
+        await signedIn(page);
+        const p = await pendingPairing(page);
+        await page.goto(p.path);
+        await expect(page.getByRole('heading', { name: 'Approve a sign-in?' })).toBeVisible();
+      },
+    },
+    {
+      name: 'pair-approved',
+      path: '/',
+      setup: async (page) => {
+        await signedIn(page);
+        const p = await pendingPairing(page);
+        await page.goto(p.path);
+        await page.getByRole('button', { name: String(p.number), exact: true }).click();
+        await expect(page.getByText('Approved', { exact: true })).toBeVisible();
+      },
+    },
+    {
+      name: 'pair-wrong-number',
+      path: '/',
+      setup: async (page) => {
+        await signedIn(page);
+        const p = await pendingPairing(page);
+        await page.goto(p.path);
+        const wrong = (await page.getByRole('group').getByRole('button').allInnerTexts())
+          .map(Number)
+          .find((n) => n !== p.number)!;
+        await page.getByRole('button', { name: String(wrong), exact: true }).click();
+        await expect(page.getByText("That number didn't match")).toBeVisible();
+      },
+    },
+    {
+      name: 'pair-declined-new-device',
+      path: '/login/pair',
+      setup: async (page) => {
+        await page.route('**/api/auth/pair/status', (r) =>
+          r.fulfill({ json: { status: 'denied' } }),
+        );
+        await expect(page.getByText('The request was declined on your other device.')).toBeVisible({
+          timeout: 10_000,
+        });
       },
     },
   ],
