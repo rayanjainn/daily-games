@@ -32,6 +32,9 @@ const LIMITS = {
   'email-verify': { tokens: 5, window: '1 d' },
   'friend-request': { tokens: 30, window: '1 d' },
   'friend-edit': { tokens: 120, window: '10 m' },
+  'group-create': { tokens: 10, window: '1 d' },
+  'group-join': { tokens: 30, window: '1 h' },
+  'group-edit': { tokens: 120, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;

@@ -70,6 +70,11 @@ export const SUBMISSION_STATUSES = ['pending', 'approved', 'rejected', 'duplicat
 export const FRIENDSHIP_STATUSES = ['pending', 'accepted', 'blocked'] as const;
 export type FriendshipStatus = (typeof FRIENDSHIP_STATUSES)[number];
 
+export const GROUP_ROLES = ['owner', 'admin', 'member'] as const;
+export type GroupRole = (typeof GROUP_ROLES)[number];
+export const MAX_GROUP_MEMBERS = 50;
+export const MAX_GROUPS_PER_USER = 20;
+
 export const SOLUTION_STATUSES = ['pending', 'approved', 'rejected'] as const;
 export type SolutionStatus = (typeof SOLUTION_STATUSES)[number];
 export const MAX_SOLUTION_LENGTH = 1000;

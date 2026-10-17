@@ -20,6 +20,7 @@ import {
 import {
   EMBED_MODES,
   FRIENDSHIP_STATUSES,
+  GROUP_ROLES,
   GAME_CATEGORIES,
   GAME_REPORT_KINDS,
   GAME_STATUSES,
@@ -516,6 +517,44 @@ export const friendships = pgTable(
     check('friendships_order', sql`${t.userA} < ${t.userB}`),
     check('friendships_status_check', oneOf('status', FRIENDSHIP_STATUSES)),
     check('friendships_requester', sql`${t.requestedBy} IN (${t.userA}, ${t.userB})`),
+  ],
+);
+
+/** Private groups: a shared leaderboard for friends, family or a team. Joined by invite code. */
+export const groups = pgTable(
+  'groups',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    /** Secret part of the invite link; regenerating it invalidates old links. */
+    inviteCode: text('invite_code').notNull(),
+    ownerId: uuid('owner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('groups_invite_code_key').on(t.inviteCode),
+    check('groups_name_length', sql`char_length(${t.name}) BETWEEN 1 AND 40`),
+  ],
+);
+
+export const groupMembers = pgTable(
+  'group_members',
+  {
+    groupId: uuid('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role').$type<(typeof GROUP_ROLES)[number]>().notNull().default('member'),
+    joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.groupId, t.userId] }),
+    index('group_members_user_idx').on(t.userId),
+    check('group_members_role_check', oneOf('role', GROUP_ROLES)),
   ],
 );
 
