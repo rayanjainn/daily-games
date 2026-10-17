@@ -17,11 +17,12 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
+import { InstallApp } from '@/components/pwa/install-app';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Field, Input } from '@/components/ui/input';
+import { Field, Input, Select } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import { api, ApiError } from '@/lib/api';
 import { addPasskey } from '@/lib/passkeys';
@@ -117,6 +118,7 @@ export function SettingsView({ user, passkeys, sessions, recovery }: Props) {
         </Notice>
       ) : null}
       <ProfileSection user={user} />
+      <InstallApp />
       <PasskeysSection passkeys={passkeys} />
       <RecoverySection recovery={recovery} />
       <SessionsSection sessions={sessions} />
@@ -184,19 +186,18 @@ function ProfileSection({ user }: { user: Props['user'] }) {
           }
         >
           {({ id, describedBy }) => (
-            <select
+            <Select
               id={id}
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
               aria-describedby={describedBy}
-              className="h-12 w-full rounded-md border-[length:var(--bw)] border-line bg-surface px-3 text-md text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus/40"
             >
               {zones.map((z) => (
                 <option key={z} value={z}>
                   {z.replace(/_/g, ' ')}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
         </Field>
         <div className="sm:col-span-2">
@@ -411,7 +412,9 @@ function RecoverySection({ recovery }: { recovery: Props['recovery'] }) {
           : 'You have no recovery phrase.'
       }
       action={
-        recovery.confirmed ? (
+        !recovery.exists ? (
+          <Badge tone="danger">None</Badge>
+        ) : recovery.confirmed ? (
           <Badge tone="success">Saved and checked</Badge>
         ) : (
           <Badge tone="warn">Not checked</Badge>

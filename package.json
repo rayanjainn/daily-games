@@ -18,6 +18,7 @@
     "db:generate": "pnpm --filter @everydaily/shared db:generate",
     "seed:games": "pnpm --filter @everydaily/scripts exec tsx seed-games.ts",
     "user:role": "pnpm --filter @everydaily/scripts exec tsx set-role.ts",
+    "icons:generate": "pnpm --filter @everydaily/scripts exec tsx generate-icons.ts",
     "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts"
   },
   "devDependencies": {

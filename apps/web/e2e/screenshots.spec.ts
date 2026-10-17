@@ -107,6 +107,48 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  pwa: [
+    { name: 'offline', path: '/offline' },
+    {
+      name: 'settings-install-prompt',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/settings');
+        // Wait for hydration, so the listener exists before the event fires.
+        await expect(page.getByTestId('install-app')).toHaveAttribute('data-mode', 'manual');
+        await page.evaluate(() => {
+          const e = new Event('beforeinstallprompt', { cancelable: true });
+          Object.assign(e, { prompt: async () => {}, userChoice: new Promise(() => {}) });
+          window.dispatchEvent(e);
+        });
+        await expect(page.getByRole('button', { name: 'Install EveryDaily' })).toBeVisible();
+        await page
+          .getByRole('heading', { name: 'Install the app' })
+          .evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      },
+      viewportOnly: true,
+    },
+    {
+      name: 'settings-install-ios',
+      path: '/',
+      setup: async (page) => {
+        await page.addInitScript(() => {
+          Object.defineProperty(navigator, 'userAgent', {
+            get: () =>
+              'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15',
+          });
+        });
+        await signInAs(page);
+        await page.goto('/settings');
+        await expect(page.getByTestId('install-app')).toHaveAttribute('data-mode', 'ios');
+        await page
+          .getByRole('heading', { name: 'Install the app' })
+          .evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      },
+      viewportOnly: true,
+    },
+  ],
   stats: [
     {
       name: 'stats-wordle',
