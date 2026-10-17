@@ -1,8 +1,8 @@
 name: Visual baselines
 
 # Regenerates Playwright visual-regression baselines in the same pinned image the CI visual job
-# (all of them: small colour changes fall inside the comparison tolerance and would be kept)
-# uses, and uploads them as an artifact to review and commit.
+# uses, and uploads them as an artifact to review and commit. Every baseline is rewritten: small
+# colour changes fall inside the comparison tolerance and would otherwise keep the old image.
 on:
   workflow_dispatch:
 
