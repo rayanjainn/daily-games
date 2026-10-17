@@ -16,6 +16,7 @@ import {
 } from '@everydaily/shared/domain';
 import { GameCard } from '@/components/game/game-card';
 import { Button } from '@/components/ui/button';
+import { CategoryDot } from '@/components/game/category-badge';
 import { Chip } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input, Select } from '@/components/ui/input';
@@ -155,6 +156,7 @@ export function CatalogView({
               selected={f.category === c}
               onClick={() => set({ category: f.category === c ? null : c })}
             >
+              <CategoryDot category={c} />
               {CATEGORY_LABELS[c]}
               <span className="text-xs opacity-70">{counts.get(c)}</span>
             </Chip>

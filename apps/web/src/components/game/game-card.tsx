@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import { Badge } from '@/components/ui/badge';
 import { DIFFICULTY_LABELS, TRACKING } from '@/lib/catalog-labels';
 import type { CatalogGame } from '@/server/catalog';
+import { CategoryBadge } from './category-badge';
 import { FollowButton } from './follow-button';
 import { GameIcon } from './game-icon';
 
@@ -42,7 +42,7 @@ export function GameCard({ game, following }: { game: CatalogGame; following: bo
         <Badge tone={game.tier === 1 ? 'grape' : game.tier === 2 ? 'sky' : 'neutral'}>
           {TRACKING[game.tier].label}
         </Badge>
-        <Badge>{CATEGORY_LABELS[game.category]}</Badge>
+        <CategoryBadge category={game.category} />
         <Badge>{DIFFICULTY_LABELS[game.difficulty]}</Badge>
         {game.status === 'possibly_down' ? <Badge tone="warn">May be down</Badge> : null}
       </div>

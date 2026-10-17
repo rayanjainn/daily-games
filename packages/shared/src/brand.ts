@@ -10,7 +10,7 @@ export const BRAND = {
   description:
     'Follow, play and track daily puzzle games like Wordle, Connections and Globle in one place.',
   themeColor: '#FF5B2E',
-  backgroundColor: '#FFF7EA',
+  backgroundColor: '#FDF2E1',
 } as const;
 
 export type Brand = typeof BRAND;

@@ -1,5 +1,6 @@
 /**
- * Renders the app icons (PNG) from apps/web/public/icons/icon.svg with headless Chromium.
+ * Renders the app icons (PNG) from apps/web/public/icons/icon.svg (and icon-mono.svg for the
+ * one-colour themed icon) with headless Chromium.
  * Usage: pnpm icons:generate   (re-run after changing the SVG; the PNGs are committed)
  */
 import { readFileSync } from 'node:fs';
@@ -8,7 +9,8 @@ import { chromium } from '@playwright/test';
 
 const dir = fileURLToPath(new URL('../apps/web/public/icons/', import.meta.url));
 const svg = readFileSync(`${dir}icon.svg`, 'utf8');
-const PAPER = '#FFF7EA';
+const mono = readFileSync(`${dir}icon-mono.svg`, 'utf8');
+const PAPER = '#FDF2E1';
 
 /** `pad` is the share of the canvas left around the mark; maskable icons need a safe zone. */
 const OUTPUTS = [
@@ -17,6 +19,8 @@ const OUTPUTS = [
   { file: 'maskable-512.png', size: 512, pad: 0.2, bg: PAPER },
   { file: 'apple-touch-icon.png', size: 180, pad: 0.12, bg: PAPER },
   { file: 'favicon-32.png', size: 32, pad: 0, bg: 'transparent' },
+  // Themed icons are cropped like maskable ones, so the mark keeps the same safe zone.
+  { file: 'monochrome-512.png', size: 512, pad: 0.2, bg: 'transparent', src: mono },
 ];
 
 const browser = await chromium.launch(
@@ -29,7 +33,7 @@ try {
     await page.setViewportSize({ width: o.size, height: o.size });
     await page.setContent(
       `<html><body style="margin:0;background:${o.bg};display:grid;place-items:center;width:${o.size}px;height:${o.size}px">` +
-        svg.replace('<svg ', `<svg width="${inner}" height="${inner}" `) +
+        (o.src ?? svg).replace('<svg ', `<svg width="${inner}" height="${inner}" `) +
         '</body></html>',
     );
     await page.screenshot({ path: `${dir}${o.file}`, omitBackground: o.bg === 'transparent' });

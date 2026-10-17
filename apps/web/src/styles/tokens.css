@@ -8,10 +8,10 @@
   color-scheme: light;
 
   /* Surfaces */
-  --paper: #fff7ea;
-  --paper-dot: #f1e4cc;
-  --surface: #ffffff;
-  --surface-2: #fff0d9;
+  --paper: #fdf2e1;
+  --paper-dot: #efdcbd;
+  --surface: #fffcf6;
+  --surface-2: #fcecd2;
   --surface-3: #ffe4bf;
 
   /* Text */
@@ -48,6 +48,24 @@
   --on-danger: #ffffff;
   --info: #1f5fc4;
   --info-soft: #dce9ff;
+
+  /* Category colours: text/marks and a soft background per game category. */
+  --cat-word: #a8400c;
+  --cat-word-soft: #ffe4d2;
+  --cat-geography: #0f6b45;
+  --cat-geography-soft: #d6f3e3;
+  --cat-logic: #5b2fd0;
+  --cat-logic-soft: #ebe3ff;
+  --cat-trivia: #9c1873;
+  --cat-trivia-soft: #ffdff1;
+  --cat-crossword: #1d58b8;
+  --cat-crossword-soft: #dbe8ff;
+  --cat-math: #0b6676;
+  --cat-math-soft: #d3f1f5;
+  --cat-music: #7d5200;
+  --cat-music-soft: #ffeec2;
+  --cat-visual: #a01b2c;
+  --cat-visual-soft: #ffe0e3;
 
   --focus: #7a4dff;
   --overlay: rgb(29 26 58 / 0.55);
@@ -129,6 +147,23 @@
     --on-danger: #0f0e1a;
     --info: #84b0ff;
     --info-soft: #18284a;
+    /* Category colours: text/marks and a soft background per game category. */
+    --cat-word: #ffa577;
+    --cat-word-soft: #3a2014;
+    --cat-geography: #5fe0a5;
+    --cat-geography-soft: #0f3326;
+    --cat-logic: #c2adff;
+    --cat-logic-soft: #2a2050;
+    --cat-trivia: #ff94d4;
+    --cat-trivia-soft: #3e1532;
+    --cat-crossword: #8fb6ff;
+    --cat-crossword-soft: #18284a;
+    --cat-math: #6fe0ee;
+    --cat-math-soft: #0f3138;
+    --cat-music: #ffd352;
+    --cat-music-soft: #382a0e;
+    --cat-visual: #ff8c96;
+    --cat-visual-soft: #45161d;
     --focus: #c0adff;
     --overlay: rgb(4 3 12 / 0.72);
     --shadow-overlay: 0 24px 48px -12px rgb(0 0 0 / 0.6);
@@ -169,6 +204,23 @@
   --on-danger: #0f0e1a;
   --info: #84b0ff;
   --info-soft: #18284a;
+  /* Category colours: text/marks and a soft background per game category. */
+  --cat-word: #ffa577;
+  --cat-word-soft: #3a2014;
+  --cat-geography: #5fe0a5;
+  --cat-geography-soft: #0f3326;
+  --cat-logic: #c2adff;
+  --cat-logic-soft: #2a2050;
+  --cat-trivia: #ff94d4;
+  --cat-trivia-soft: #3e1532;
+  --cat-crossword: #8fb6ff;
+  --cat-crossword-soft: #18284a;
+  --cat-math: #6fe0ee;
+  --cat-math-soft: #0f3138;
+  --cat-music: #ffd352;
+  --cat-music-soft: #382a0e;
+  --cat-visual: #ff8c96;
+  --cat-visual-soft: #45161d;
   --focus: #c0adff;
   --overlay: rgb(4 3 12 / 0.72);
   --shadow-overlay: 0 24px 48px -12px rgb(0 0 0 / 0.6);

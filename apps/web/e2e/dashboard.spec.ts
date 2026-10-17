@@ -53,6 +53,23 @@ test.describe('dashboard', () => {
     await expect(flagle.getByRole('button', { name: 'Log Flagle result' })).toBeVisible();
   });
 
+  test('ticking a game off flips its tile and fills the ring in its colour', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'tradle']);
+    await played(user.id, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+    await page.goto('/today');
+    const ring = page.getByRole('progressbar');
+    await expect(ring.locator('[data-segment]')).toHaveCount(1);
+    // Already done on load: no flip.
+    await expect(rows(page).filter({ hasText: 'Wordle' }).locator('[data-flipped]')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Mark Tradle done' }).click();
+    const tradle = rows(page).filter({ hasText: 'Tradle' });
+    await expect(tradle).toHaveAttribute('data-done', 'true');
+    await expect(tradle.locator('[data-flipped="true"]')).toHaveCount(1);
+    await expect(ring.locator('[data-segment]')).toHaveCount(2);
+  });
+
   test('shows failures as X and celebrates a full checklist', async ({ page }) => {
     const user = await signInAs(page);
     await follow(page, ['wordle']);
