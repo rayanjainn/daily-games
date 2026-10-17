@@ -3,6 +3,9 @@ import { E2E_PORT, E2E_REDIS_DB, REDIS_URL, SERVER_ENV, SHIM_PORT } from './e2e/
 
 const BASE_URL = `http://localhost:${E2E_PORT}`;
 
+// Lets offline emulation and routing reach requests made by the service worker itself.
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS ??= '1';
+
 /**
  * Projects:
  *  - e2e:          functional + accessibility specs (needs Postgres and Redis running)
@@ -19,6 +22,8 @@ export default defineConfig({
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
+    // A service worker would hide requests from page.route; pwa.spec.ts opts back in.
+    serviceWorkers: 'block',
   },
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
