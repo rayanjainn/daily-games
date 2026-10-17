@@ -21,7 +21,7 @@ export function shotsDir(): string | null {
 /** Waits for fonts and settles animations so captures are stable. */
 export async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await page.waitForTimeout(400);
 }
 

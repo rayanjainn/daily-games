@@ -44,6 +44,22 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     needs: checks
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: everydaily
+          POSTGRES_PASSWORD: everydaily
+          POSTGRES_DB: everydaily_e2e
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U everydaily" --health-interval 2s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    env:
+      E2E_DATABASE_URL: postgres://everydaily:everydaily@localhost:5432/everydaily_e2e
+      REDIS_URL: redis://localhost:6379
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

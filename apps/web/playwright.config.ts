@@ -1,12 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_PORT, E2E_REDIS_DB, REDIS_URL, SERVER_ENV, SHIM_PORT } from './e2e/support/env';
 
-const PORT = Number(process.env.E2E_PORT ?? 3200);
-const BASE_URL = `http://localhost:${PORT}`;
+const BASE_URL = `http://localhost:${E2E_PORT}`;
 
 /**
  * Projects:
- *  - e2e:          functional + accessibility specs
- *  - visual:       toHaveScreenshot baselines (reduced motion, fixed viewport)
+ *  - e2e:          functional + accessibility specs (needs Postgres and Redis running)
+ *  - visual:       toHaveScreenshot baselines (pinned CI image only, VISUAL=1)
  *  - screenshots:  review captures written to docs/screenshots/<branch>/ (only with SHOTS_DIR)
  */
 export default defineConfig({
@@ -15,6 +15,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
+  globalSetup: './e2e/support/global-setup.ts',
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
@@ -43,16 +44,26 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: process.env.E2E_DEV
-      ? `pnpm exec next dev --port ${PORT}`
-      : `pnpm exec next build && pnpm exec next start --port ${PORT}`,
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 240_000,
-    env: {
-      ENABLE_STYLEGUIDE: '1',
-      NEXT_TELEMETRY_DISABLED: '1',
+  webServer: [
+    {
+      command: 'pnpm exec tsx ../../scripts/dev/upstash-shim.ts',
+      port: SHIM_PORT,
+      reuseExistingServer: !process.env.CI,
+      env: {
+        SHIM_PORT: String(SHIM_PORT),
+        REDIS_URL,
+        REDIS_DB: String(E2E_REDIS_DB),
+        SHIM_TOKEN: 'local-dev-token',
+      },
     },
-  },
+    {
+      command: process.env.E2E_DEV
+        ? `pnpm exec next dev --port ${E2E_PORT}`
+        : `pnpm exec next build && pnpm exec next start --port ${E2E_PORT}`,
+      url: BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000,
+      env: SERVER_ENV,
+    },
+  ],
 });
