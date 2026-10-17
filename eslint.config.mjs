@@ -26,4 +26,10 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
+  {
+    files: ['**/sw.js', '**/public/**/*.js'],
+    languageOptions: {
+      globals: { self: 'readonly', fetch: 'readonly', caches: 'readonly', clients: 'readonly' },
+    },
+  },
 );
