@@ -33,6 +33,10 @@ const groups = {
     TURNSTILE_SECRET_KEY: z.string().optional(),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
   }),
+  features: z.object({
+    /** "off", "admin" (mods and admins only, the launch default) or "all" signed-in players */
+    FEATURE_SUBMISSIONS: z.enum(['off', 'admin', 'all']).default('admin'),
+  }),
   realtime: z.object({
     REALTIME_URL: z.string().url(),
     WORKER_INTERNAL_URL: z.string().url(),

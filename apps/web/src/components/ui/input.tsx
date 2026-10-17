@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { useId, type ComponentProps, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -12,6 +13,23 @@ export const inputClass = cn(
 
 export function Input({ className, ...props }: ComponentProps<'input'>) {
   return <input className={cn(inputClass, className)} {...props} />;
+}
+
+/** Native select styled like the inputs (native keeps mobile pickers and a11y for free). */
+export function Select({
+  className,
+  wrapperClassName,
+  ...props
+}: ComponentProps<'select'> & { wrapperClassName?: string }) {
+  return (
+    <div className={cn('relative', wrapperClassName)}>
+      <select className={cn(inputClass, 'appearance-none pr-10', className)} {...props} />
+      <ChevronDown
+        className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 text-ink-soft"
+        aria-hidden
+      />
+    </div>
+  );
 }
 
 export function Textarea({ className, ...props }: ComponentProps<'textarea'>) {

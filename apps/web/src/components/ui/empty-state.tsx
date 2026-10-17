@@ -93,13 +93,17 @@ export function EmptyState({
   children,
   action,
   className,
+  level = 3,
 }: {
   art?: keyof typeof ART;
   title: ReactNode;
   children?: ReactNode;
   action?: ReactNode;
   className?: string;
+  /** heading level, so the title fits the page outline */
+  level?: 2 | 3;
 }) {
+  const Heading = level === 2 ? 'h2' : 'h3';
   return (
     <div
       className={cn(
@@ -108,7 +112,7 @@ export function EmptyState({
       )}
     >
       {ART[art]}
-      <h3 className="text-xl">{title}</h3>
+      <Heading className="text-xl">{title}</Heading>
       {children ? <div className="max-w-sm text-ink-soft">{children}</div> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>

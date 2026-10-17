@@ -17,6 +17,10 @@ const LIMITS = {
   'pair-approve': { tokens: 10, window: '10 m' },
   'passkey-add': { tokens: 10, window: '1 h' },
   'recovery-regen': { tokens: 5, window: '1 d' },
+  follow: { tokens: 120, window: '5 m' },
+  'game-report': { tokens: 10, window: '1 h' },
+  submission: { tokens: 5, window: '1 d' },
+  'admin-edit': { tokens: 120, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;
