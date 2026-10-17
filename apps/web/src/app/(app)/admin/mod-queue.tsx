@@ -41,6 +41,19 @@ interface Submission {
   submitter: string | null;
 }
 
+interface ContentReport {
+  id: string;
+  targetType: 'post' | 'comment';
+  targetId: string;
+  postId: string;
+  communitySlug: string;
+  preview: string;
+  targetStatus: string;
+  reason: string;
+  reporter: string | null;
+  createdAt: string;
+}
+
 interface PendingSolution {
   id: string;
   body: string;
@@ -70,10 +83,12 @@ export function ModQueue({
   reports,
   submissions,
   solutions,
+  contentReports,
 }: {
   reports: Report[];
   submissions: Submission[];
   solutions: PendingSolution[];
+  contentReports: ContentReport[];
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -92,6 +107,26 @@ export function ModQueue({
           <Card lift="sm">
             <EmptyState title="No open reports" className="py-6">
               Players&apos; problem reports land here.
+            </EmptyState>
+          </Card>
+        )}
+      </section>
+
+      <section aria-labelledby="community-reports-heading" className="flex flex-col gap-3">
+        <h2 id="community-reports-heading" className="flex items-center gap-2 text-2xl sm:text-3xl">
+          Community reports{' '}
+          <Badge tone={contentReports.length ? 'pop' : 'neutral'}>{contentReports.length}</Badge>
+        </h2>
+        {contentReports.length ? (
+          <ul className="flex flex-col gap-3">
+            {contentReports.map((r) => (
+              <ContentReportRow key={r.id} report={r} />
+            ))}
+          </ul>
+        ) : (
+          <Card lift="sm">
+            <EmptyState title="Nothing reported" className="py-6">
+              Posts and comments players report show up here.
             </EmptyState>
           </Card>
         )}
@@ -138,6 +173,74 @@ export function ModQueue({
         )}
       </section>
     </div>
+  );
+}
+
+function ContentReportRow({ report: r }: { report: ContentReport }) {
+  const router = useRouter();
+  const toast = useToast();
+  const [busy, setBusy] = useState<string | null>(null);
+  async function act(kind: 'remove' | 'dismiss') {
+    setBusy(kind);
+    try {
+      if (kind === 'remove')
+        await api(`/api/admin/content/${r.targetType}/${r.targetId}`, {
+          action: 'remove',
+          reason: r.reason,
+        });
+      else await api(`/api/admin/content-reports/${r.id}/dismiss`, {});
+      toast({ tone: 'success', title: kind === 'remove' ? 'Removed' : 'Dismissed' });
+      router.refresh();
+    } catch (err) {
+      toast({ tone: 'error', title: errorText(err) });
+      setBusy(null);
+    }
+  }
+  return (
+    <li>
+      <Card lift="sm" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="warn">{r.targetType === 'post' ? 'Post' : 'Comment'}</Badge>
+            {r.targetStatus === 'removed' ? <Badge tone="danger">Already removed</Badge> : null}
+          </div>
+          <p className="mt-1 whitespace-pre-wrap break-words text-sm">{r.preview}</p>
+          <p className="mt-1 text-sm">
+            <span className="font-semibold">Reason:</span> {r.reason}
+          </p>
+          <p className="mt-1 text-xs text-ink-soft">
+            From {r.reporter ?? 'a deleted account'} · {when(r.createdAt)} ·{' '}
+            <Link
+              href={`/c/${r.communitySlug}/${r.postId}`}
+              className="underline underline-offset-2"
+              prefetch={false}
+            >
+              Open
+            </Link>
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button
+            size="sm"
+            variant="danger"
+            loading={busy === 'remove'}
+            disabled={busy !== null}
+            onClick={() => act('remove')}
+          >
+            Remove
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            loading={busy === 'dismiss'}
+            disabled={busy !== null}
+            onClick={() => act('dismiss')}
+          >
+            Dismiss
+          </Button>
+        </div>
+      </Card>
+    </li>
   );
 }
 

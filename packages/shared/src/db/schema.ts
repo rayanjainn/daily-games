@@ -18,13 +18,18 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
+  CONTENT_STATUSES,
   EMBED_MODES,
+  FLAIR_COLORS,
   FRIENDSHIP_STATUSES,
   GROUP_ROLES,
   GAME_CATEGORIES,
   GAME_REPORT_KINDS,
   GAME_STATUSES,
+  MAX_COMMENT_BODY,
   MAX_NOTE_LENGTH,
+  MAX_POST_BODY,
+  MAX_POST_TITLE,
   MAX_SOLUTION_LENGTH,
   MAX_SHARE_TEXT_LENGTH,
   PAIRING_STATUSES,
@@ -35,6 +40,7 @@ import {
   SOLUTION_STATUSES,
   SUBMISSION_STATUSES,
   USER_ROLES,
+  VOTE_TARGETS,
   DIFFICULTIES,
 } from '../domain';
 import { uuidv7 } from '../util/uuidv7';
@@ -555,6 +561,153 @@ export const groupMembers = pgTable(
     primaryKey({ columns: [t.groupId, t.userId] }),
     index('group_members_user_idx').on(t.userId),
     check('group_members_role_check', oneOf('role', GROUP_ROLES)),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Communities
+// ---------------------------------------------------------------------------
+
+/** The global community plus one per game (created the first time someone opens it). */
+export const communities = pgTable(
+  'communities',
+  {
+    id: id(),
+    slug: text('slug').notNull(),
+    name: text('name').notNull(),
+    description: text('description').notNull().default(''),
+    gameId: uuid('game_id').references(() => games.id, { onDelete: 'cascade' }),
+    rulesMd: text('rules_md').notNull().default(''),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('communities_slug_key').on(t.slug),
+    uniqueIndex('communities_game_key').on(t.gameId),
+  ],
+);
+
+export const flairs = pgTable(
+  'flairs',
+  {
+    id: id(),
+    communityId: uuid('community_id')
+      .notNull()
+      .references(() => communities.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    color: text('color').$type<(typeof FLAIR_COLORS)[number]>().notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('flairs_community_name_key').on(t.communityId, t.name),
+    check('flairs_color_check', oneOf('color', FLAIR_COLORS)),
+    check('flairs_name_length', sql`char_length(${t.name}) BETWEEN 1 AND 24`),
+  ],
+);
+
+export const posts = pgTable(
+  'posts',
+  {
+    id: id(),
+    communityId: uuid('community_id')
+      .notNull()
+      .references(() => communities.id, { onDelete: 'cascade' }),
+    authorId: uuid('author_id').references(() => users.id, { onDelete: 'set null' }),
+    title: text('title').notNull(),
+    bodyMd: text('body_md').notNull().default(''),
+    flairId: uuid('flair_id').references(() => flairs.id, { onDelete: 'set null' }),
+    /** The automatic thread for one puzzle of a game; comments on it are spoilers. */
+    isDailyThread: boolean('is_daily_thread').notNull().default(false),
+    puzzleNumber: integer('puzzle_number'),
+    spoiler: boolean('spoiler').notNull().default(false),
+    score: integer('score').notNull().default(0),
+    commentCount: integer('comment_count').notNull().default(0),
+    status: text('status').$type<(typeof CONTENT_STATUSES)[number]>().notNull().default('visible'),
+    createdAt: createdAt(),
+    lastActivityAt: timestamp('last_activity_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('posts_community_created_idx').on(t.communityId, t.createdAt),
+    uniqueIndex('posts_daily_thread_key')
+      .on(t.communityId, t.puzzleNumber)
+      .where(sql`${t.isDailyThread}`),
+    check('posts_status_check', oneOf('status', CONTENT_STATUSES)),
+    check(
+      'posts_title_length',
+      sql`char_length(${t.title}) BETWEEN 1 AND ${sql.raw(String(MAX_POST_TITLE))}`,
+    ),
+    check('posts_body_length', sql`char_length(${t.bodyMd}) <= ${sql.raw(String(MAX_POST_BODY))}`),
+  ],
+);
+
+/**
+ * Threaded comments. `path` is the chain of ids from the top-level comment down to this one
+ * ("a/b/c"); ids are time-ordered, so sorting by path gives threads in reply order.
+ */
+export const comments = pgTable(
+  'comments',
+  {
+    id: id(),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    parentId: uuid('parent_id'),
+    authorId: uuid('author_id').references(() => users.id, { onDelete: 'set null' }),
+    bodyMd: text('body_md').notNull(),
+    depth: smallint('depth').notNull().default(0),
+    path: text('path').notNull(),
+    spoiler: boolean('spoiler').notNull().default(false),
+    score: integer('score').notNull().default(0),
+    status: text('status').$type<(typeof CONTENT_STATUSES)[number]>().notNull().default('visible'),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index('comments_post_path_idx').on(t.postId, t.path),
+    check('comments_status_check', oneOf('status', CONTENT_STATUSES)),
+    check(
+      'comments_body_length',
+      sql`char_length(${t.bodyMd}) BETWEEN 1 AND ${sql.raw(String(MAX_COMMENT_BODY))}`,
+    ),
+  ],
+);
+
+export const votes = pgTable(
+  'votes',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    targetType: text('target_type').$type<(typeof VOTE_TARGETS)[number]>().notNull(),
+    targetId: uuid('target_id').notNull(),
+    value: smallint('value').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.targetType, t.targetId] }),
+    check('votes_target_check', oneOf('target_type', VOTE_TARGETS)),
+    check('votes_value_check', sql`${t.value} IN (-1, 1)`),
+  ],
+);
+
+/** Player reports on posts and comments, for the moderation queue. */
+export const contentReports = pgTable(
+  'content_reports',
+  {
+    id: id(),
+    reporterId: uuid('reporter_id').references(() => users.id, { onDelete: 'set null' }),
+    targetType: text('target_type').$type<(typeof VOTE_TARGETS)[number]>().notNull(),
+    targetId: uuid('target_id').notNull(),
+    reason: text('reason').notNull(),
+    status: text('status').$type<(typeof REPORT_STATUSES)[number]>().notNull().default('open'),
+    resolvedBy: uuid('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('content_reports_once_key').on(t.reporterId, t.targetType, t.targetId),
+    index('content_reports_status_idx').on(t.status, t.createdAt),
+    check('content_reports_target_check', oneOf('target_type', VOTE_TARGETS)),
+    check('content_reports_status_check', oneOf('status', REPORT_STATUSES)),
+    check('content_reports_reason_length', sql`char_length(${t.reason}) BETWEEN 1 AND 300`),
   ],
 );
 

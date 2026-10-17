@@ -35,6 +35,10 @@ const LIMITS = {
   'group-create': { tokens: 10, window: '1 d' },
   'group-join': { tokens: 30, window: '1 h' },
   'group-edit': { tokens: 120, window: '10 m' },
+  'post-create': { tokens: 10, window: '1 h' },
+  'comment-create': { tokens: 60, window: '10 m' },
+  vote: { tokens: 300, window: '10 m' },
+  'content-report': { tokens: 20, window: '1 d' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;
