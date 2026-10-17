@@ -36,7 +36,10 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
 
   const requestHeaders = new Headers(request.headers);
-  if (isPage) requestHeaders.set('x-nonce', nonce);
+  if (isPage) {
+    requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set('x-pathname', request.nextUrl.pathname + request.nextUrl.search);
+  }
   const response = NextResponse.next({ request: { headers: requestHeaders } });
 
   if (!request.cookies.get(CSRF_COOKIE)) {
