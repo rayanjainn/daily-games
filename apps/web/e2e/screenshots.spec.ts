@@ -294,6 +294,26 @@ const SETS: Record<string, Screen[]> = {
       },
     },
   ],
+  'month-recap': [
+    {
+      name: 'recap-month',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'tradle']);
+        await wordleHistory(u.id);
+        await played(u.id, 'connections', [0, 2, 3, 6, 9], { attempts: 4, maxAttempts: 4 });
+        await played(u.id, 'tradle', [1, 6], { source: 'checkbox' });
+        await page.goto('/recap');
+        await page.getByRole('link', { name: 'This month' }).click();
+        const img = page.getByTestId('share-image');
+        await expect(img).toHaveAttribute('src', /month=/);
+        await expect
+          .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBe(1080);
+      },
+    },
+  ],
   cards: [
     {
       name: 'recap',
