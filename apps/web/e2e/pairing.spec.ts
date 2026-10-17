@@ -1,9 +1,10 @@
+import type { Browser } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { apiPost, signUpViaUi } from './support/auth';
 import { e2eSql } from './support/db';
 import { addVirtualAuthenticator, expect, randomIp, test, type Page } from './support/fixtures';
 
-async function newDevice(browser: import('@playwright/test').Browser) {
+async function newDevice(browser: Browser) {
   const ctx = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
   const page = await ctx.newPage();
   await page.goto('/login/pair');
