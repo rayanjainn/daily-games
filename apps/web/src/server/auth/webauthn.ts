@@ -12,7 +12,7 @@ import { cookies } from 'next/headers';
 import { env } from '../env';
 import { randomToken } from '../crypto';
 import { redis } from '../redis';
-import { COOKIE, secureCookies } from '../request';
+import { COOKIE, clearCookie, secureCookies } from '../request';
 import { HttpError } from '../session';
 
 const CHALLENGE_TTL = 180;
@@ -45,7 +45,7 @@ async function storeChallenge(rec: StoredChallenge) {
 export async function takeChallenge(purpose: Purpose): Promise<StoredChallenge> {
   const jar = await cookies();
   const id = jar.get(COOKIE.challenge)?.value;
-  jar.delete(COOKIE.challenge);
+  await clearCookie(COOKIE.challenge);
   const rec =
     id && /^[A-Za-z0-9_-]{16,40}$/.test(id)
       ? await redis().getdel<StoredChallenge>(`wa:${id}`)

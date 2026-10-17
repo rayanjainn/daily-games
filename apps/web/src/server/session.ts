@@ -5,7 +5,7 @@ import { cache } from 'react';
 import { sessions, users, type User } from '@everydaily/shared/db';
 import { db } from './db';
 import { hashIp, randomToken, sha256 } from './crypto';
-import { COOKIE, clientIp, secureCookies, userAgent } from './request';
+import { COOKIE, clearCookie, clientIp, secureCookies, userAgent } from './request';
 
 const SESSION_DAYS = 30;
 /** Sliding expiry is refreshed at most this often, to avoid a write per request. */
@@ -59,7 +59,7 @@ export async function endSession() {
   const jar = await cookies();
   const token = jar.get(COOKIE.session)?.value;
   if (token) await revokeByToken(token);
-  jar.delete(COOKIE.session);
+  await clearCookie(COOKIE.session);
 }
 
 /** The signed-in user for this request, or null. Cached per request. */
