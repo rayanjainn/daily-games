@@ -24,11 +24,13 @@ test.describe('visual regression', () => {
       await page.goto('/today');
       await settle(page);
       await expect(page).toHaveScreenshot(`dashboard-${theme}.png`, {
-        // The date, greeting (random test username) and puzzle numbers change between runs.
+        // The date, greeting (random test username) and puzzle numbers change between runs, and
+        // which games are picked depends on what other test players follow.
         mask: [
           page.getByTestId('today-date'),
           page.getByRole('heading', { level: 1 }),
           page.getByTestId('puzzle-label'),
+          page.getByTestId('picks').getByRole('list'),
         ],
       });
     });
