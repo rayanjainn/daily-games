@@ -96,7 +96,7 @@ test.describe('catalog', () => {
     await expect.poll(() => follows(user.id)).toEqual(['wordle']);
 
     await page.goto('/games?q=globle');
-    await page.getByRole('button', { name: 'Follow Globle' }).click();
+    await page.getByRole('button', { name: 'Follow Globle', exact: true }).click();
     await expect.poll(() => follows(user.id)).toEqual(['wordle', 'globle']);
 
     await page.goto('/games?following=1');
