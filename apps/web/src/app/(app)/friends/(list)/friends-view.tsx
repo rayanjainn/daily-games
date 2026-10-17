@@ -1,6 +1,6 @@
 'use client';
 
-import { Ban, Check, Swords, UserPlus, X } from 'lucide-react';
+import { Ban, Check, Swords, UserPlus, UsersRound, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
@@ -25,6 +25,16 @@ export function FriendsView({ me, lists }: { me: string; lists: FriendLists }) {
           Add friends by player name to compare results game by game.
         </p>
       </div>
+      <Link
+        href="/groups"
+        className="flex items-center justify-between gap-3 rounded-lg border-[length:var(--bw)] border-line bg-sky p-4 text-on-sky shadow-lift-sm"
+      >
+        <span>
+          <span className="block font-display text-lg font-semibold">Groups</span>
+          <span className="text-sm">Private leaderboards for friends, family or a team.</span>
+        </span>
+        <UsersRound className="size-6 shrink-0" aria-hidden />
+      </Link>
       <AddFriend me={me} />
       {lists.incoming.length ? (
         <Card asSection className="flex flex-col gap-3 p-5" aria-labelledby="incoming-heading">
