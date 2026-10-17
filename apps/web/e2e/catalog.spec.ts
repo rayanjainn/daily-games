@@ -45,6 +45,8 @@ test.describe('catalog', () => {
     await expect(page).toHaveURL(/\?q=ordle/);
 
     await page.getByLabel('Search games').fill('');
+    // The query is debounced; wait until it has really cleared before counting.
+    await expect(page).not.toHaveURL(/[?&]q=/);
     await page
       .getByRole('group', { name: 'Category' })
       .getByRole('button', { name: /Geography/ })
