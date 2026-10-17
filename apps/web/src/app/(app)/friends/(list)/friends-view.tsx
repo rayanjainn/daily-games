@@ -3,7 +3,7 @@
 import { Ban, Check, Swords, UserPlus, UsersRound, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -16,7 +16,16 @@ import type { FriendLists } from '@/server/friends';
 const errorText = (err: unknown) =>
   err instanceof ApiError ? err.message : 'Something went wrong. Try again.';
 
-export function FriendsView({ me, lists }: { me: string; lists: FriendLists }) {
+export function FriendsView({
+  me,
+  lists,
+  children,
+}: {
+  me: string;
+  lists: FriendLists;
+  /** The friends leaderboard, rendered on the server. */
+  children?: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -36,6 +45,7 @@ export function FriendsView({ me, lists }: { me: string; lists: FriendLists }) {
         <UsersRound className="size-6 shrink-0" aria-hidden />
       </Link>
       <AddFriend me={me} />
+      {children}
       {lists.incoming.length ? (
         <Card asSection className="flex flex-col gap-3 p-5" aria-labelledby="incoming-heading">
           <h2 id="incoming-heading" className="text-xl">
