@@ -15,7 +15,9 @@
     "test:watch": "vitest",
     "check:history": "bash scripts/check-history.sh",
     "db:migrate": "pnpm --filter @everydaily/scripts exec tsx db-migrate.ts",
-    "db:generate": "pnpm --filter @everydaily/shared db:generate"
+    "db:generate": "pnpm --filter @everydaily/shared db:generate",
+    "seed:games": "pnpm --filter @everydaily/scripts exec tsx seed-games.ts",
+    "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
