@@ -1,4 +1,4 @@
-import { CalendarCheck, Gamepad2, Settings } from 'lucide-react';
+import { CalendarCheck, Gamepad2, Settings, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/brand/logo';
@@ -10,11 +10,13 @@ const NAV = [
   { href: '/games', label: 'Games', icon: Gamepad2 },
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
+const ADMIN = { href: '/admin', label: 'Admin', icon: ShieldCheck } as const;
 
 /**
  * Signed-in frame: top bar with nav on larger screens; a thumb-reachable tab bar on phones.
  */
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, isMod = false }: { children: ReactNode; isMod?: boolean }) {
+  const nav = isMod ? [...NAV, ADMIN] : NAV;
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -29,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Logo className="[&_span]:max-[360px]:hidden" />
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <NavLink key={n.href} href={n.href} variant="top">
                 <n.icon className="size-4" aria-hidden />
                 {n.label}
@@ -48,8 +50,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-30 border-t-[length:var(--bw)] border-line bg-surface pb-[env(safe-area-inset-bottom)] sm:hidden"
       >
-        <ul className="grid grid-cols-3">
-          {NAV.map((n) => (
+        <ul className={isMod ? 'grid grid-cols-4' : 'grid grid-cols-3'}>
+          {nav.map((n) => (
             <li key={n.href}>
               <NavLink href={n.href} variant="tab">
                 <n.icon className="size-6" aria-hidden />

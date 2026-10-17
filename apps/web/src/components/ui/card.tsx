@@ -28,8 +28,12 @@ export const cardVariants = cva(
   },
 );
 
-export interface CardProps extends ComponentProps<'div'>, VariantProps<typeof cardVariants> {}
+export interface CardProps extends ComponentProps<'div'>, VariantProps<typeof cardVariants> {
+  /** Render as a <section> (pair with aria-labelledby pointing at the card's heading). */
+  asSection?: boolean;
+}
 
-export function Card({ className, lift, interactive, tone, ...props }: CardProps) {
-  return <div className={cn(cardVariants({ lift, interactive, tone }), className)} {...props} />;
+export function Card({ className, lift, interactive, tone, asSection, ...props }: CardProps) {
+  const Tag = asSection ? 'section' : 'div';
+  return <Tag className={cn(cardVariants({ lift, interactive, tone }), className)} {...props} />;
 }
