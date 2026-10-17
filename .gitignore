@@ -18,3 +18,6 @@ blob-report/
 .vercel
 .local/
 next-env.d.ts
+
+# Local Redis snapshots
+dump.rdb
