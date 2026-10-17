@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- One colour, shape only: Android tints it for themed icons. -->
+  <rect x="4.5" y="4.5" width="39" height="39" rx="10.5" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <circle cx="15" cy="15" r="4.5" fill="#FFFFFF"/>
+  <rect x="23" y="12.5" width="15" height="5" rx="2.5" fill="#FFFFFF"/>
+  <circle cx="15" cy="24" r="3.5" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+  <rect x="23" y="21.5" width="12" height="5" rx="2.5" fill="#FFFFFF"/>
+  <circle cx="15" cy="33" r="3.5" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+  <rect x="23" y="30.5" width="9" height="5" rx="2.5" fill="#FFFFFF"/>
+</svg>

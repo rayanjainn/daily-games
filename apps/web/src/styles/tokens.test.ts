@@ -64,6 +64,22 @@ const TEXT_PAIRS: [fg: string, bg: string][] = [
   ['warn', 'warn-soft'],
   ['danger', 'danger-soft'],
   ['info', 'info-soft'],
+  ['cat-word', 'cat-word-soft'],
+  ['cat-word', 'surface'],
+  ['cat-geography', 'cat-geography-soft'],
+  ['cat-geography', 'surface'],
+  ['cat-logic', 'cat-logic-soft'],
+  ['cat-logic', 'surface'],
+  ['cat-trivia', 'cat-trivia-soft'],
+  ['cat-trivia', 'surface'],
+  ['cat-crossword', 'cat-crossword-soft'],
+  ['cat-crossword', 'surface'],
+  ['cat-math', 'cat-math-soft'],
+  ['cat-math', 'surface'],
+  ['cat-music', 'cat-music-soft'],
+  ['cat-music', 'surface'],
+  ['cat-visual', 'cat-visual-soft'],
+  ['cat-visual', 'surface'],
 ];
 
 describe.each([

@@ -84,7 +84,14 @@ export function TodayView({
           </p>
         </div>
         <div className="flex items-center gap-5 self-center sm:self-auto">
-          {total > 0 ? <ProgressRing value={done} max={total} size={112} /> : null}
+          {total > 0 ? (
+            <ProgressRing
+              value={done}
+              max={total}
+              size={112}
+              segments={items.filter((i) => i.done).map((i) => i.game.accentColor)}
+            />
+          ) : null}
           <div
             className="flex flex-col items-center gap-1 text-center"
             data-testid="combined-streak"
@@ -217,6 +224,13 @@ function ChecklistRow({
   const { game, done, streak } = item;
   // Set when the player comes back from playing, which opens the log sheet.
   const [returned, setReturned] = useState(false);
+  // Flip the tile only when it turns done while the page is open, not on load.
+  const wasDone = useRef(Boolean(done));
+  const [flip, setFlip] = useState(false);
+  useEffect(() => {
+    if (done && !wasDone.current) setFlip(true);
+    wasDone.current = Boolean(done);
+  }, [done]);
   return (
     <li
       data-testid="checklist-item"
@@ -231,7 +245,9 @@ function ChecklistRow({
           className={cn(
             'grid size-9 shrink-0 place-items-center rounded-full border-[length:var(--bw)] border-line',
             done ? 'bg-mint text-on-mint' : 'bg-surface-2 text-transparent',
+            flip && 'animate-tile-flip',
           )}
+          data-flipped={flip ? 'true' : undefined}
           aria-hidden
         >
           <Check className="size-5" strokeWidth={3} />

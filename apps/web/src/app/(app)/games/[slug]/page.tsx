@@ -10,11 +10,11 @@ import {
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import { clockFromGame } from '@everydaily/shared/registry';
 import { formatResult } from '@everydaily/shared/stats/format';
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { ArchiveTracker } from '@/components/game/archive-tracker';
+import { CategoryBadge } from '@/components/game/category-badge';
 import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
 import { GameNotes } from '@/components/game/game-notes';
@@ -116,7 +116,7 @@ export default async function GamePage({ params }: { params: Params }) {
               <Badge tone={game.tier === 1 ? 'grape' : game.tier === 2 ? 'sky' : 'neutral'}>
                 {TRACKING[game.tier].label}
               </Badge>
-              <Badge>{CATEGORY_LABELS[game.category]}</Badge>
+              <CategoryBadge category={game.category} />
               <Badge>{DIFFICULTY_LABELS[game.difficulty]}</Badge>
               <Badge>{EMBED_LABELS[game.embedMode]}</Badge>
             </div>

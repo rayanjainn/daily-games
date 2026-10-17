@@ -11,6 +11,7 @@ export function ProgressRing({
   color = 'var(--mint)',
   label,
   sublabel,
+  segments,
   className,
 }: {
   value: number;
@@ -20,6 +21,8 @@ export function ProgressRing({
   color?: string;
   label?: ReactNode;
   sublabel?: ReactNode;
+  /** One colour per completed item (in order): the ring fills in each game's colour. */
+  segments?: string[];
   className?: string;
 }) {
   const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
@@ -53,22 +56,47 @@ export function ProgressRing({
         <circle cx={c} cy={c + 3} r={r} fill="none" stroke="var(--edge)" strokeWidth={stroke + 5} />
         <circle cx={c} cy={c} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke + 5} />
         <circle cx={c} cy={c} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={stroke} />
-        <circle
-          cx={c}
-          cy={c}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          pathLength={1}
-          strokeDasharray="1 1"
-          strokeDashoffset={1 - shown}
-          style={{
-            opacity: pct === 0 ? 0 : 1,
-            transition: 'stroke-dashoffset 700ms var(--ease-out)',
-          }}
-        />
+        {segments?.length && max > 0 ? (
+          segments.slice(0, max).map((segColor, i) => {
+            // Each item owns 1/max of the ring, drawn up to how far the fill has got.
+            const share = 1 / max;
+            const drawn = Math.min(share, Math.max(0, shown - i * share));
+            const gap = max > 1 ? Math.min(0.012, share / 4) : 0;
+            return (
+              <circle
+                key={i}
+                cx={c}
+                cy={c}
+                r={r}
+                fill="none"
+                stroke={segColor}
+                strokeWidth={stroke}
+                pathLength={1}
+                strokeDasharray={`${Math.max(0, drawn - gap)} 1`}
+                strokeDashoffset={-i * share}
+                data-segment={i}
+                style={{ transition: 'stroke-dasharray 700ms var(--ease-out)' }}
+              />
+            );
+          })
+        ) : (
+          <circle
+            cx={c}
+            cy={c}
+            r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            pathLength={1}
+            strokeDasharray="1 1"
+            strokeDashoffset={1 - shown}
+            style={{
+              opacity: pct === 0 ? 0 : 1,
+              transition: 'stroke-dashoffset 700ms var(--ease-out)',
+            }}
+          />
+        )}
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div className="flex flex-col items-center leading-none">

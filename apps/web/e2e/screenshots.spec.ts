@@ -131,6 +131,32 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  polish: [
+    {
+      name: 'polish-games',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games');
+        await expect(page.getByTestId('game-card').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'polish-today',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands', 'globle', 'tradle']);
+        await played(u.id, 'wordle', [0, 1], { attempts: 3, maxAttempts: 6 });
+        await played(u.id, 'connections', [0], { attempts: 4, maxAttempts: 4 });
+        await played(u.id, 'globle', [0], { attempts: 5 });
+        await page.goto('/today');
+        await expect(page.getByRole('progressbar').locator('[data-segment]')).toHaveCount(3);
+      },
+    },
+  ],
   email: [
     {
       name: 'email-unconfirmed',

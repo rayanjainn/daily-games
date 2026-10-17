@@ -69,6 +69,7 @@
   --animate-pop-in: pop-in var(--dur-base) var(--ease-bounce) both;
   --animate-shake: shake 360ms var(--ease-out) both;
   --animate-flicker: flicker 1.6s ease-in-out infinite;
+  --animate-tile-flip: tile-flip 520ms var(--ease-out) both;
 }
 
 @keyframes pop-in {
@@ -90,6 +91,19 @@
   40%,
   80% {
     transform: translateX(6px);
+  }
+}
+
+/* A game tile turning over when it's ticked off, like a revealed letter. */
+@keyframes tile-flip {
+  0% {
+    transform: perspective(240px) rotateX(0deg) scale(1);
+  }
+  45% {
+    transform: perspective(240px) rotateX(90deg) scale(1.08);
+  }
+  100% {
+    transform: perspective(240px) rotateX(0deg) scale(1);
   }
 }
 

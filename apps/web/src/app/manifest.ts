@@ -19,6 +19,13 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       { src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+      // One-colour shape for Android themed icons.
+      {
+        src: '/icons/monochrome-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'monochrome',
+      },
     ],
     shortcuts: [
       { name: 'Today', url: '/today?source=shortcut' },
