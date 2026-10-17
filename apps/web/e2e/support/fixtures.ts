@@ -22,13 +22,20 @@ export interface VirtualAuthenticator {
 }
 
 /** Chrome DevTools Protocol virtual authenticator: a platform passkey with user verification. */
-export async function addVirtualAuthenticator(page: Page): Promise<VirtualAuthenticator> {
+/**
+ * `internal` is a platform authenticator (Touch ID / Windows Hello); Chrome allows one. Use `usb`
+ * for a roaming security key.
+ */
+export async function addVirtualAuthenticator(
+  page: Page,
+  transport: 'internal' | 'usb' = 'internal',
+): Promise<VirtualAuthenticator> {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('WebAuthn.enable', { enableUI: false });
   const { authenticatorId } = await cdp.send('WebAuthn.addVirtualAuthenticator', {
     options: {
       protocol: 'ctap2',
-      transport: 'internal',
+      transport,
       hasResidentKey: true,
       hasUserVerification: true,
       isUserVerified: true,

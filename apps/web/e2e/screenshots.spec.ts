@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { fillConfirmation, solveGateInUi } from './support/auth';
+import { fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
 import { addVirtualAuthenticator, expect, test } from './support/fixtures';
 import { THEMES, VIEWPORTS, capture, shotsDir } from './support/shots';
 
@@ -30,6 +30,18 @@ async function toPhraseStep(page: Page) {
   await expect(page.getByTestId('recovery-phrase').locator('[data-word]')).toHaveCount(6);
 }
 
+async function signedIn(page: Page) {
+  await addVirtualAuthenticator(page);
+  await signUpViaUi(page);
+}
+
+const noAutofill = async (page: Page) => {
+  await page.addInitScript(() => {
+    PublicKeyCredential.isConditionalMediationAvailable = async () => false;
+  });
+  await page.reload();
+};
+
 const SETS: Record<string, Screen[]> = {
   styleguide: [
     { name: 'styleguide', path: '/styleguide' },
@@ -49,6 +61,47 @@ const SETS: Record<string, Screen[]> = {
       setup: async (page) => {
         await page.getByRole('button', { name: 'Success toast' }).click();
         await page.getByRole('button', { name: 'Error toast' }).click();
+      },
+    },
+  ],
+  login: [
+    { name: 'login', path: '/login', setup: noAutofill },
+    {
+      name: 'login-error',
+      path: '/login',
+      setup: async (page) => {
+        await page.addInitScript(() => {
+          PublicKeyCredential.isConditionalMediationAvailable = async () => false;
+          navigator.credentials.get = () =>
+            Promise.reject(new DOMException('cancelled', 'NotAllowedError'));
+        });
+        await page.reload();
+        await page.getByRole('button', { name: 'Sign in with passkey' }).click();
+        await expect(page.getByRole('alert').filter({ hasText: 'passkey prompt' })).toBeVisible();
+      },
+    },
+    { name: 'recover', path: '/login/recover' },
+    {
+      name: 'recover-error',
+      path: '/login/recover',
+      setup: async (page) => {
+        await page
+          .getByLabel('Player name')
+          .fill(`someone_${Math.random().toString(36).slice(2, 7)}`);
+        await page.getByLabel('Recovery phrase').fill('abandon ability able about above absent');
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await expect(page.getByRole('alert').filter({ hasText: "don't match" })).toBeVisible({
+          timeout: 20_000,
+        });
+      },
+    },
+    {
+      name: 'add-passkey',
+      path: '/',
+      setup: async (page) => {
+        await signedIn(page);
+        await page.goto('/login/add-passkey?next=/today');
+        await expect(page.getByRole('heading', { name: "You're in!" })).toBeVisible();
       },
     },
   ],
