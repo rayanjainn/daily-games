@@ -24,6 +24,11 @@ export async function apiPost(
   });
 }
 
+/** Like apiPost, for PATCH and DELETE. */
+export async function apiSend(page: Page, method: 'PATCH' | 'DELETE', path: string, body: unknown) {
+  return page.request.fetch(path, { method, data: body, headers: await csrfHeaders(page) });
+}
+
 /** Completes the whole sign-up wizard in the UI and returns the recovery phrase. */
 export async function signUpViaUi(
   page: Page,

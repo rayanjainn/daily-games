@@ -23,6 +23,8 @@ const LIMITS = {
   'admin-edit': { tokens: 120, window: '10 m' },
   'result-preview': { tokens: 120, window: '10 m' },
   'result-log': { tokens: 60, window: '10 m' },
+  // Notes autosave while typing; generous but bounded.
+  'note-save': { tokens: 240, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;

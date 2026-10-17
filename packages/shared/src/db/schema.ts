@@ -22,6 +22,7 @@ import {
   GAME_CATEGORIES,
   GAME_REPORT_KINDS,
   GAME_STATUSES,
+  MAX_NOTE_LENGTH,
   MAX_SHARE_TEXT_LENGTH,
   PAIRING_STATUSES,
   REPORT_STATUSES,
@@ -403,6 +404,29 @@ export const results = pgTable(
     check(
       'results_time_range',
       sql`${t.timeSeconds} IS NULL OR (${t.timeSeconds} >= 0 AND ${t.timeSeconds} < 86400)`,
+    ),
+  ],
+);
+
+/** One private notepad per player and game: strategies, openers, things learned. */
+export const gameNotes = pgTable(
+  'game_notes',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    body: text('body').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.gameId] }),
+    check(
+      'game_notes_body_length',
+      sql`char_length(${t.body}) <= ${sql.raw(String(MAX_NOTE_LENGTH))}`,
     ),
   ],
 );

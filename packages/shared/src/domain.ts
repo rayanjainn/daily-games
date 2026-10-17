@@ -72,3 +72,5 @@ export const USER_ROLES = ['user', 'mod', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const MAX_SHARE_TEXT_LENGTH = 4096;
+/** Private per-game notes (strategies, things learned). */
+export const MAX_NOTE_LENGTH = 4000;

@@ -180,6 +180,7 @@ test.describe('settings', () => {
     const data = JSON.parse(text);
     expect(data.account.username).toBe(username);
     expect(data.passkeys).toHaveLength(1);
+    expect(data.notes).toEqual([]);
     expect(text).not.toMatch(/publicKey|public_key|hash|argon2|token/i);
   });
 
