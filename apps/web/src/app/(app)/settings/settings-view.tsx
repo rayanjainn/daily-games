@@ -18,6 +18,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { InstallApp } from '@/components/pwa/install-app';
+import { EmailSettings, type EmailSettingsProps } from '@/components/reminders/email-settings';
 import {
   ReminderSettings,
   type ReminderSettingsProps,
@@ -53,6 +54,7 @@ interface Props {
   sessions: SessionRow[];
   recovery: { exists: boolean; confirmed: boolean; createdAt: string | null };
   reminders: ReminderSettingsProps;
+  email: EmailSettingsProps;
 }
 
 const fmt = (iso: string | null) =>
@@ -97,7 +99,7 @@ function Section({
   );
 }
 
-export function SettingsView({ user, passkeys, sessions, recovery, reminders }: Props) {
+export function SettingsView({ user, passkeys, sessions, recovery, reminders, email }: Props) {
   const atRisk = !user.email && (passkeys.length <= 1 || !recovery.confirmed);
   return (
     <div className="flex flex-col gap-5">
@@ -125,6 +127,7 @@ export function SettingsView({ user, passkeys, sessions, recovery, reminders }: 
       <ProfileSection user={user} />
       <InstallApp />
       <ReminderSettings {...reminders} />
+      <EmailSettings {...email} />
       <PasskeysSection passkeys={passkeys} />
       <RecoverySection recovery={recovery} />
       <SessionsSection sessions={sessions} />

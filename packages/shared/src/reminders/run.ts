@@ -29,8 +29,10 @@ const sameSlot = (col: unknown, now: Date) => sql`
      + extract(minute from (${now.toISOString()}::timestamptz AT TIME ZONE ${users.timezone})))::int
      / ${SLOT_MINUTES})`;
 
-const canReceive = sql`${users.deletedAt} IS NULL AND EXISTS (
-  SELECT 1 FROM ${pushSubscriptions} WHERE ${pushSubscriptions.userId} = ${users.id})`;
+/** Not deleted, and reachable: a push device, or a verified email with email reminders on. */
+const canReceive = sql`${users.deletedAt} IS NULL AND (EXISTS (
+  SELECT 1 FROM ${pushSubscriptions} WHERE ${pushSubscriptions.userId} = ${users.id})
+  OR (${users.emailReminders} AND ${users.emailVerifiedAt} IS NOT NULL))`;
 
 const hhmm = (t: string | null) => (t ? t.slice(0, 5) : null);
 

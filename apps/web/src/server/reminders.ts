@@ -27,6 +27,7 @@ export const reminderPrefsSchema = z
   .object({
     streakNudgeAt: clockTime.nullable().optional(),
     quietHours: z.object({ start: clockTime, end: clockTime }).strict().nullable().optional(),
+    emailReminders: z.boolean().optional(),
   })
   .strict();
 
@@ -38,6 +39,8 @@ export interface ReminderSettings {
   streakNudgeAt: string | null;
   quietHours: { start: string; end: string } | null;
   games: { gameId: string; name: string; remindAt: string | null }[];
+  /** null when the account has no verified email. */
+  emailReminders: boolean | null;
 }
 
 export async function getReminderSettings(user: {
@@ -45,6 +48,8 @@ export async function getReminderSettings(user: {
   streakNudgeAt: string | null;
   quietHoursStart: string | null;
   quietHoursEnd: string | null;
+  emailVerifiedAt: Date | null;
+  emailReminders: boolean;
 }): Promise<ReminderSettings> {
   const [devices, rows] = await Promise.all([
     db()
@@ -66,6 +71,7 @@ export async function getReminderSettings(user: {
     streakNudgeAt: hhmm(user.streakNudgeAt),
     quietHours: start && end ? { start, end } : null,
     games: rows.map((r) => ({ ...r, remindAt: hhmm(r.remindAt) })),
+    emailReminders: user.emailVerifiedAt ? user.emailReminders : null,
   };
 }
 
@@ -98,8 +104,17 @@ export async function removeSubscription(userId: string, endpoint: string) {
     .where(and(eq(pushSubscriptions.userId, userId), eq(pushSubscriptions.endpoint, endpoint)));
 }
 
-export async function saveReminderPrefs(userId: string, p: z.infer<typeof reminderPrefsSchema>) {
+export async function saveReminderPrefs(
+  user: { id: string; emailVerifiedAt: Date | null },
+  p: z.infer<typeof reminderPrefsSchema>,
+) {
+  const userId = user.id;
   const set: Partial<typeof users.$inferInsert> = {};
+  if (p.emailReminders !== undefined) {
+    if (p.emailReminders && !user.emailVerifiedAt)
+      throw new HttpError(422, 'email_unverified', 'Confirm your email first.');
+    set.emailReminders = p.emailReminders;
+  }
   if (p.streakNudgeAt !== undefined) set.streakNudgeAt = p.streakNudgeAt;
   if (p.quietHours !== undefined) {
     set.quietHoursStart = p.quietHours?.start ?? null;

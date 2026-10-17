@@ -37,6 +37,13 @@ const groups = {
     /** "off", "admin" (mods and admins only, the launch default) or "all" signed-in players */
     FEATURE_SUBMISSIONS: z.enum(['off', 'admin', 'all']).default('admin'),
   }),
+  email: z.object({
+    /** Optional: email verification and email reminders are off without both. */
+    RESEND_API_KEY: z.string().min(8).optional(),
+    EMAIL_FROM: z.string().min(3).optional(),
+    /** Local development and tests only (APP_URL on localhost): write emails as JSON files here. */
+    EMAIL_DEV_OUTBOX: z.string().optional(),
+  }),
   push: z.object({
     /** VAPID public key (base64url); without it the Reminders section explains it is off. */
     NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(80).optional(),

@@ -16,6 +16,7 @@ export interface ReminderSettingsProps {
   streakNudgeAt: string | null;
   quietHours: { start: string; end: string } | null;
   games: { gameId: string; name: string; remindAt: string | null }[];
+  emailReminders: boolean | null;
 }
 
 type DeviceState = 'checking' | 'unsupported' | 'needs-install' | 'blocked' | 'off' | 'on';
@@ -233,6 +234,7 @@ export function ReminderSettings(props: ReminderSettingsProps) {
           </div>
         )}
 
+        <EmailReminders initial={props.emailReminders} />
         <StreakNudge initial={props.streakNudgeAt} />
         <QuietHours initial={props.quietHours} />
         <GameTimes games={props.games} />
@@ -252,6 +254,32 @@ function useSaver() {
       return false;
     }
   };
+}
+
+function EmailReminders({ initial }: { initial: boolean | null }) {
+  const save = useSaver();
+  const [on, setOn] = useState(Boolean(initial));
+  const id = useId();
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <label htmlFor={id} className="font-display text-sm font-semibold">
+        Also email me
+        <span className="block font-body text-xs font-normal text-ink-soft">
+          {initial === null
+            ? 'Add and confirm an email address in the Email section to get reminders by email too.'
+            : 'The same reminders, sent to your confirmed email.'}
+        </span>
+      </label>
+      <Switch
+        id={id}
+        checked={on}
+        disabled={initial === null}
+        onCheckedChange={async (v) => {
+          if (await save('/api/me/reminders', { emailReminders: v })) setOn(v);
+        }}
+      />
+    </div>
+  );
 }
 
 function StreakNudge({ initial }: { initial: string | null }) {

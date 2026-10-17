@@ -135,6 +135,7 @@ changes. Two cron triggers run (`[triggers]`):
    | `WORKER_INTERNAL_URL`                                 | `https://rt.everydaily.raycode.tech`     |
    | `REALTIME_SIGNING_KEY`, `INTERNAL_BROADCAST_SECRET`   | from step 1                              |
    | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`                        | VAPID public key from step 1             |
+   | `RESEND_API_KEY`, `EMAIL_FROM` (optional)             | see "Optional: email" below              |
 
    Do not set `ENABLE_STYLEGUIDE` in production.
 
@@ -143,6 +144,20 @@ changes. Two cron triggers run (`[triggers]`):
    the proxy **off** (grey cloud), so Vercel can issue the certificate.
 5. Check: `curl https://everydaily.raycode.tech/api/health` → `{"ok":true,…}` (503 means the
    database or Redis is unreachable; check the URLs).
+
+## Optional: email
+
+Email is only used to confirm an address and, if a player turns it on, to send the same
+reminders as push. Without it the app works and the Email section says it isn't set up.
+
+1. In [Resend](https://resend.com) add and verify the domain `everydaily.raycode.tech` (it gives
+   you DNS records to add in Cloudflare), then create an API key.
+2. Vercel: set `RESEND_API_KEY` and `EMAIL_FROM` (for example
+   `EveryDaily <hello@everydaily.raycode.tech>`).
+3. Worker: `pnpm exec wrangler secret put RESEND_API_KEY`, and uncomment `EMAIL_FROM` in
+   `wrangler.toml` with the same sender.
+
+Never set `EMAIL_DEV_OUTBOX` in production; it only works when `APP_URL` is localhost anyway.
 
 ## 6. After the first deploy
 

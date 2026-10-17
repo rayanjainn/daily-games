@@ -9,8 +9,12 @@ VAPID_SUBJECT = "mailto:hello@everydaily.raycode.tech"
 DEV_ROUTES = "0"
 APP_URL = "https://everydaily.raycode.tech"
 
+# Optional email reminders: the sender address on a domain verified in Resend.
+# EMAIL_FROM = "EveryDaily <reminders@everydaily.raycode.tech>"
+
 # Secrets (wrangler secret put …):
 #   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, REALTIME_PUBLIC_KEY, INTERNAL_BROADCAST_SECRET
+#   RESEND_API_KEY (optional, for email reminders)
 
 [[durable_objects.bindings]]
 name = "ROOMS"

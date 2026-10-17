@@ -76,6 +76,8 @@ export const users = pgTable(
     quietHoursEnd: time('quiet_hours_end'),
     /** Local time for the daily "streak at risk" nudge; null = off. */
     streakNudgeAt: time('streak_nudge_at'),
+    /** Also send reminders by email (only once the address is verified). */
+    emailReminders: boolean('email_reminders').notNull().default(false),
     spoilerSafe: boolean('spoiler_safe').notNull().default(true),
     prefs: jsonb('prefs')
       .$type<{ sound?: boolean; haptics?: boolean; reducedMotion?: boolean }>()
