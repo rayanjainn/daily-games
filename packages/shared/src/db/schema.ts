@@ -74,6 +74,8 @@ export const users = pgTable(
     timezone: text('timezone').notNull().default('UTC'),
     quietHoursStart: time('quiet_hours_start'),
     quietHoursEnd: time('quiet_hours_end'),
+    /** Local time for the daily "streak at risk" nudge; null = off. */
+    streakNudgeAt: time('streak_nudge_at'),
     spoilerSafe: boolean('spoiler_safe').notNull().default(true),
     prefs: jsonb('prefs')
       .$type<{ sound?: boolean; haptics?: boolean; reducedMotion?: boolean }>()
@@ -352,9 +354,17 @@ export const follows = pgTable(
       .notNull()
       .references(() => games.id, { onDelete: 'cascade' }),
     position: integer('position').notNull().default(0),
+    /** Local time to remind the player if today's puzzle isn't logged yet; null = off. */
+    remindAt: time('remind_at'),
     createdAt: createdAt(),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.gameId] }), index('follows_game_idx').on(t.gameId)],
+  (t) => [
+    primaryKey({ columns: [t.userId, t.gameId] }),
+    index('follows_game_idx').on(t.gameId),
+    index('follows_remind_idx')
+      .on(t.remindAt)
+      .where(sql`${t.remindAt} IS NOT NULL`),
+  ],
 );
 
 export type ResultDetails = {
@@ -473,6 +483,53 @@ export const solutions = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Reminders
+// ---------------------------------------------------------------------------
+
+/** A browser's Web Push subscription. One player can have several devices. */
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    /** "Chrome on Android"-style label so players can tell devices apart. */
+    label: text('label'),
+    lastSuccessAt: timestamp('last_success_at', { withTimezone: true }),
+    failures: integer('failures').notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('push_subscriptions_endpoint_key').on(t.endpoint),
+    index('push_subscriptions_user_idx').on(t.userId),
+    check('push_subscriptions_endpoint_https', sql`${t.endpoint} ~ '^https://'`),
+  ],
+);
+
+/**
+ * One row per reminder sent, keyed so a cron run that repeats (or overlaps) never sends the same
+ * reminder twice: "game:<gameId>:<puzzle>" or "streak:<local date>". Pruned after two weeks.
+ */
+export const reminderDeliveries = pgTable(
+  'reminder_deliveries',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    key: text('key').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.key] }),
+    index('reminder_deliveries_created_idx').on(t.createdAt),
+  ],
+);
+
 /** Cache derived from results; recomputed on every result write. Never the source of truth. */
 export const streaks = pgTable(
   'streaks',
@@ -519,6 +576,7 @@ export type Game = typeof games.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
 export type Result = typeof results.$inferSelect;
 export type Solution = typeof solutions.$inferSelect;
+export type PushSubscriptionRow = typeof pushSubscriptions.$inferSelect;
 export type NewResult = typeof results.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type PasskeyCredential = typeof passkeyCredentials.$inferSelect;
