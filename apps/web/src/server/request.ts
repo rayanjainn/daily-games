@@ -39,3 +39,17 @@ export async function deviceId(): Promise<string> {
 export async function userAgent(): Promise<string | null> {
   return (await headers()).get('user-agent')?.slice(0, 300) ?? null;
 }
+
+/**
+ * Deletes a cookie set by us. `__Host-` cookies are only replaced when the deletion carries the
+ * same Secure + Path=/ attributes, so a bare `cookies().delete(name)` is silently ignored.
+ */
+export async function clearCookie(name: string) {
+  (await cookies()).set(name, '', {
+    httpOnly: true,
+    secure: secureCookies(),
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+}
