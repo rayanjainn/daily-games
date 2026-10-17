@@ -1,4 +1,11 @@
-import { ArrowLeft, CalendarDays, History as HistoryIcon, Info, TriangleAlert } from 'lucide-react';
+import {
+  ArrowLeft,
+  CalendarDays,
+  History as HistoryIcon,
+  Info,
+  NotebookPen,
+  TriangleAlert,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -9,6 +16,7 @@ import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { ArchiveTracker } from '@/components/game/archive-tracker';
 import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
+import { GameNotes } from '@/components/game/game-notes';
 import { TodayLog } from '@/components/game/today-log';
 import { Distribution, Heatmap, History, StatTiles } from '@/components/stats/game-stats';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +25,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING, siteOf } from '@/lib/catalog-labels';
 import { describeReset } from '@/lib/reset-copy';
 import { attributionLine, followedAt, getGameBySlug, toCatalogGame } from '@/server/catalog';
+import { getNote } from '@/server/notes';
 import { existingResult } from '@/server/results';
 import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
@@ -47,7 +56,7 @@ export default async function GamePage({ params }: { params: Params }) {
   const site = siteOf(game.url);
   // The tracker needs the follow date, so stats wait for it; today's result doesn't.
   const followed = followedAt(user.id, row.id);
-  const [following, view, todays] = await Promise.all([
+  const [following, view, todays, note] = await Promise.all([
     followed.then(Boolean),
     followed.then((f) => getGameStats(user, row, f)),
     existingResult(
@@ -55,6 +64,7 @@ export default async function GamePage({ params }: { params: Params }) {
       row.id,
       currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
     ),
+    getNote(user.id, row.id),
   ]);
   const loggable = {
     slug: row.slug,
@@ -197,6 +207,14 @@ export default async function GamePage({ params }: { params: Params }) {
             </details>
           </>
         )}
+      </Card>
+
+      <Card asSection className="flex flex-col gap-3 p-5 sm:p-6" aria-labelledby="notes-heading">
+        <h2 id="notes-heading" className="flex items-center gap-2 text-xl">
+          <NotebookPen className="size-5 text-ink-soft" aria-hidden />
+          Your notes
+        </h2>
+        <GameNotes gameId={row.id} gameName={row.name} initial={note?.body ?? ''} />
       </Card>
 
       {view.archive.length ? (

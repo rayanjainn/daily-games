@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   follows,
+  gameNotes,
   games,
   passkeyCredentials,
   results,
@@ -16,7 +17,7 @@ import { requireSession } from '@/server/session';
 /** Everything we store about the signed-in user, as JSON. Secrets (keys, hashes) are left out. */
 export const GET = query(async () => {
   const { user } = await requireSession();
-  const [passkeys, sessionRows, followRows, resultRows] = await Promise.all([
+  const [passkeys, sessionRows, followRows, resultRows, noteRows] = await Promise.all([
     db()
       .select({
         nickname: passkeyCredentials.nickname,
@@ -50,6 +51,7 @@ export const GET = query(async () => {
         timeSeconds: results.timeSeconds,
         score: results.score,
         source: results.source,
+        fromArchive: results.fromArchive,
         shareText: results.rawShareText,
         loggedAt: results.createdAt,
       })
@@ -57,6 +59,11 @@ export const GET = query(async () => {
       .innerJoin(games, eq(games.id, results.gameId))
       .where(eq(results.userId, user.id))
       .orderBy(asc(results.puzzleDate)),
+    db()
+      .select({ game: games.slug, body: gameNotes.body, updatedAt: gameNotes.updatedAt })
+      .from(gameNotes)
+      .innerJoin(games, eq(games.id, gameNotes.gameId))
+      .where(eq(gameNotes.userId, user.id)),
   ]);
   const data = {
     exportedAt: new Date().toISOString(),
@@ -72,6 +79,7 @@ export const GET = query(async () => {
     sessions: sessionRows,
     follows: followRows,
     results: resultRows,
+    notes: noteRows,
   };
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {

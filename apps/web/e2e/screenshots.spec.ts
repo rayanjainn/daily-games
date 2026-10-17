@@ -107,6 +107,33 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  notes: [
+    {
+      name: 'notes-empty',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/connections');
+        await page.getByRole('heading', { name: 'Your notes' }).scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: 'notes-saved',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/connections');
+        const field = page.getByLabel('Your notes for Connections');
+        await field.fill(
+          'Purple is usually wordplay: hidden words, prefixes, homophones.\nSolve yellow first, then look for the red herring across groups.',
+        );
+        await expect(page.getByTestId('note-status')).toHaveText('Saved');
+        await page.getByRole('heading', { name: 'Your notes' }).scrollIntoViewIfNeeded();
+      },
+    },
+  ],
   archive: [
     {
       name: 'archive-tracker',
