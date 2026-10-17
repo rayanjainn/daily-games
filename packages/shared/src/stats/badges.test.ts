@@ -45,7 +45,7 @@ describe('computeBadges', () => {
   it('catch-ups count as logged but never towards streaks', () => {
     const results = [r('wordle', 0), r('wordle', 1, { fromArchive: true }), r('wordle', 2)];
     const b = byId(computeBadges(results));
-    expect(b.logged.value).toBe(3);
+    expect(b.logged!.value).toBe(3);
     expect(b['catch-up']).toMatchObject({ value: 1, earned: 1 });
     expect(b['daily-streak']!.value).toBe(1);
     expect(b['game-streak']!.value).toBe(1);
