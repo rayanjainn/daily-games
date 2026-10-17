@@ -107,6 +107,41 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  theme: [
+    { name: 'theme-styleguide', path: '/styleguide' },
+    {
+      name: 'theme-today',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands', 'nyt-mini', 'flagle']);
+        await played(u.id, 'wordle', [0, 1, 2, 3, 4], { attempts: 4, maxAttempts: 6 });
+        await played(u.id, 'flagle', [1, 2], { source: 'checkbox' });
+        await page.goto('/today');
+        await expect(page.getByTestId('checklist-item')).toHaveCount(5);
+      },
+    },
+    {
+      name: 'theme-games',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games');
+        await expect(page.getByTestId('game-card').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'theme-game-stats',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await wordleHistory(u.id);
+        await page.goto('/games/wordle');
+        await expect(page.getByTestId('distribution')).toBeVisible();
+      },
+    },
+  ],
   pwa: [
     { name: 'offline', path: '/offline' },
     {
