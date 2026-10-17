@@ -183,7 +183,10 @@ export function History({ rows }: { rows: HistoryRow[] }) {
             </span>
           </span>
           <span className="flex items-center gap-2">
-            <span className="text-xs text-ink-soft">{SOURCE[r.source] ?? r.source}</span>
+            <span className="text-xs text-ink-soft">
+              {r.fromArchive ? 'Archive · ' : ''}
+              {SOURCE[r.source] ?? r.source}
+            </span>
             <span
               className={cn(
                 'rounded-pill px-2 py-0.5 font-display text-sm font-semibold',

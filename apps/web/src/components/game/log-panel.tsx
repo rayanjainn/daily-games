@@ -46,6 +46,13 @@ const shortDate = (iso: string) =>
     timeZone: 'UTC',
   });
 
+/** Logging an earlier puzzle from the archive tracker instead of today's. */
+export interface ArchiveTarget {
+  puzzleNumber: number;
+  /** "#1,730 · Wed, Oct 15" or "Wed, Oct 15" */
+  label: string;
+}
+
 const errorText = (err: unknown) =>
   err instanceof ApiError ? err.message : 'Something went wrong. Try again.';
 
@@ -56,10 +63,12 @@ const errorText = (err: unknown) =>
 export function LogPanel({
   game,
   onLogged,
+  archive,
   className,
 }: {
   game: LoggableGame;
   onLogged?: (saved: Saved) => void;
+  archive?: ArchiveTarget;
   className?: string;
 }) {
   const router = useRouter();
@@ -95,11 +104,15 @@ export function LogPanel({
         <span className="grid size-14 place-items-center rounded-full border-[length:var(--bw)] border-line bg-mint text-on-mint shadow-lift-sm">
           <PartyPopper className="size-7" aria-hidden />
         </span>
-        <p className="font-display text-2xl font-bold">Logged: {saved.summary}</p>
+        <p className="font-display text-2xl font-bold">
+          {archive ? 'Caught up' : 'Logged'}: {saved.summary}
+        </p>
         <p className="text-sm text-ink-soft">
-          {saved.streak.current > 1
-            ? `${saved.streak.current} days in a row. Keep it going!`
-            : 'Your streak starts today.'}
+          {archive
+            ? 'It counts in your stats. Streaks only count puzzles played on the day.'
+            : saved.streak.current > 1
+              ? `${saved.streak.current} days in a row. Keep it going!`
+              : 'Your streak starts today.'}
         </p>
         <Button variant="ghost" size="sm" onClick={undo}>
           <Undo2 aria-hidden />
@@ -109,7 +122,8 @@ export function LogPanel({
     );
   }
 
-  if (game.tier === 3) return <CheckoffForm game={game} onDone={done} className={className} />;
+  if (game.tier === 3)
+    return <CheckoffForm game={game} archive={archive} onDone={done} className={className} />;
 
   return (
     <Tabs defaultValue="paste" className={className}>
@@ -122,10 +136,10 @@ export function LogPanel({
         </TabsTrigger>
       </TabsList>
       <TabsContent value="paste">
-        <PasteForm game={game} onDone={done} />
+        <PasteForm game={game} archive={archive} onDone={done} />
       </TabsContent>
       <TabsContent value="manual">
-        <ManualForm game={game} onDone={done} />
+        <ManualForm game={game} archive={archive} onDone={done} />
       </TabsContent>
     </Tabs>
   );
@@ -133,10 +147,12 @@ export function LogPanel({
 
 function CheckoffForm({
   game,
+  archive,
   onDone,
   className,
 }: {
   game: LoggableGame;
+  archive?: ArchiveTarget;
   onDone: (s: Saved) => void;
   className?: string;
 }) {
@@ -146,7 +162,19 @@ function CheckoffForm({
     setBusy(true);
     setError(null);
     try {
-      onDone(await api<Saved>('/api/results', { source: 'checkbox', slug: game.slug }));
+      onDone(
+        await api<Saved>(
+          '/api/results',
+          archive
+            ? {
+                source: 'checkbox',
+                slug: game.slug,
+                puzzleNumber: archive.puzzleNumber,
+                fromArchive: true,
+              }
+            : { source: 'checkbox', slug: game.slug },
+        ),
+      );
     } catch (err) {
       setError(errorText(err));
     } finally {
@@ -160,7 +188,7 @@ function CheckoffForm({
       </p>
       <Button size="lg" variant="mint" loading={busy} onClick={mark}>
         <Check aria-hidden />
-        Mark today done
+        {archive ? `Mark ${archive.label} done` : 'Mark today done'}
       </Button>
       {error ? (
         <p role="alert" className="text-sm font-semibold text-danger">
@@ -171,7 +199,17 @@ function CheckoffForm({
   );
 }
 
-function PasteForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) => void }) {
+function PasteForm({
+  game,
+  archive,
+  onDone,
+}: {
+  game: LoggableGame;
+  archive?: ArchiveTarget;
+  onDone: (s: Saved) => void;
+}) {
+  const fromArchive = Boolean(archive);
+  const extra = fromArchive ? { fromArchive } : {};
   const [text, setText] = useState('');
   const debounced = useDebounced(text.trim(), 250);
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -193,7 +231,12 @@ function PasteForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) =>
     }
     let live = true;
     setChecking(true);
-    api<Preview>('/api/results/preview', { source: 'paste', slug: game.slug, shareText: debounced })
+    api<Preview>('/api/results/preview', {
+      source: 'paste',
+      slug: game.slug,
+      shareText: debounced,
+      ...(fromArchive ? { fromArchive } : {}),
+    })
       .then((p) => {
         if (!live) return;
         setPreview(p);
@@ -208,7 +251,7 @@ function PasteForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) =>
     return () => {
       live = false;
     };
-  }, [debounced, game.slug]);
+  }, [debounced, game.slug, fromArchive]);
 
   async function pasteFromClipboard() {
     try {
@@ -224,7 +267,12 @@ function PasteForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) =>
     setBusy(true);
     try {
       onDone(
-        await api<Saved>('/api/results', { source: 'paste', slug: game.slug, shareText: text }),
+        await api<Saved>('/api/results', {
+          source: 'paste',
+          slug: game.slug,
+          shareText: text,
+          ...extra,
+        }),
       );
     } catch (err) {
       setError(errorText(err));
@@ -319,7 +367,15 @@ const parseClock = (s: string): number | null => {
   return Number(h ?? 0) * 3600 + Number(mm) * 60 + Number(ss);
 };
 
-function ManualForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) => void }) {
+function ManualForm({
+  game,
+  archive,
+  onDone,
+}: {
+  game: LoggableGame;
+  archive?: ArchiveTarget;
+  onDone: (s: Saved) => void;
+}) {
   const [solved, setSolved] = useState(true);
   const [attempts, setAttempts] = useState('');
   const [time, setTime] = useState('');
@@ -331,6 +387,7 @@ function ManualForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) =
   async function submit(e: FormEvent) {
     e.preventDefault();
     const entry: Record<string, unknown> = { solved };
+    if (archive) entry.puzzleNumber = archive.puzzleNumber;
     if (game.scoringType === 'attempts') {
       if (!attempts) return setError('How many guesses did it take?');
       entry.attempts = Number(attempts);
@@ -345,7 +402,14 @@ function ManualForm({ game, onDone }: { game: LoggableGame; onDone: (s: Saved) =
     setBusy(true);
     setError(null);
     try {
-      onDone(await api<Saved>('/api/results', { source: 'manual', slug: game.slug, entry }));
+      onDone(
+        await api<Saved>('/api/results', {
+          source: 'manual',
+          slug: game.slug,
+          entry,
+          ...(archive ? { fromArchive: true } : {}),
+        }),
+      );
     } catch (err) {
       setError(errorText(err));
     } finally {

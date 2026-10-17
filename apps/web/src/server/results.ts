@@ -26,16 +26,23 @@ export const logInputSchema = z.discriminatedUnion('source', [
       source: z.enum(['paste', 'extension']),
       slug: z.string().max(60),
       shareText: z.string().min(1).max(MAX_SHARE_TEXT_LENGTH),
+      fromArchive: z.boolean().optional(),
     })
     .strict(),
   z
-    .object({ source: z.literal('manual'), slug: z.string().max(60), entry: manualEntrySchema })
+    .object({
+      source: z.literal('manual'),
+      slug: z.string().max(60),
+      entry: manualEntrySchema,
+      fromArchive: z.boolean().optional(),
+    })
     .strict(),
   z
     .object({
       source: z.literal('checkbox'),
       slug: z.string().max(60),
       puzzleNumber: z.number().int().optional(),
+      fromArchive: z.boolean().optional(),
     })
     .strict(),
 ]);
@@ -54,6 +61,14 @@ function entryGame(g: Game): EntryGame {
 
 /** Turns any log payload into a validated result for `game`, or throws a 400/422. */
 export function interpret(game: Game, input: LogInput, userTz: string, now = new Date()) {
+  const r = interpretOnce(game, input, userTz, now);
+  // A catch-up is for an earlier puzzle by definition; today's puzzle is logged normally.
+  if (input.fromArchive && r.puzzleNumber >= currentPuzzle(clockFromGame(game), now, userTz).number)
+    throw new HttpError(422, 'not_archive', "That's today's puzzle. Log it from the Today panel.");
+  return r;
+}
+
+function interpretOnce(game: Game, input: LogInput, userTz: string, now: Date) {
   const eg = entryGame(game);
   if (input.source === 'paste' || input.source === 'extension') {
     if (!game.parserId)
@@ -117,7 +132,9 @@ export async function refreshStreak(userId: string, game: Game, userTz: string) 
   const rows = await db()
     .select({ n: results.puzzleNumber })
     .from(results)
-    .where(and(eq(results.userId, userId), eq(results.gameId, game.id)));
+    .where(
+      and(eq(results.userId, userId), eq(results.gameId, game.id), eq(results.fromArchive, false)),
+    );
   const today = currentPuzzle(clockFromGame(game), new Date(), userTz).number;
   const s = computeStreak(
     rows.map((r) => r.n),
@@ -164,6 +181,7 @@ export async function saveResult(
       details: r.details,
       rawShareText: r.normalizedShareText || null,
       source: input.source,
+      fromArchive: input.fromArchive ?? false,
     })
     .onConflictDoNothing({ target: [results.userId, results.gameId, results.puzzleNumber] })
     .returning({ id: results.id });

@@ -107,6 +107,51 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  archive: [
+    {
+      name: 'archive-tracker',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle']);
+        await played(u.id, 'wordle', [0, 1, 4, 5, 8, 9, 10, 12, 13], {
+          attempts: 4,
+          maxAttempts: 6,
+        });
+        await played(u.id, 'wordle', [6], { attempts: 3, maxAttempts: 6, fromArchive: true });
+        await page.goto('/games/wordle');
+        await page.getByRole('heading', { name: 'Catch up' }).scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: 'archive-dialog',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await played(u.id, 'wordle', [0, 2], { attempts: 4, maxAttempts: 6 });
+        await page.goto('/games/wordle');
+        await page.getByRole('button', { name: /^Log #/ }).click();
+        await expect(page.getByRole('dialog')).toBeVisible();
+      },
+    },
+    {
+      name: 'archive-caught-up',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await played(u.id, 'tradle', [1, 3], { source: 'checkbox' });
+        await page.goto('/games/tradle');
+        await page.getByRole('button', { name: /^Log / }).click();
+        await page
+          .getByRole('dialog')
+          .getByRole('button', { name: /^Mark .* done$/ })
+          .click();
+        await expect(page.getByTestId('log-success')).toBeVisible();
+      },
+    },
+  ],
   theme: [
     { name: 'theme-styleguide', path: '/styleguide' },
     {

@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarDays, Info, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, CalendarDays, History as HistoryIcon, Info, TriangleAlert } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,6 +6,7 @@ import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import { clockFromGame } from '@everydaily/shared/registry';
 import { formatResult } from '@everydaily/shared/stats/format';
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
+import { ArchiveTracker } from '@/components/game/archive-tracker';
 import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
 import { TodayLog } from '@/components/game/today-log';
@@ -15,7 +16,7 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING, siteOf } from '@/lib/catalog-labels';
 import { describeReset } from '@/lib/reset-copy';
-import { attributionLine, getGameBySlug, isFollowing, toCatalogGame } from '@/server/catalog';
+import { attributionLine, followedAt, getGameBySlug, toCatalogGame } from '@/server/catalog';
 import { existingResult } from '@/server/results';
 import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
@@ -44,9 +45,11 @@ export default async function GamePage({ params }: { params: Params }) {
   const game = toCatalogGame(row, user.timezone);
   const reset = describeReset(clockFromGame(row).reset, user.timezone);
   const site = siteOf(game.url);
+  // The tracker needs the follow date, so stats wait for it; today's result doesn't.
+  const followed = followedAt(user.id, row.id);
   const [following, view, todays] = await Promise.all([
-    isFollowing(user.id, row.id),
-    getGameStats(user, row),
+    followed.then(Boolean),
+    followed.then((f) => getGameStats(user, row, f)),
     existingResult(
       user.id,
       row.id,
@@ -195,6 +198,25 @@ export default async function GamePage({ params }: { params: Params }) {
           </>
         )}
       </Card>
+
+      {view.archive.length ? (
+        <Card
+          asSection
+          className="flex flex-col gap-3 p-5 sm:p-6"
+          aria-labelledby="archive-heading"
+        >
+          <h2 id="archive-heading" className="flex items-center gap-2 text-xl">
+            <HistoryIcon className="size-5 text-ink-soft" aria-hidden />
+            Catch up
+          </h2>
+          <ArchiveTracker
+            game={loggable}
+            days={view.archive}
+            numbered={row.numberingPublic}
+            archiveUrl={row.url}
+          />
+        </Card>
+      ) : null}
 
       <section aria-labelledby="about-heading">
         <Card tone="muted" lift="sm" className="flex flex-col gap-3 p-5">

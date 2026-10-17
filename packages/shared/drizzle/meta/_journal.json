@@ -15,6 +15,13 @@
       "when": 1792222263095,
       "tag": "0001_game_reset_and_numbering",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792255339932,
+      "tag": "0002_archive_results",
+      "breakpoints": true
     }
   ]
 }

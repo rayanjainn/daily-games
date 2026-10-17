@@ -71,13 +71,14 @@ export const followedGameIds = cache(async (userId: string): Promise<Set<string>
   return new Set(rows.map((r) => r.gameId));
 });
 
-export async function isFollowing(userId: string, gameId: string): Promise<boolean> {
+/** When the player followed the game, or null if they don't follow it. */
+export async function followedAt(userId: string, gameId: string): Promise<Date | null> {
   const rows = await db()
-    .select({ gameId: follows.gameId })
+    .select({ createdAt: follows.createdAt })
     .from(follows)
     .where(and(eq(follows.userId, userId), eq(follows.gameId, gameId)))
     .limit(1);
-  return rows.length > 0;
+  return rows[0]?.createdAt ?? null;
 }
 
 /** The attribution line shown on every game page. */
