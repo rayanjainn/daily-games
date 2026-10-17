@@ -9,6 +9,7 @@ export const COOKIE = {
   csrf: isProduction() ? '__Host-ed_csrf' : 'ed_csrf',
   device: isProduction() ? '__Host-ed_device' : 'ed_device',
   challenge: isProduction() ? '__Host-ed_chal' : 'ed_chal',
+  pair: isProduction() ? '__Host-ed_pair' : 'ed_pair',
 } as const;
 
 export const secureCookies = () => env('core').APP_URL.startsWith('https://') || isProduction();
