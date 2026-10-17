@@ -5,7 +5,7 @@ description: 'A daily deduction puzzle: who is innocent, who is criminal?'
 url: 'https://cluesbysam.com/'
 category: 'logic'
 difficulty: 'medium'
-tier: 3
+tier: 1
 embedMode: 'popout'
 reset:
   mode: 'user_local'
@@ -15,10 +15,19 @@ numbering:
   epoch: '2025-01-01'
   epochNumber: 1
   public: false
-parserId: null
+parserId: 'clues-by-sam'
 scoring:
-  type: 'completion'
-shareTextSamples: []
+  type: 'distance'
+  unit: 'hints & errors'
+shareTextSamples:
+  - |-
+    I solved the daily #CluesBySam, Oct 17th 2026 (Tricky), in less than 20 minutes
+    🟩🟩🟡🟩
+    🟩🟩🟩🟩
+    🟩🟠🟩🟩
+    🟩🟩🟩🟨
+    🟩🟩🟩🟩
+    https://cluesbysam.com
 accentColor: '#A85A1A'
 icon: 'magnify'
 attribution: 'Made and hosted by Clues by Sam.'

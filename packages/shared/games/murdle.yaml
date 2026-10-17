@@ -5,7 +5,7 @@ description: 'Solve a small murder mystery with logic grids.'
 url: 'https://murdle.com/'
 category: 'logic'
 difficulty: 'medium'
-tier: 3
+tier: 1
 embedMode: 'popout'
 reset:
   mode: 'user_local'
@@ -15,10 +15,21 @@ numbering:
   epoch: '2025-01-01'
   epochNumber: 1
   public: false
-parserId: null
+parserId: 'murdle'
 scoring:
-  type: 'completion'
-shareTextSamples: []
+  type: 'time'
+shareTextSamples:
+  - |-
+    THE MYSTERY OF THE CAPRICORN WITH THE BOOBY-TRAPPED FEDORA
+    Murdle for 10/17/2026
+
+    👤🔪🏡❓     🕰️
+    ✅✅✅✅     2️⃣3️⃣:4️⃣8️⃣
+
+    ⚖️
+    👤
+
+    https://murdle.com
 accentColor: '#9D0208'
 icon: 'magnify'
 attribution: 'Made and hosted by G. T. Karber.'

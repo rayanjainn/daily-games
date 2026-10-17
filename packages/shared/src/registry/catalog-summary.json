@@ -40,7 +40,7 @@
     "name": "Clues by Sam",
     "publisher": "Clues by Sam",
     "category": "logic",
-    "tier": 3,
+    "tier": 1,
     "icon": "magnify",
     "accentColor": "#A85A1A"
   },
@@ -283,7 +283,7 @@
     "name": "Murdle",
     "publisher": "G. T. Karber",
     "category": "logic",
-    "tier": 3,
+    "tier": 1,
     "icon": "magnify",
     "accentColor": "#9D0208"
   },
@@ -301,7 +301,7 @@
     "name": "Nerdle",
     "publisher": "Nerdle",
     "category": "math",
-    "tier": 3,
+    "tier": 1,
     "icon": "equation",
     "accentColor": "#820458"
   },
