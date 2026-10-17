@@ -21,6 +21,8 @@ const LIMITS = {
   'game-report': { tokens: 10, window: '1 h' },
   submission: { tokens: 5, window: '1 d' },
   'admin-edit': { tokens: 120, window: '10 m' },
+  'result-preview': { tokens: 120, window: '10 m' },
+  'result-log': { tokens: 60, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;

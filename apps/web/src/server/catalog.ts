@@ -21,6 +21,9 @@ export interface CatalogGame {
   tags: string[];
   accentColor: string;
   icon: IconKey;
+  scoringType: Game['scoringType'];
+  maxAttempts: number | null;
+  scoringUnit: string | null;
   /** today's puzzle for this player; the number only when the game shows one */
   today: { date: string; number: number | null };
 }
@@ -42,6 +45,9 @@ export function toCatalogGame(g: Game, userTz: string, now = new Date()): Catalo
     tags: g.tags,
     accentColor: g.accentColor,
     icon: g.icon as IconKey,
+    scoringType: g.scoringType,
+    maxAttempts: g.maxAttempts,
+    scoringUnit: g.scoringUnit,
     today: { date: p.date, number: g.numberingPublic ? p.number : null },
   };
 }
