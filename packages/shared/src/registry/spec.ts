@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gameRuleIssues } from '../catalog/rules';
 import {
   DIFFICULTIES,
   EMBED_MODES,
@@ -88,37 +89,29 @@ export const gameSpecSchema = z
   .superRefine((g, ctx) => {
     const issue = (path: (string | number)[], message: string) =>
       ctx.addIssue({ code: 'custom', path, message });
-    if (g.reset.mode === 'fixed' && !g.reset.timezone) {
-      issue(['reset', 'timezone'], 'fixed resets need a timezone');
-    }
-    if (g.reset.mode === 'user_local' && g.reset.timezone) {
-      issue(['reset', 'timezone'], 'user_local resets must not set a timezone');
-    }
-    if (g.embedMode === 'iframe' && !g.verifiedEmbeddableAt) {
-      issue(['embedMode'], 'iframe requires a passing embed probe (verifiedEmbeddableAt)');
-    }
-    if (g.embedMode === 'native' && g.tier !== 1) {
-      issue(['embedMode'], 'native games are tier 1');
-    }
-    if (g.tier === 1 && (!g.parserId || g.parserId === 'generic')) {
-      issue(['parserId'], 'tier 1 needs a dedicated parser');
-    }
-    if (g.tier === 2 && !g.parserId) {
-      issue(['parserId'], 'tier 2 needs a parser (use "generic")');
-    }
-    if (g.tier === 3 && g.parserId) {
-      issue(['parserId'], 'tier 3 games are link-only (parserId: null)');
+    for (const i of gameRuleIssues({
+      tier: g.tier,
+      parserId: g.parserId,
+      embedMode: g.embedMode,
+      verifiedEmbeddableAt: g.verifiedEmbeddableAt,
+      scoringType: g.scoring.type,
+      maxAttempts: g.scoring.maxAttempts ?? null,
+      resetMode: g.reset.mode,
+      resetTz: g.reset.timezone ?? null,
+    })) {
+      issue(SPEC_PATHS[i.path] ?? [i.path], i.message);
     }
     if (g.tier !== 3 && g.shareTextSamples.length === 0) {
       issue(['shareTextSamples'], 'tiers 1 and 2 need at least one share text sample');
     }
-    if (g.scoring.type === 'attempts' && !g.scoring.maxAttempts) {
-      issue(['scoring', 'maxAttempts'], 'attempts scoring needs maxAttempts');
-    }
-    if (g.tier === 3 && g.scoring.type !== 'completion') {
-      issue(['scoring', 'type'], 'tier 3 games score by completion');
-    }
   });
+
+/** Where a flat rule path lives in the nested YAML shape. */
+const SPEC_PATHS: Record<string, string[]> = {
+  resetTz: ['reset', 'timezone'],
+  maxAttempts: ['scoring', 'maxAttempts'],
+  scoringType: ['scoring', 'type'],
+};
 
 export type GameSpecInput = z.input<typeof gameSpecSchema>;
 export type GameSpec = z.output<typeof gameSpecSchema>;
