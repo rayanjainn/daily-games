@@ -164,6 +164,76 @@ async function seedGroup(ownerId: string, name: string, members: string[]): Prom
   return groupId;
 }
 
+/**
+ * A Wordle board with flairs, a few posts and a short threaded discussion, written with fixed
+ * ids so every capture shares the same content.
+ */
+async function seedCommunity(slug: string): Promise<{ postId: string }> {
+  const sql = e2eSql();
+  const players: string[] = [];
+  for (const name of ['ava_plays', 'ben_words', 'cai_maps']) {
+    await sql`INSERT INTO users (id, username, timezone) VALUES (gen_random_uuid(), ${name}, 'UTC')
+      ON CONFLICT DO NOTHING`;
+    const [u] = await sql`SELECT id FROM users WHERE username = ${name}`;
+    players.push(u!.id as string);
+  }
+  const [g] = await sql`SELECT id, name FROM games WHERE slug = ${slug}`;
+  await sql`INSERT INTO communities (id, slug, name, description, game_id)
+    VALUES (gen_random_uuid(), ${slug}, ${g!.name},
+      ${`Talk about ${g!.name}: strategies, streaks and the daily thread.`}, ${g!.id})
+    ON CONFLICT DO NOTHING`;
+  const [c] = await sql`SELECT id FROM communities WHERE slug = ${slug}`;
+  const flair = (n: number) => `01900000-0000-7000-8000-00000000000${n}`;
+  await sql`INSERT INTO flairs (id, community_id, name, color) VALUES
+    (${flair(1)}, ${c!.id}, 'Strategy', 'grape'), (${flair(2)}, ${c!.id}, 'Streaks', 'mint'),
+    (${flair(3)}, ${c!.id}, 'Question', 'sky') ON CONFLICT DO NOTHING`;
+  const post = (n: number) => `01900000-0000-7000-8000-0000000000${10 + n}`;
+  const rows: [number, string, string, string | null, number, number][] = [
+    [
+      1,
+      'Which starting word do you swear by?',
+      'I have used **CRANE** for a year. Thinking of switching to something with an S.',
+      flair(1),
+      14,
+      0,
+    ],
+    [
+      2,
+      '200-day streak today!',
+      'Never thought I would get here. The trick was a reminder at 8am.',
+      flair(2),
+      31,
+      1,
+    ],
+    [
+      3,
+      'Do hard-mode results count differently?',
+      'Is there any way to mark hard mode when logging?',
+      flair(3),
+      4,
+      2,
+    ],
+  ];
+  for (const [n, title, body, f, score, author] of rows) {
+    await sql`INSERT INTO posts (id, community_id, author_id, title, body_md, flair_id, score, comment_count, created_at)
+      VALUES (${post(n)}, ${c!.id}, ${players[author]!}, ${title}, ${body}, ${f}, ${score}, ${n === 1 ? 3 : 0},
+        now() - ${`${n * 3} hours`}::interval) ON CONFLICT DO NOTHING`;
+  }
+  const cm = (n: number) => `01900000-0000-7000-8000-0000000001${10 + n}`;
+  const comments: [number, string, number, string][] = [
+    [1, cm(1), 1, 'SLATE has been great for me: three common consonants and an A.'],
+    [2, `${cm(1)}/${cm(2)}`, 0, 'I tried SLATE for a month and my average went from 4.1 to 3.8!'],
+    [3, cm(3), 2, 'ADIEU gets the vowels out of the way, but I find it slower overall.'],
+  ];
+  for (const [n, path, author, body] of comments) {
+    await sql`INSERT INTO comments (id, post_id, parent_id, author_id, body_md, depth, path, score)
+      VALUES (${cm(n)}, ${post(1)}, ${n === 2 ? cm(1) : null}, ${players[author]!}, ${body},
+        ${path.split('/').length - 1}, ${path}, ${5 - n}) ON CONFLICT DO NOTHING`;
+  }
+  await sql.end();
+  return { postId: post(1) };
+}
+
 async function wordleToday(): Promise<number> {
   const sql = e2eSql();
   const [r] = await sql`SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
@@ -190,6 +260,63 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  community: [
+    {
+      name: 'community-index',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands', 'globle']);
+        await page.goto('/c');
+        await expect(page.getByTestId('followed-communities')).toBeVisible();
+      },
+    },
+    {
+      name: 'community-feed',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await seedCommunity('wordle');
+        await page.goto('/c/wordle');
+        await expect(page.getByTestId('posts')).toBeVisible();
+      },
+    },
+    {
+      name: 'community-post',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        const { postId } = await seedCommunity('wordle');
+        await page.goto(`/c/wordle/${postId}`);
+        await expect(page.getByTestId('comments')).toBeVisible();
+      },
+    },
+    {
+      name: 'community-daily-hidden',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/c/wordle');
+        const sql = e2eSql();
+        const [d] = await sql`SELECT p.id FROM posts p JOIN communities c ON c.id = p.community_id
+          WHERE c.slug = 'wordle' AND p.is_daily_thread ORDER BY p.puzzle_number DESC LIMIT 1`;
+        const [a] = await sql`SELECT id FROM users WHERE username = 'ava_plays'`;
+        if (a) {
+          await sql`INSERT INTO comments (id, post_id, author_id, body_md, depth, path)
+            VALUES (${'01900000-0000-7000-8000-000000000101'}, ${d!.id}, ${a.id},
+              'Two yellows on the first guess, then it fell into place.', 0,
+              ${'01900000-0000-7000-8000-000000000101'}) ON CONFLICT DO NOTHING`;
+          await sql`UPDATE posts SET comment_count = (SELECT count(*) FROM comments WHERE post_id = ${d!.id})
+            WHERE id = ${d!.id}`;
+        }
+        await sql.end();
+        await page.goto(`/c/wordle/${d!.id}`);
+        await expect(page.getByTestId('comments-hidden')).toBeVisible();
+      },
+    },
+  ],
   groups: [
     {
       name: 'groups-list',

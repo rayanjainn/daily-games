@@ -75,6 +75,20 @@ export type GroupRole = (typeof GROUP_ROLES)[number];
 export const MAX_GROUP_MEMBERS = 50;
 export const MAX_GROUPS_PER_USER = 20;
 
+export const CONTENT_STATUSES = ['visible', 'removed', 'locked'] as const;
+export type ContentStatus = (typeof CONTENT_STATUSES)[number];
+export const VOTE_TARGETS = ['post', 'comment'] as const;
+export type VoteTarget = (typeof VOTE_TARGETS)[number];
+export const FLAIR_COLORS = ['pop', 'grape', 'mint', 'sun', 'sky', 'bubblegum'] as const;
+export type FlairColor = (typeof FLAIR_COLORS)[number];
+export const MAX_POST_TITLE = 120;
+export const MAX_POST_BODY = 10_000;
+export const MAX_COMMENT_BODY = 5_000;
+/** Replies nest this deep; deeper replies attach to the last level. */
+export const MAX_COMMENT_DEPTH = 6;
+/** The site-wide community; every game also has its own, keyed by the game's slug. */
+export const GLOBAL_COMMUNITY = 'everydaily';
+
 export const SOLUTION_STATUSES = ['pending', 'approved', 'rejected'] as const;
 export type SolutionStatus = (typeof SOLUTION_STATUSES)[number];
 export const MAX_SOLUTION_LENGTH = 1000;
