@@ -1,14 +1,13 @@
-# Streakyard — Project Plan
+# EveryDaily — Project Plan
 
-Status: **draft for review**. Nothing beyond this document is built yet. Sections marked
-**DECISION** need a yes/no; section 18 lists open questions.
+Status: **approved**; decisions recorded in section 18.
 
 ---
 
-## 0. Things to settle before code
+## 0. Constraints to keep in mind
 
 1. **Passkeys are permanently bound to the WebAuthn RP ID (a domain).** If users register
-   passkeys on `streakyard.raycode.tech` and the product later moves to `streakyard.com`, every
+   passkeys on `everydaily.raycode.tech` and the product later moves to `everydaily.com`, every
    existing passkey stops working there. Related Origin Requests can bridge this, but browser
    support is incomplete. Recovery phrases and email would still let people back in. Either way,
    choose the production host before any real user signs up.
@@ -71,8 +70,8 @@ Proposal. All hosts come from env, so we can change them until launch:
 
 | Host                          | Serves                                | Where                          |
 |-------------------------------|---------------------------------------|--------------------------------|
-| `streakyard.raycode.tech`     | Next.js app (WebAuthn RP ID = this host) | Vercel (CNAME, DNS-only)    |
-| `rt.streakyard.raycode.tech`  | Worker: WebSockets + internal broadcast | Cloudflare Workers custom domain |
+| `everydaily.raycode.tech`     | Next.js app (WebAuthn RP ID = this host) | Vercel (CNAME, DNS-only)    |
+| `rt.everydaily.raycode.tech`  | Worker: WebSockets + internal broadcast | Cloudflare Workers custom domain |
 | Preview: `*.vercel.app`       | Preview deploys (RP ID = preview host, so passkeys there are throwaway) | Vercel |
 
 - Workers custom domains require the `raycode.tech` zone to be on Cloudflare DNS
@@ -298,8 +297,8 @@ LOGIN
         any state ─2 min─▶ [expired]
 
 SESSION
- cookie __Host-sy_session (httpOnly, Secure, SameSite=Lax, Path=/), 30-day sliding, rotated on
- login/privilege change, revocable per row. CSRF: double-submit token in __Host-sy_csrf +
+ cookie __Host-ed_session (httpOnly, Secure, SameSite=Lax, Path=/), 30-day sliding, rotated on
+ login/privilege change, revocable per row. CSRF: double-submit token in __Host-ed_csrf +
  X-CSRF-Token header, plus Origin header check on every non-GET.
 ```
 
@@ -382,7 +381,7 @@ export interface Parser {
   note, clock, spiral…) is combined with a per-game accent color and a shape frame, using
   deterministic defaults plus per-game overrides in YAML. Simple geometric icons, not
   illustrations. No third-party marks.
-- Each game page carries this attribution: "Made by <publisher>. Streakyard isn't affiliated
+- Each game page carries this attribution: "Made by <publisher>. EveryDaily isn't affiliated
   with <publisher>; we just help you keep track."
 - **Submissions** (behind `FEATURE_SUBMISSIONS`, admin-only at launch):
   1. Normalize the URL (lowercase host, strip `www.`, trailing slash, query and hash).
@@ -405,7 +404,7 @@ export interface Parser {
 - `embedMode` defaults to `popout`. `iframe` is allowed only when `verifiedEmbeddableAt` is set
   by a passing probe. CI fails if a YAML says iframe without a probe record.
 - **Popout:**
-  - Opened only in the click handler with `window.open(url, 'sy-play', 'popup,width=480,height=860')`.
+  - Opened only in the click handler with `window.open(url, 'ed-play', 'popup,width=480,height=860')`.
   - On desktop the window sits beside the app, and our page shows the docked "Log my result"
     panel. On mobile it opens a new tab, and on return (visibilitychange/focus) the log sheet
     pops up.
@@ -439,7 +438,7 @@ export interface Parser {
     signed with **Ed25519** by Web Crypto:
     `{sub, room, perms:['read','typing','presence'], exp: now+60s, jti}`.
   - The worker holds only the public key, so a worker compromise cannot mint tokens.
-  - The browser sends it as `Sec-WebSocket-Protocol: sy.v1, auth.<token>`, which keeps it out
+  - The browser sends it as `Sec-WebSocket-Protocol: ed.v1, auth.<token>`, which keeps it out
     of URL logs. The worker verifies `room` matches the path, checks `exp`, and rejects a reused
     `jti` (a DO-local set with TTL) before `ctx.acceptWebSocket(ws, [userId])`.
   - The attachment (`serializeAttachment`) stores {userId, username, expAt}.
@@ -641,34 +640,17 @@ LDNOOBW (CC-BY-4.0, credited in `docs/THIRD_PARTY.md`).
 
 ---
 
-## 18. Assumptions and questions
+## 18. Confirmed decisions
 
-1. **Production host + RP ID:** is `streakyard.raycode.tech` (app) and
-   `rt.streakyard.raycode.tech` (realtime) right? Is `raycode.tech` already on Cloudflare DNS?
-   See 0.1 on why this choice is effectively permanent for passkeys.
-2. **Network:** this build environment blocks outbound requests to the game sites (tested:
-   nytimes.com, quordle.com, globle-game.com, worldle.teuteuf.fr and minutecryptic.com all
-   return 403 from the environment proxy). As a result I **cannot** verify URLs, fetch real
-   share texts or run the embed probe here. Options:
-   - (a) widen the environment's network access (Settings → environment → Network access,
-     https://code.claude.com/docs/en/cloud-environments#network-access)
-   - (b) I build the probe and you run it, or it runs in a GitHub Action, and I commit the
-     report
-   - (c) both
-   Until then every game stays `popout`, and the catalog is marked unverified. I will not
-   invent probe results.
-3. **Branches:** this session was pre-assigned a working branch whose name breaks your naming
-   rule. I plan to ignore it and use only the branch names in section 16. Is that OK?
-4. **Merging to main:** should I open a PR per branch for you to merge, or merge locally into
-   `main` myself once the gate passes and push `main`?
-5. **Accounts and deploys:** I have no Vercel, Cloudflare, Neon or Upstash credentials, so
-   everything is built and verified locally, with deploy config (wrangler.toml, vercel.json,
-   `.env.example`) ready for you to fill in. Do you want me to deploy at some point (which would
-   need tokens as env secrets), or will you deploy?
-6. **Dependencies:** approve the section 17 list, or strike items.
-7. **Spoiler policy for solutions:** the brief says "yesterday's solution". I assume solutions
-   for the *current* puzzle are never shown, even to people who have finished it. Correct?
-8. **Next.js version:** I will use the current stable Next.js and Tailwind v4 at install time
-   and pin exact versions.
-9. **Age and region:** I assume no under-13 targeting and no special regional compliance work
-   in Phase 1, beyond export, delete and minimal data.
+1. Name **EveryDaily**. App at `everydaily.raycode.tech` (RP ID = this host), realtime at
+   `rt.everydaily.raycode.tech`.
+2. Full outbound network access is available for URL verification, share-text samples and the
+   embed probe.
+3. Only the branch names from section 16 are used.
+4. Branches are merged directly into `main` once their gate passes, and `main` is pushed.
+5. Section 17 dependencies are approved.
+6. The owner deploys. The repo ships `.env.example`, `wrangler.toml`, Vercel config and a
+   `docs/DEPLOY.md` with exact commands; no credentials ever enter the repo.
+
+Remaining assumptions (override any time): solutions for the current puzzle are never shown;
+current stable Next.js + Tailwind v4, pinned exactly; no under-13 targeting.
