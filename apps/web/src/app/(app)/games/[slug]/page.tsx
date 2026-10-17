@@ -38,19 +38,21 @@ const longDate = (iso: string) =>
 
 export default async function GamePage({ params }: { params: Params }) {
   const { slug } = await params;
-  const { user } = await requireSession();
-  const row = await getGameBySlug(slug);
+  // Independent queries run together: each one is a database round trip.
+  const [{ user }, row] = await Promise.all([requireSession(), getGameBySlug(slug)]);
   if (!row || row.status === 'archived') notFound();
   const game = toCatalogGame(row, user.timezone);
-  const following = await isFollowing(user.id, row.id);
   const reset = describeReset(clockFromGame(row).reset, user.timezone);
   const site = siteOf(game.url);
-  const view = await getGameStats(user, row);
-  const todays = await existingResult(
-    user.id,
-    row.id,
-    currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
-  );
+  const [following, view, todays] = await Promise.all([
+    isFollowing(user.id, row.id),
+    getGameStats(user, row),
+    existingResult(
+      user.id,
+      row.id,
+      currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
+    ),
+  ]);
   const loggable = {
     slug: row.slug,
     name: row.name,

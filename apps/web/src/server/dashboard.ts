@@ -35,30 +35,30 @@ export async function getDashboard(
   now = new Date(),
 ): Promise<Dashboard> {
   const today = localDate(now, user.timezone);
-  const rows = await db()
-    .select({ game: games })
-    .from(follows)
-    .innerJoin(games, eq(games.id, follows.gameId))
-    .where(and(eq(follows.userId, user.id), ne(games.status, 'archived')))
-    .orderBy(asc(follows.position), asc(games.name));
-
-  const gameIds = rows.map((r) => r.game.id);
   const since = addDays(today, -LOOKBACK_DAYS);
-  const recent = gameIds.length
-    ? await db()
-        .select({
-          gameId: results.gameId,
-          puzzleNumber: results.puzzleNumber,
-          puzzleDate: results.puzzleDate,
-          solved: results.solved,
-          attempts: results.attempts,
-          maxAttempts: results.maxAttempts,
-          timeSeconds: results.timeSeconds,
-          score: results.score,
-        })
-        .from(results)
-        .where(and(eq(results.userId, user.id), gte(results.puzzleDate, since)))
-    : [];
+  // Both queries in one round trip's time. Results cover every game played (not only followed
+  // ones), so the combined streak counts any daily puzzle.
+  const [rows, recent] = await Promise.all([
+    db()
+      .select({ game: games })
+      .from(follows)
+      .innerJoin(games, eq(games.id, follows.gameId))
+      .where(and(eq(follows.userId, user.id), ne(games.status, 'archived')))
+      .orderBy(asc(follows.position), asc(games.name)),
+    db()
+      .select({
+        gameId: results.gameId,
+        puzzleNumber: results.puzzleNumber,
+        puzzleDate: results.puzzleDate,
+        solved: results.solved,
+        attempts: results.attempts,
+        maxAttempts: results.maxAttempts,
+        timeSeconds: results.timeSeconds,
+        score: results.score,
+      })
+      .from(results)
+      .where(and(eq(results.userId, user.id), gte(results.puzzleDate, since))),
+  ]);
 
   const byGame = new Map<string, typeof recent>();
   for (const r of recent) {

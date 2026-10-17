@@ -1,7 +1,6 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 export function ProgressRing({
@@ -23,11 +22,16 @@ export function ProgressRing({
   sublabel?: ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
   const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
   const r = (size - stroke) / 2 - 2;
   const c = size / 2;
   const complete = max > 0 && value >= max;
+  // Start empty and fill on mount; CSS turns the transition off under reduced motion.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(pct));
+    return () => cancelAnimationFrame(id);
+  }, [pct]);
 
   return (
     <div
@@ -49,7 +53,7 @@ export function ProgressRing({
         <circle cx={c} cy={c + 3} r={r} fill="none" stroke="var(--edge)" strokeWidth={stroke + 5} />
         <circle cx={c} cy={c} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke + 5} />
         <circle cx={c} cy={c} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={stroke} />
-        <motion.circle
+        <circle
           cx={c}
           cy={c}
           r={r}
@@ -57,10 +61,13 @@ export function ProgressRing({
           stroke={color}
           strokeWidth={stroke}
           strokeLinecap="round"
-          initial={{ pathLength: reduce ? pct : 0 }}
-          animate={{ pathLength: pct }}
-          transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 90, damping: 18 }}
-          style={{ opacity: pct === 0 ? 0 : 1 }}
+          pathLength={1}
+          strokeDasharray="1 1"
+          strokeDashoffset={1 - shown}
+          style={{
+            opacity: pct === 0 ? 0 : 1,
+            transition: 'stroke-dashoffset 700ms var(--ease-out)',
+          }}
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
