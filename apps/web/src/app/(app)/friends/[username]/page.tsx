@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { compareWith, friendByUsername } from '@/server/friends';
 import { requireSession } from '@/server/session';
-import { BlockButton } from '../friends-view';
+import { BlockButton } from '../(list)/friends-view';
 import type { IconKey } from '@everydaily/shared/registry/icons';
 
 type Params = Promise<{ username: string }>;
