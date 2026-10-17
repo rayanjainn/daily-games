@@ -123,23 +123,42 @@ function Checklist({ items: initial }: { items: ChecklistItem[] }) {
   const [editing, setEditing] = useState(false);
   useEffect(() => setItems(initial), [initial]);
 
-  async function move(index: number, by: -1 | 1) {
-    const to = index + by;
-    if (to < 0 || to >= items.length) return;
-    const next = [...items];
-    [next[index], next[to]] = [next[to]!, next[index]!];
-    const before = items;
-    setItems(next);
+  // Saves go out one at a time, always with the newest order, so quick taps can't land out of
+  // order on the server and leave an older order saved.
+  const latest = useRef<string[] | null>(null);
+  const saving = useRef(false);
+  const [busy, setBusy] = useState(false);
+  async function flush() {
+    if (saving.current) return;
+    saving.current = true;
+    setBusy(true);
     try {
-      await api('/api/follows/order', { gameIds: next.map((i) => i.game.id) }, 'PATCH');
+      while (latest.current) {
+        const gameIds = latest.current;
+        latest.current = null;
+        await api('/api/follows/order', { gameIds }, 'PATCH');
+      }
     } catch (err) {
-      setItems(before);
+      latest.current = null;
       toast({
         tone: 'error',
         title: err instanceof ApiError ? err.message : 'Could not save the order.',
       });
       router.refresh();
+    } finally {
+      saving.current = false;
+      setBusy(false);
     }
+  }
+
+  function move(index: number, by: -1 | 1) {
+    const to = index + by;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[index], next[to]] = [next[to]!, next[index]!];
+    setItems(next);
+    latest.current = next.map((i) => i.game.id);
+    void flush();
   }
 
   return (
@@ -166,7 +185,7 @@ function Checklist({ items: initial }: { items: ChecklistItem[] }) {
           </Button>
         </div>
       </div>
-      <ol className="flex flex-col gap-3" aria-label="Today's games">
+      <ol className="flex flex-col gap-3" aria-label="Today's games" aria-busy={busy}>
         {items.map((item, i) => (
           <ChecklistRow
             key={item.game.id}

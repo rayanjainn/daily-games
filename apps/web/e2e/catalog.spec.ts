@@ -67,12 +67,13 @@ test.describe('catalog', () => {
     await expect(cards(page)).toHaveCount(geo);
 
     await page.getByRole('button', { name: 'Clear filters' }).click();
-    await expect(cards(page)).toHaveCount(total);
+    // Other specs may add games in parallel, so "all" means at least what we saw.
+    await expect.poll(() => cards(page).count()).toBeGreaterThanOrEqual(total);
 
     await page.getByLabel('Search games').fill('zzzz no such game');
     await expect(page.getByText('No games match')).toBeVisible();
     await page.getByRole('button', { name: 'Show all games' }).click();
-    await expect(cards(page)).toHaveCount(total);
+    await expect.poll(() => cards(page).count()).toBeGreaterThanOrEqual(total);
   });
 
   test('filters by tracking tier', async ({ page }) => {

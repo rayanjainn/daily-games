@@ -47,6 +47,19 @@ test.describe('design system', () => {
     await expect(page.getByRole('button', { name: 'Open dialog' })).toBeFocused();
   });
 
+  test('clickable controls show a pointer, disabled ones do not', async ({ page }) => {
+    await page.goto('/styleguide');
+    const cursor = (name: string) =>
+      page
+        .getByRole('button', { name, exact: true })
+        .first()
+        .evaluate((el) => getComputedStyle(el).cursor);
+    expect(await cursor('Open dialog')).toBe('pointer');
+    const disabled = page.locator('button:disabled').first();
+    await expect(disabled).toBeVisible();
+    expect(await disabled.evaluate((el) => getComputedStyle(el).cursor)).not.toBe('pointer');
+  });
+
   test('chips expose pressed state', async ({ page }) => {
     await page.goto('/styleguide');
     const chip = page.getByRole('button', { name: 'Geography' });

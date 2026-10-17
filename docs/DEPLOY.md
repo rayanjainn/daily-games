@@ -100,6 +100,11 @@ the moderation queue as "Health check" reports.
 1. **Add New → Project →** import `rayanjainn/daily-games`.
 2. **Root Directory:** `apps/web`. Framework preset: Next.js. Leave install and build commands
    as detected (pnpm workspaces are picked up from the repo root). Node.js version: 22.x.
+   **Function region: the same region as your Neon database** (Settings → Functions → Function
+   Region; e.g. Neon `aws-ap-southeast-1` → Vercel `sin1` Singapore, Neon `aws-us-east-1` →
+   `iad1`). Every page makes a few database queries; across continents each one costs
+   100–250 ms, which is the main cause of a slow site. Pick the Neon region closest to your
+   players first, then match Vercel to it.
 3. **Environment Variables** (Production):
 
    | Name                                                  | Value                                    |
