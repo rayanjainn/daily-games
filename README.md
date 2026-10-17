@@ -53,3 +53,10 @@ Useful scripts:
 | `pnpm icons:generate` | Re-renders the app icons from the SVG          |
 | `pnpm keys:realtime`  | Generates realtime signing keys                |
 | `pnpm keys:vapid`     | Generates web push (VAPID) keys                |
+
+### Live updates in tests
+
+`E2E_REALTIME=1 pnpm --filter @everydaily/web exec playwright test --project=e2e realtime.spec.ts`
+also starts the worker with `wrangler dev` (throwaway keys) and checks live comments, typing,
+presence and group boards end to end. Without it, those specs are skipped and the app runs with
+live updates off.

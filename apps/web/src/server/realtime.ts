@@ -34,3 +34,22 @@ export async function publishToRoom(room: string, kind: string, data: unknown) {
   if (!res.ok) throw new Error(`broadcast failed: ${res.status}`);
   return (await res.json()) as { seq: number; delivered: number };
 }
+
+/**
+ * Publishes after a write without ever failing it: realtime is a nicety, and the page is
+ * correct on the next load anyway. Does nothing when realtime isn't configured.
+ */
+export async function publishSafely(room: string, kind: string, data: unknown) {
+  try {
+    serverEnv();
+  } catch {
+    return;
+  }
+  try {
+    await publishToRoom(room, kind, data);
+  } catch (err) {
+    console.error(
+      JSON.stringify({ level: 'warn', msg: 'realtime publish failed', room, error: String(err) }),
+    );
+  }
+}

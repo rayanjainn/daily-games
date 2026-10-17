@@ -2,11 +2,11 @@ import { ArrowLeft, Lock } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CommentThread } from '@/components/community/comment-thread';
 import { ContentMenu } from '@/components/community/content-menu';
 import { FlairBadge } from '@/components/community/flair-badge';
 import { Spoiler } from '@/components/community/spoiler';
 import { VoteButtons } from '@/components/community/vote-buttons';
+import { LiveThread } from '@/components/realtime/live-thread';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { isModerator, postView } from '@/server/community';
@@ -89,12 +89,13 @@ export default async function PostPage({ params }: { params: Params }) {
             puzzle. Tap any comment to read it anyway.
           </p>
         ) : null}
-        <CommentThread
+        <LiveThread
           postId={post.id}
           comments={post.comments}
           locked={post.status === 'locked'}
           hideBodies={post.hideComments}
           mod={mod}
+          selfName={user.displayName ?? user.username}
         />
       </Card>
     </div>

@@ -29,6 +29,7 @@ export function CommentThread({
   locked,
   hideBodies,
   mod,
+  onTyping,
 }: {
   postId: string;
   comments: CommentView[];
@@ -36,6 +37,8 @@ export function CommentThread({
   /** Daily thread the viewer hasn't logged yet: every comment starts blurred. */
   hideBodies: boolean;
   mod: boolean;
+  /** Called as the player types (for "… is typing"). */
+  onTyping?: () => void;
 }) {
   const tree = buildThread(comments);
   return (
@@ -45,7 +48,7 @@ export function CommentThread({
           This post is locked. No new comments.
         </p>
       ) : (
-        <CommentForm postId={postId} />
+        <CommentForm postId={postId} onTyping={onTyping} />
       )}
       {tree.length ? (
         <ol className="flex flex-col gap-3" data-testid="comments">
@@ -57,6 +60,7 @@ export function CommentThread({
               locked={locked}
               hideBodies={hideBodies}
               mod={mod}
+              onTyping={onTyping}
             />
           ))}
         </ol>
@@ -73,12 +77,14 @@ function Comment({
   locked,
   hideBodies,
   mod,
+  onTyping,
 }: {
   node: CommentNode<CommentView>;
   postId: string;
   locked: boolean;
   hideBodies: boolean;
   mod: boolean;
+  onTyping?: () => void;
 }) {
   const [replying, setReplying] = useState(false);
   const removed = node.status === 'removed';
@@ -138,7 +144,12 @@ function Comment({
           />
         </div>
         {replying ? (
-          <CommentForm postId={postId} parentId={node.id} onDone={() => setReplying(false)} />
+          <CommentForm
+            postId={postId}
+            parentId={node.id}
+            onDone={() => setReplying(false)}
+            onTyping={onTyping}
+          />
         ) : null}
       </div>
       {node.replies.length ? (
@@ -151,6 +162,7 @@ function Comment({
               locked={locked}
               hideBodies={hideBodies}
               mod={mod}
+              onTyping={onTyping}
             />
           ))}
         </ol>
@@ -163,10 +175,12 @@ function CommentForm({
   postId,
   parentId,
   onDone,
+  onTyping,
 }: {
   postId: string;
   parentId?: string;
   onDone?: () => void;
+  onTyping?: () => void;
 }) {
   const router = useRouter();
   const [body, setBody] = useState('');
@@ -199,7 +213,10 @@ function CommentForm({
         id={`c-${parentId ?? postId}`}
         value={body}
         maxLength={MAX_COMMENT_BODY}
-        onChange={(e) => setBody(e.target.value)}
+        onChange={(e) => {
+          setBody(e.target.value);
+          onTyping?.();
+        }}
         placeholder={parentId ? 'Write a reply…' : 'Add a comment…'}
         className="min-h-20 text-sm"
         aria-invalid={Boolean(error)}
