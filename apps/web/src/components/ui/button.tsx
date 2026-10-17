@@ -15,7 +15,10 @@ export const buttonVariants = cva(
     'transition-[transform,box-shadow,background-color,filter] duration-[var(--dur-instant)] ease-out',
     'hover:-translate-y-px hover:brightness-[1.04]',
     'active:translate-y-[var(--press)] active:shadow-none',
-    'disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50',
+    'disabled:pointer-events-none aria-disabled:pointer-events-none aria-disabled:opacity-50',
+    // Disabled reads as a flat neutral tile (not a faded accent); loading keeps its color.
+    '[&:disabled:not([aria-busy])]:border-line-soft [&:disabled:not([aria-busy])]:bg-surface-3 [&:disabled:not([aria-busy])]:text-ink-faint [&:disabled:not([aria-busy])]:shadow-none',
+    '[&[aria-busy]]:opacity-80',
     '[&_svg]:size-[1.15em] [&_svg]:shrink-0',
   ],
   {
@@ -59,11 +62,19 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? Slot : 'button';
+  const classes = cn(buttonVariants({ variant, size, block }), className);
+  if (asChild) {
+    // Slot needs exactly one child element (e.g. a <Link>).
+    return (
+      <Slot className={classes} {...props}>
+        {children}
+      </Slot>
+    );
+  }
   return (
-    <Comp
-      className={cn(buttonVariants({ variant, size, block }), className)}
-      disabled={asChild ? undefined : disabled || loading}
+    <button
+      className={classes}
+      disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...props}
     >
@@ -71,9 +82,11 @@ export function Button({
         <>
           <Loader2 className="animate-spin" aria-hidden />
           <span className="sr-only">Loading</span>
+          <span aria-hidden>{children}</span>
         </>
-      ) : null}
-      {asChild ? children : loading ? <span aria-hidden>{children}</span> : children}
-    </Comp>
+      ) : (
+        children
+      )}
+    </button>
   );
 }
