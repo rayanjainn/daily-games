@@ -26,6 +26,9 @@ const LIMITS = {
   // Notes autosave while typing; generous but bounded.
   'note-save': { tokens: 240, window: '10 m' },
   'solution-submit': { tokens: 10, window: '1 d' },
+  'push-subscribe': { tokens: 20, window: '1 h' },
+  'push-test': { tokens: 5, window: '10 m' },
+  'reminder-edit': { tokens: 120, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;

@@ -3,6 +3,7 @@
  *    When the network is down, navigations get the offline page instead.
  *  - Hashed build assets and icons are cached on first use (they never change at a URL).
  *  - API, realtime and cross-origin requests are not touched.
+ *  - Reminders arrive as Web Push messages and are shown as notifications.
  */
 const VERSION = 'v1';
 const SHELL = `ed-shell-${VERSION}`;
@@ -65,4 +66,41 @@ self.addEventListener('fetch', (event) => {
       })(),
     );
   }
+});
+
+// Reminders: { title, body, url, tag } from the worker. Only same-site paths are opened.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : '' };
+  }
+  const url = typeof data.url === 'string' && data.url.startsWith('/') ? data.url : '/today';
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'EveryDaily', {
+      body: data.body || '',
+      tag: data.tag || 'everydaily',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      data: { url },
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || '/today', self.location.origin);
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const open = windows.find((w) => new URL(w.url).origin === target.origin);
+      if (open) {
+        await open.focus();
+        if ('navigate' in open) await open.navigate(target.href);
+        return;
+      }
+      await self.clients.openWindow(target.href);
+    })(),
+  );
 });

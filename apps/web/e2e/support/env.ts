@@ -19,4 +19,7 @@ export const SERVER_ENV: Record<string, string> = {
   POW_DIFFICULTY: '12',
   ENABLE_STYLEGUIDE: '1',
   NEXT_TELEMETRY_DISABLED: '1',
+  // A throwaway public key (its private half was never kept): lets the Reminders UI render.
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY:
+    'BBucNJLlmhlhgrIGR-rRI_fGzi_cXz8N2TgD6EiUz67oKw2AfXEEZD-q8NVYsZPgyKaDu40ftjd2Ou-6bHGFgFQ',
 };
