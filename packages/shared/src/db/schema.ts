@@ -19,6 +19,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   EMBED_MODES,
+  FRIENDSHIP_STATUSES,
   GAME_CATEGORIES,
   GAME_REPORT_KINDS,
   GAME_STATUSES,
@@ -482,6 +483,39 @@ export const solutions = pgTable(
       'solutions_source_https',
       sql`${t.sourceUrl} ~ '^https://' AND char_length(${t.sourceUrl}) <= 500`,
     ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Social
+// ---------------------------------------------------------------------------
+
+/**
+ * One row per pair of players, stored once with user_a < user_b. `requested_by` is who sent the
+ * request (or, for `blocked`, who blocked). A block hides each player from the other.
+ */
+export const friendships = pgTable(
+  'friendships',
+  {
+    userA: uuid('user_a')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    userB: uuid('user_b')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').$type<(typeof FRIENDSHIP_STATUSES)[number]>().notNull(),
+    requestedBy: uuid('requested_by')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+    acceptedAt: timestamp('accepted_at', { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userA, t.userB] }),
+    index('friendships_user_b_idx').on(t.userB),
+    check('friendships_order', sql`${t.userA} < ${t.userB}`),
+    check('friendships_status_check', oneOf('status', FRIENDSHIP_STATUSES)),
+    check('friendships_requester', sql`${t.requestedBy} IN (${t.userA}, ${t.userB})`),
   ],
 );
 

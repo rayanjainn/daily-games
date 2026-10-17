@@ -1,4 +1,4 @@
-import { CalendarCheck, Gamepad2, Settings, ShieldCheck } from 'lucide-react';
+import { CalendarCheck, Gamepad2, Settings, ShieldCheck, Users } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/brand/logo';
@@ -8,6 +8,7 @@ import { NavLink } from './nav-link';
 const NAV = [
   { href: '/today', label: 'Today', icon: CalendarCheck },
   { href: '/games', label: 'Games', icon: Gamepad2 },
+  { href: '/friends', label: 'Friends', icon: Users },
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 const ADMIN = { href: '/admin', label: 'Admin', icon: ShieldCheck } as const;

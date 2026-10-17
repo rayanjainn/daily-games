@@ -13,6 +13,8 @@ const body = z.object({
     .transform((s) => s || null)
     .optional(),
   timezone: z.string().max(64).refine(isValidTimeZone, 'Unknown timezone').optional(),
+  /** Hide friends' and groups' results for a puzzle until you've logged yours. */
+  spoilerSafe: z.boolean().optional(),
 });
 
 export const PATCH = mutation(body, async (input) => {

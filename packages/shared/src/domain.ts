@@ -67,6 +67,9 @@ export type GameReportKind = (typeof GAME_REPORT_KINDS)[number];
 
 export const REPORT_STATUSES = ['open', 'resolved', 'dismissed'] as const;
 export const SUBMISSION_STATUSES = ['pending', 'approved', 'rejected', 'duplicate'] as const;
+export const FRIENDSHIP_STATUSES = ['pending', 'accepted', 'blocked'] as const;
+export type FriendshipStatus = (typeof FRIENDSHIP_STATUSES)[number];
+
 export const SOLUTION_STATUSES = ['pending', 'approved', 'rejected'] as const;
 export type SolutionStatus = (typeof SOLUTION_STATUSES)[number];
 export const MAX_SOLUTION_LENGTH = 1000;

@@ -50,6 +50,13 @@
       "when": 1792257939433,
       "tag": "0006_email_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792273329674,
+      "tag": "0007_friendships",
+      "breakpoints": true
     }
   ]
 }

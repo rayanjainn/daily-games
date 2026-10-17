@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
+import { Switch } from '@/components/ui/switch';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { InstallApp } from '@/components/pwa/install-app';
@@ -49,7 +50,13 @@ interface SessionRow {
   current: boolean;
 }
 interface Props {
-  user: { username: string; displayName: string | null; timezone: string; email: string | null };
+  user: {
+    username: string;
+    displayName: string | null;
+    timezone: string;
+    email: string | null;
+    spoilerSafe: boolean;
+  };
   passkeys: Passkey[];
   sessions: SessionRow[];
   recovery: { exists: boolean; confirmed: boolean; createdAt: string | null };
@@ -215,7 +222,36 @@ function ProfileSection({ user }: { user: Props['user'] }) {
           </Button>
         </div>
       </form>
+      <SpoilerSafe initial={user.spoilerSafe} />
     </Section>
+  );
+}
+
+/** Saved straight away, separate from the profile form. */
+function SpoilerSafe({ initial }: { initial: boolean }) {
+  const toast = useToast();
+  const [on, setOn] = useState(initial);
+  return (
+    <div className="flex items-center justify-between gap-3 border-t-2 border-line-soft pt-4">
+      <label htmlFor="spoiler-safe" className="font-display text-sm font-semibold">
+        Spoiler-safe
+        <span className="block font-body text-xs font-normal text-ink-soft">
+          Hide friends&apos; and groups&apos; results for a puzzle until you&apos;ve logged yours.
+        </span>
+      </label>
+      <Switch
+        id="spoiler-safe"
+        checked={on}
+        onCheckedChange={async (v) => {
+          try {
+            await api('/api/me/profile', { spoilerSafe: v }, 'PATCH');
+            setOn(v);
+          } catch (err) {
+            toast({ tone: 'error', title: "Couldn't save", body: errorText(err) });
+          }
+        }}
+      />
+    </div>
   );
 }
 
