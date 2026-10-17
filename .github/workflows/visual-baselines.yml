@@ -1,0 +1,30 @@
+name: Visual baselines
+
+# Regenerates Playwright visual-regression baselines in the same pinned image the CI visual job
+# uses, and uploads them as an artifact to review and commit.
+on:
+  workflow_dispatch:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Update snapshots
+        working-directory: apps/web
+        env:
+          VISUAL: '1'
+        run: pnpm exec playwright test --project visual --update-snapshots
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: apps/web/e2e/**/*-snapshots/**
+          retention-days: 7
