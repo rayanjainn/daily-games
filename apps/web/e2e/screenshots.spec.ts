@@ -448,6 +448,35 @@ const SETS: Record<string, Screen[]> = {
       },
     },
   ],
+  'friends-board': [
+    {
+      name: 'friends-board',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const ids = await befriend(u, ['ava_plays', 'ben_words', 'cai_maps'], 'accepted');
+        const sql = e2eSql();
+        await sql`DELETE FROM results WHERE user_id IN ${sql(ids)}`;
+        await sql.end();
+        const scores: [string, number[]][] = [
+          [u.id, [4, 3, 5, 4]],
+          [ids[0]!, [3, 4, 4, 0]],
+          [ids[1]!, [5, 2, 0, 3]],
+        ];
+        for (const [id, list] of scores)
+          for (const [i, a] of list.entries())
+            await played(
+              id,
+              'wordle',
+              [i],
+              a === 0 ? { solved: false, maxAttempts: 6 } : { attempts: a, maxAttempts: 6 },
+            );
+        await played(u.id, 'connections', [0, 1], { attempts: 4, maxAttempts: 4 });
+        await page.goto('/friends?game=wordle');
+        await expect(page.getByTestId('today-board')).toBeVisible();
+      },
+    },
+  ],
   polish: [
     {
       name: 'polish-games',

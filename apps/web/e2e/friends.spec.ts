@@ -34,6 +34,9 @@ test.describe('friends', () => {
 
     await page.goto('/friends');
     await expect(page.getByTestId('friends')).toContainText('Played 1 today');
+    // The friends board: spoiler-safe hides their score until I log today's Wordle.
+    await expect(page.getByTestId('board-hidden')).toBeVisible();
+    await expect(page.getByTestId('today-board')).not.toContainText('3/6');
     await page.getByRole('link', { name: `Compare with ${them.user.username}` }).click();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
       `You vs ${them.user.username}`,
@@ -50,6 +53,14 @@ test.describe('friends', () => {
     await played(me.id, 'wordle', [0], { attempts: 4, maxAttempts: 6 });
     await page.reload();
     await expect(page.getByTestId('h2h-today').first()).toContainText('3/6');
+
+    await page.goto('/friends?game=wordle');
+    const rows = page.getByTestId('today-board').getByRole('listitem');
+    await expect(rows.first()).toContainText(them.user.username);
+    await expect(rows.first()).toContainText('3/6');
+    await expect(rows.nth(1)).toContainText(`${me.username} (you)`);
+    await expect(page.getByTestId('week-board')).toContainText('3 solved · 3 played');
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await them.ctx.close();
   });
 
