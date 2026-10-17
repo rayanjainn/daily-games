@@ -1,0 +1,28 @@
+slug: 'maptap'
+name: 'MapTap'
+publisher: 'MapTap'
+description: 'Find five places a day on a 3D globe, each with a short story from history.'
+url: 'https://maptap.gg/'
+category: 'geography'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#2E7424'
+icon: 'pin'
+attribution: 'Made and hosted by MapTap.'
+verifiedLiveAt: '2026-10-17T16:45:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

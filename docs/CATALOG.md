@@ -23,10 +23,10 @@ regenerates the client-side summary after edits.
 
 | Tier | What it means                                              | Games  |
 | ---- | ---------------------------------------------------------- | ------ |
-| 1    | Dedicated parser, full stats                               | 12     |
+| 1    | Dedicated parser, full stats                               | 13     |
 | 2    | Generic parser (number, N/M, emoji grid) plus manual score | 7      |
-| 3    | Link only: follow, reminders, done-today checkbox, streaks | 51     |
-|      | **Total**                                                  | **70** |
+| 3    | Link only: follow, reminders, done-today checkbox, streaks | 57     |
+|      | **Total**                                                  | **77** |
 
 ### Tier 1
 
@@ -35,6 +35,7 @@ regenerates the client-side summary after edits.
 | Clues by Sam   | Clues by Sam       | logic     |
 | Connections    | The New York Times | word      |
 | Globle         | Globle Game        | geography |
+| Krillion       | Krillion           | trivia    |
 | Minute Cryptic | Minute Cryptic     | crossword |
 | Murdle         | G. T. Karber       | logic     |
 | Nerdle         | Nerdle             | math      |
@@ -62,6 +63,7 @@ regenerates the client-side summary after edits.
 | Game                        | Publisher          | Category  |
 | --------------------------- | ------------------ | --------- |
 | Actorle                     | Actorle            | visual    |
+| Catfishing                  | catfishing.net     | trivia    |
 | Chronophoto                 | Chronophoto        | visual    |
 | Colorfle                    | Colorfle           | visual    |
 | Connections: Sports Edition | The Athletic       | trivia    |
@@ -73,15 +75,19 @@ regenerates the client-side summary after edits.
 | Framed                      | Framed             | visual    |
 | Gamedle                     | Gamedle            | visual    |
 | GeoGrid                     | GeoGrid            | geography |
+| Gisnep                      | Gisnep             | word      |
+| Globle: Capitals            | Globle Game        | geography |
 | Heardle 80s                 | Heardle 80s        | music     |
 | Hexcodle                    | Hexcodle           | visual    |
 | Immaculate Grid             | Sports Reference   | trivia    |
 | Letter Boxed                | The New York Times | word      |
 | Lyricle                     | Lyricle            | music     |
+| MapTap                      | MapTap             | geography |
 | Mathler                     | Mathler            | math      |
 | Metaflora                   | Metazooa           | trivia    |
 | Metazooa                    | Metazooa           | trivia    |
 | Mini Nerdle                 | Nerdle             | math      |
+| Mini Sudoku                 | LinkedIn           | logic     |
 | Numberle                    | Numberle           | math      |
 | Phrazle                     | Solitaired         | word      |
 | Pinpoint                    | LinkedIn           | word      |
@@ -92,6 +98,7 @@ regenerates the client-side summary after edits.
 | Quick Crossword             | The Guardian       | crossword |
 | Raddle                      | Raddle             | word      |
 | Redactle                    | Redactle           | trivia    |
+| Scrandle                    | Scrandle           | visual    |
 | Sedecordle                  | Sedecordle         | word      |
 | Semantle                    | Semantle           | word      |
 | Songless                    | Less Games         | music     |
@@ -142,3 +149,10 @@ time entry rather than a parser.
 
 Games that block automated checks may well be live; they can be added through the suggestion
 flow once a moderator confirms them from a normal browser.
+
+Krillion's Daily Dive share has no date or number ("KRILLION · THE DAILY DIVE" plus
+"420/700 · 4,200 m"), so a pasted result counts for the current puzzle, which resets at 00:00 UTC
+(read from the game code). Its themed rounds and practice rounds are not accepted. The games
+added on 2026-10-17 (Krillion, Catfishing, MapTap, Gisnep, Globle: Capitals, Scrandle, Mini
+Sudoku) were probed for framing: four load in a frame and three block it; all stay `popout`
+until a publisher allows embedding.

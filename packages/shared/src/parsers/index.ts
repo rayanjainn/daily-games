@@ -11,6 +11,7 @@ import { cluesBySam } from './clues-by-sam';
 import { connections } from './connections';
 import { generic } from './generic';
 import { globle } from './globle';
+import { krillion } from './krillion';
 import { minuteCryptic } from './minute-cryptic';
 import { murdle } from './murdle';
 import { nerdle } from './nerdle';
@@ -40,6 +41,7 @@ export const PARSERS: Record<string, Parser> = Object.fromEntries(
     nerdle,
     murdle,
     cluesBySam,
+    krillion,
     generic,
   ].map((p) => [p.id, p]),
 );
