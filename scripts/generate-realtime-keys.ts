@@ -1,6 +1,6 @@
 /**
  * Generates the Ed25519 key pair for realtime tokens and a broadcast secret.
- * Usage: pnpm tsx scripts/generate-realtime-keys.ts
+ * Usage: pnpm keys:realtime
  *   web (Vercel):    REALTIME_SIGNING_KEY, INTERNAL_BROADCAST_SECRET
  *   worker (secret): REALTIME_PUBLIC_KEY, INTERNAL_BROADCAST_SECRET
  */

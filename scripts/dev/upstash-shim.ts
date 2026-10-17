@@ -3,7 +3,7 @@
  * forwards commands to a local Redis over RESP. Lets @upstash/redis and @upstash/ratelimit run
  * unchanged against `redis-server` (no Docker needed).
  *
- * Usage: pnpm tsx scripts/dev/upstash-shim.ts
+ * Usage: pnpm dev:redis-shim
  *   env: SHIM_PORT=8079 REDIS_URL=redis://localhost:6379 REDIS_DB=0 SHIM_TOKEN=local-dev-token
  * Not for production.
  */

@@ -28,6 +28,12 @@ binding = "HYPERDRIVE"
 id = "00000000000000000000000000000000"
 localConnectionString = "postgres://everydaily:everydaily@localhost:5432/everydaily"
 
+# Realtime and internal routes on your own domain (the zone must be in this Cloudflare account).
+# Without it the worker is still reachable at https://everydaily-worker.<account>.workers.dev.
+# [[routes]]
+# pattern = "rt.everydaily.raycode.tech"
+# custom_domain = true
+
 [triggers]
 # Daily game URL health check (see src/health.ts).
 crons = ["17 4 * * *"]

@@ -1,6 +1,6 @@
 /**
  * Generates a VAPID key pair for web push.
- * Usage: pnpm tsx scripts/generate-vapid-keys.ts
+ * Usage: pnpm keys:vapid
  * Put VAPID_PUBLIC_KEY in the web app env (it is public) and both keys in the worker secrets.
  */
 const b64url = (bytes: ArrayBuffer | Uint8Array) =>
