@@ -415,6 +415,121 @@ describe('minute cryptic', () => {
   });
 });
 
+describe('nerdle', () => {
+  const grid = ['⬛🟪⬛🟪🟪🟩⬛⬛', '🟪⬛🟪🟪⬛🟩⬛⬛', '⬛🟩🟩🟪🟩🟩⬛🟩', '🟩🟩🟩🟩🟩🟩🟩🟩'];
+  const share = (header: string, rows = grid) => `${header}\n\n${rows.join('\n')}`;
+
+  it('reads number, attempts and the 8-wide grid', () => {
+    const v = expectOk(parse('nerdle', share('nerdlegame 1732 4/6')));
+    expect(v).toMatchObject({
+      puzzleNumber: 1732,
+      puzzleDate: '2026-10-17',
+      solved: true,
+      attempts: 4,
+      maxAttempts: 6,
+    });
+    expect(v.details.grid).toBe(grid.join('\n'));
+  });
+
+  it('handles a failed game', () => {
+    const rows = Array.from({ length: 6 }, () => grid[0]!);
+    const v = expectOk(parse('nerdle', share('nerdlegame 1731 X/6', rows)));
+    expect(v).toMatchObject({ puzzleNumber: 1731, solved: false });
+    expect(v.attempts).toBeUndefined();
+  });
+
+  it('rejects tampered and malformed grids', () => {
+    expectErr(parse('nerdle', share('nerdlegame 1732 3/6')), 'inconsistent');
+    expectErr(parse('nerdle', share('nerdlegame 1732 X/6')), 'inconsistent');
+    expectErr(
+      parse('nerdle', share('nerdlegame 1732 4/6', [...grid.slice(0, 3), '🟩🟩🟩🟩🟩🟩🟩'])),
+      'malformed',
+    );
+  });
+
+  it('rejects future puzzles and other Nerdle variants', () => {
+    expectErr(parse('nerdle', share('nerdlegame 1740 4/6')), 'future_puzzle');
+    expect(detectParsers('mini nerdlegame 1000 3/6\n🟩🟩🟩🟩🟩🟩')).not.toContain('nerdle');
+  });
+});
+
+describe('murdle', () => {
+  const sample = [
+    'THE MYSTERY OF THE CAPRICORN WITH THE BOOBY-TRAPPED FEDORA',
+    'Murdle for 10/17/2026',
+    '',
+    '👤🔪🏡❓     🕰️',
+    '✅✅✅✅     2️⃣3️⃣:4️⃣8️⃣',
+    '',
+    '⚖️',
+    '👤',
+    '',
+    'https://murdle.com',
+  ].join('\n');
+
+  it('reads the date, answers and time, and drops the mystery title', () => {
+    const v = expectOk(parse('murdle', sample));
+    expect(v).toMatchObject({ puzzleDate: '2026-10-17', solved: true, timeSeconds: 23 * 60 + 48 });
+    expect(v.details).toMatchObject({ answers: [1, 1, 1, 1], hints: 0 });
+    expect(v.normalizedShareText).not.toContain('CAPRICORN');
+  });
+
+  it('marks a wrong answer or a wrong accusation as unsolved', () => {
+    expect(expectOk(parse('murdle', sample.replace('✅✅✅✅', '✅❌✅✅'))).solved).toBe(false);
+    expect(expectOk(parse('murdle', sample.replace('⚖️\n👤', '⚖️\n❌'))).solved).toBe(false);
+  });
+
+  it('accepts the older 🟩/⬛ variant with hints', () => {
+    const v = expectOk(
+      parse('murdle', 'Murdle for 10/16/2026\n\n👤🔪🏡     🕰️\n🟩🟩⬛ 🔮🔮     1️⃣2️⃣:0️⃣5️⃣'),
+    );
+    expect(v).toMatchObject({ puzzleDate: '2026-10-16', solved: false, timeSeconds: 725 });
+    expect(v.details).toMatchObject({ answers: [1, 1, 0], hints: 2 });
+  });
+
+  it('rejects bad dates, missing marks and future days', () => {
+    expectErr(parse('murdle', sample.replace('10/17/2026', '13/40/2026')), 'malformed');
+    expectErr(parse('murdle', 'Murdle for 10/17/2026\n\nno marks here'), 'malformed');
+    expectErr(parse('murdle', sample.replace('10/17/2026', '10/25/2026')), 'future_puzzle');
+  });
+});
+
+describe('clues by sam', () => {
+  const sample = [
+    'I solved the daily #CluesBySam, Oct 17th 2026 (Tricky), in less than 20 minutes',
+    '🟩🟩🟡🟩',
+    '🟩🟩🟩🟩',
+    '🟩🟠🟩🟩',
+    '🟩🟩🟩🟨',
+    '🟩🟩🟩🟩',
+    'https://cluesbysam.com',
+  ].join('\n');
+
+  it('counts errors and hints and reads the difficulty', () => {
+    const v = expectOk(parse('clues-by-sam', sample));
+    expect(v).toMatchObject({ puzzleDate: '2026-10-17', solved: true, score: 3 });
+    expect(v.timeSeconds).toBeUndefined();
+    expect(v.details).toMatchObject({
+      errors: 1,
+      hints: 1,
+      secondHints: 1,
+      difficulty: 'Tricky',
+      underMinutes: 20,
+    });
+  });
+
+  it('keeps an exact time when the share has one', () => {
+    const v = expectOk(parse('clues-by-sam', sample.replace('less than 20 minutes', '05:42')));
+    expect(v.timeSeconds).toBe(5 * 60 + 42);
+  });
+
+  it('rejects missing grids, bad dates and future days', () => {
+    expectErr(parse('clues-by-sam', sample.split('\n')[0]!), 'malformed');
+    expectErr(parse('clues-by-sam', sample.replace('Oct 17th', 'Oct 32nd')), 'malformed');
+    expectErr(parse('clues-by-sam', sample.replace('Oct 17th', 'Oct 24th')), 'future_puzzle');
+  });
+});
+
 describe('generic (tier 2)', () => {
   it('extracts number, score and grid and keys the result to today', () => {
     const v = expectOk(

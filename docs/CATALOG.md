@@ -11,28 +11,33 @@ regenerates the client-side summary after edits.
 - **Numbering:** epochs for Tier 1 games come from the games' own code where readable
   (Worldle: days since 2022-01-21) or from dated puzzle numbers published by several outlets
   (Connections #1221 on 2026-10-14, Quordle #1725 on 2026-10-15, Octordle #1450 on 2026-01-13,
-  Strands #946 on 2026-10-05, Wordle #1000 on 2024-03-15). Unit tests pin these.
+  Strands #946 on 2026-10-05, Wordle #1000 on 2024-03-15, Nerdle #1732 on 2026-10-17). Unit tests pin these.
 - **Share formats:** Tier 1 and Tier 2 formats were read from each game's public client code
   (the function that builds the share text), not guessed from screenshots. Samples in the YAML
-  use invented answers and themes; no puzzle content is copied.
+  use invented answers and themes; no puzzle content is copied. The Nerdle, Murdle and Clues by
+  Sam samples are real shares from a player; parsers drop anything that is puzzle content (such
+  as Murdle's mystery title).
 - **Embedding:** every game starts as `popout`. Only the embed probe may set `iframe`.
 
 ## Tiers
 
 | Tier | What it means                                              | Games  |
 | ---- | ---------------------------------------------------------- | ------ |
-| 1    | Dedicated parser, full stats                               | 9      |
+| 1    | Dedicated parser, full stats                               | 12     |
 | 2    | Generic parser (number, N/M, emoji grid) plus manual score | 7      |
-| 3    | Link only: follow, reminders, done-today checkbox, streaks | 54     |
+| 3    | Link only: follow, reminders, done-today checkbox, streaks | 51     |
 |      | **Total**                                                  | **70** |
 
 ### Tier 1
 
 | Game           | Publisher          | Category  |
 | -------------- | ------------------ | --------- |
+| Clues by Sam   | Clues by Sam       | logic     |
 | Connections    | The New York Times | word      |
 | Globle         | Globle Game        | geography |
 | Minute Cryptic | Minute Cryptic     | crossword |
+| Murdle         | G. T. Karber       | logic     |
+| Nerdle         | Nerdle             | math      |
 | Octordle       | Merriam-Webster    | word      |
 | Quordle        | Merriam-Webster    | word      |
 | Strands        | The New York Times | word      |
@@ -58,7 +63,6 @@ regenerates the client-side summary after edits.
 | --------------------------- | ------------------ | --------- |
 | Actorle                     | Actorle            | visual    |
 | Chronophoto                 | Chronophoto        | visual    |
-| Clues by Sam                | Clues by Sam       | logic     |
 | Colorfle                    | Colorfle           | visual    |
 | Connections: Sports Edition | The Athletic       | trivia    |
 | Contexto                    | Contexto           | word      |
@@ -78,8 +82,6 @@ regenerates the client-side summary after edits.
 | Metaflora                   | Metazooa           | trivia    |
 | Metazooa                    | Metazooa           | trivia    |
 | Mini Nerdle                 | Nerdle             | math      |
-| Murdle                      | G. T. Karber       | logic     |
-| Nerdle                      | Nerdle             | math      |
 | Numberle                    | Numberle           | math      |
 | Phrazle                     | Solitaired         | word      |
 | Pinpoint                    | LinkedIn           | word      |

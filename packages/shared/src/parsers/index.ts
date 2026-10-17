@@ -7,10 +7,13 @@ import {
   latestAvailablePuzzleNumber,
   puzzleNumberForDate,
 } from '../time/puzzle';
+import { cluesBySam } from './clues-by-sam';
 import { connections } from './connections';
 import { generic } from './generic';
 import { globle } from './globle';
 import { minuteCryptic } from './minute-cryptic';
+import { murdle } from './murdle';
+import { nerdle } from './nerdle';
 import { nytMini } from './nyt-mini';
 import { octordle } from './octordle';
 import { quordle } from './quordle';
@@ -34,6 +37,9 @@ export const PARSERS: Record<string, Parser> = Object.fromEntries(
     globle,
     worldle,
     minuteCryptic,
+    nerdle,
+    murdle,
+    cluesBySam,
     generic,
   ].map((p) => [p.id, p]),
 );

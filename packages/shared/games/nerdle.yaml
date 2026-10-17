@@ -5,20 +5,28 @@ description: 'Guess the hidden equation in six tries.'
 url: 'https://nerdlegame.com/'
 category: 'math'
 difficulty: 'medium'
-tier: 3
+tier: 1
 embedMode: 'popout'
 reset:
   mode: 'user_local'
   hour: 0
   note: 'Assumed to change at local midnight; not confirmed by the publisher.'
 numbering:
-  epoch: '2025-01-01'
+  epoch: '2022-01-20'
   epochNumber: 1
-  public: false
-parserId: null
+  public: true
+parserId: 'nerdle'
 scoring:
-  type: 'completion'
-shareTextSamples: []
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    nerdlegame 1732 4/6
+
+    ⬛🟪⬛🟪🟪🟩⬛⬛
+    🟪⬛🟪🟪⬛🟩⬛⬛
+    ⬛🟩🟩🟪🟩🟩⬛🟩
+    🟩🟩🟩🟩🟩🟩🟩🟩
 accentColor: '#820458'
 icon: 'equation'
 attribution: 'Made and hosted by Nerdle.'
