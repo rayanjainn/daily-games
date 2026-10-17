@@ -15,3 +15,5 @@ const privateJwk = await crypto.subtle.exportKey('jwk', pair.privateKey);
 
 console.log(`VAPID_PUBLIC_KEY=${b64url(publicRaw)}`);
 console.log(`VAPID_PRIVATE_KEY=${privateJwk.d}`);
+
+export {};
