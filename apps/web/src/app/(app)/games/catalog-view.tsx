@@ -166,7 +166,8 @@ export function CatalogView({
             aria-label="Difficulty"
             value={f.difficulty ?? ''}
             onChange={(e) => set({ difficulty: (e.target.value || null) as Difficulty | null })}
-            className="h-10 text-sm sm:w-40"
+            className="h-10 text-sm"
+            wrapperClassName="sm:w-40"
           >
             <option value="">Any difficulty</option>
             {DIFFICULTIES.map((d) => (
@@ -181,7 +182,8 @@ export function CatalogView({
             onChange={(e) =>
               set({ tier: e.target.value ? (Number(e.target.value) as Tier) : null })
             }
-            className="h-10 text-sm sm:w-40"
+            className="h-10 text-sm"
+            wrapperClassName="sm:w-40"
           >
             <option value="">Any tracking</option>
             {([1, 2, 3] as const).map((t) => (
@@ -194,7 +196,8 @@ export function CatalogView({
             aria-label="Where it plays"
             value={f.embed ?? ''}
             onChange={(e) => set({ embed: (e.target.value || null) as EmbedMode | null })}
-            className="h-10 text-sm sm:w-48"
+            className="h-10 text-sm"
+            wrapperClassName="sm:w-48"
           >
             <option value="">Anywhere</option>
             {EMBED_MODES.map((m) => (

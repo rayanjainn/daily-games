@@ -105,7 +105,14 @@ export default async function GamePage({ params }: { params: Params }) {
             <CalendarDays className="size-5 text-ink-soft" aria-hidden />
             Today
           </h2>
-          <p className="font-display text-3xl font-bold leading-none" data-testid="today-puzzle">
+          <p
+            className={
+              game.today.number !== null
+                ? 'font-display text-3xl font-bold leading-none'
+                : 'font-display text-2xl font-bold leading-tight'
+            }
+            data-testid="today-puzzle"
+          >
             {game.today.number !== null
               ? `#${game.today.number.toLocaleString('en-US')}`
               : longDate(game.today.date)}

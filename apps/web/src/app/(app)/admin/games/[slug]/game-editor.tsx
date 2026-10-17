@@ -471,7 +471,7 @@ export function GameEditor({
                   />
                 )}
               </Field>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-[1.5fr_1fr] gap-4">
                 <Field label="Epoch date">
                   {({ id }) => (
                     <Input

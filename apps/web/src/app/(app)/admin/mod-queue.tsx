@@ -143,7 +143,10 @@ function ReportRow({ report: r }: { report: Report }) {
             <p className="mt-1 whitespace-pre-wrap break-words text-sm">{r.details}</p>
           ) : null}
           <p className="mt-1 text-xs text-ink-soft">
-            {r.reporter ? `From ${r.reporter}` : 'Automatic'} · {when(r.createdAt)}
+            {r.kind === 'auto'
+              ? 'Automatic health check'
+              : `From ${r.reporter ?? 'a deleted account'}`}{' '}
+            · {when(r.createdAt)}
           </p>
         </div>
         <div className="flex shrink-0 gap-2">
