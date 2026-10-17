@@ -268,6 +268,25 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  picks: [
+    {
+      name: 'today-picks',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections']);
+        await befriend(u, ['ava_plays', 'ben_words'], 'accepted');
+        const sql = e2eSql();
+        await sql`INSERT INTO follows (user_id, game_id, position)
+          SELECT u.id, g.id, 0 FROM users u, games g
+          WHERE u.username IN ('ava_plays', 'ben_words') AND g.slug = 'murdle'
+          ON CONFLICT DO NOTHING`;
+        await sql.end();
+        await page.goto('/today');
+        await expect(page.getByTestId('picks')).toBeVisible();
+      },
+    },
+  ],
   badges: [
     {
       name: 'badges',

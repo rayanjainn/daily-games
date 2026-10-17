@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { csrfHeaders } from './support/auth';
 import { follow, played } from './support/play';
 import { expect, test, type Page } from './support/fixtures';
+import { e2eSql } from './support/db';
 import { signInAs } from './support/session';
 
 const rows = (page: Page) => page.getByTestId('checklist-item');
@@ -11,6 +12,33 @@ test.describe('dashboard', () => {
     await signInAs(page);
     await page.goto('/');
     await page.waitForURL((u) => u.pathname === '/today');
+  });
+
+  test('suggests games friends follow, and following one adds it to the list', async ({ page }) => {
+    const me = await signInAs(page);
+    await follow(page, ['globle']);
+    // Two friends who both follow Murdle.
+    const sql = e2eSql();
+    const murdle = (await sql`SELECT id FROM games WHERE slug = 'murdle'`)[0]!.id as string;
+    for (let i = 0; i < 2; i++) {
+      const [f] = await sql`INSERT INTO users (id, username, timezone)
+        VALUES (gen_random_uuid(), ${`pick_${me.id.slice(0, 8)}_${i}`}, 'UTC') RETURNING id`;
+      const other = f!.id as string;
+      const [a, b] = me.id < other ? [me.id, other] : [other, me.id];
+      await sql`INSERT INTO friendships (user_a, user_b, status, requested_by, accepted_at)
+        VALUES (${a}, ${b}, 'accepted', ${other}, now())`;
+      await sql`INSERT INTO follows (user_id, game_id, position) VALUES (${other}, ${murdle}, 0)`;
+    }
+    await sql.end();
+
+    await page.goto('/today');
+    const picks = page.getByTestId('picks');
+    await expect(picks.getByRole('listitem')).toHaveCount(2);
+    await expect(picks.getByRole('listitem').first()).toContainText('Murdle');
+    await expect(picks.getByRole('listitem').first()).toContainText('2 friends follow it');
+    await picks.getByRole('button', { name: 'Follow Murdle' }).click();
+    await expect(rows(page)).toHaveCount(2);
+    await expect(picks).not.toContainText('Murdle');
   });
 
   test('starts empty with popular picks to follow', async ({ page }) => {

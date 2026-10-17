@@ -4,6 +4,8 @@ import { ArrowDown, ArrowUp, Award, Check, ImageIcon, ListOrdered, Plus } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import type { PickReason } from '@everydaily/shared/catalog/recommend';
+import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import { confettiBurst } from '@/components/game/confetti';
 import { FollowButton } from '@/components/game/follow-button';
 import { GameIcon } from '@/components/game/game-icon';
@@ -21,6 +23,7 @@ import { api, ApiError } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import type { CatalogGame } from '@/server/catalog';
 import type { ChecklistItem, Dashboard } from '@/server/dashboard';
+import type { GamePick } from '@/server/recommendations';
 
 const longDate = (iso: string) =>
   new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', {
@@ -59,10 +62,13 @@ export function TodayView({
   name,
   dashboard,
   starters,
+  picks,
 }: {
   name: string;
   dashboard: Dashboard;
   starters: CatalogGame[];
+  /** Suggestions once the player follows something. */
+  picks: GamePick[];
 }) {
   const { items, done, combined, today } = dashboard;
   const total = items.length;
@@ -119,6 +125,7 @@ export function TodayView({
       ) : null}
 
       {total ? <Checklist items={items} /> : <Starters games={starters} />}
+      {picks.length ? <Picks picks={picks} /> : null}
 
       <nav aria-label="More" className="grid gap-3 sm:grid-cols-2">
         {total ? (
@@ -127,11 +134,9 @@ export function TodayView({
             className="flex items-center justify-between gap-3 rounded-lg border-[length:var(--bw)] border-line bg-surface-2 p-4 shadow-lift-sm hover:bg-surface-3"
           >
             <span>
-              <span className="block font-display text-lg font-semibold">
-                Your week, as a poster
-              </span>
+              <span className="block font-display text-lg font-semibold">Your recap posters</span>
               <span className="text-sm text-ink-soft">
-                Seven days on one board, ready to share.
+                Your week and your month, ready to share.
               </span>
             </span>
             <ImageIcon className="size-6 shrink-0 text-ink-soft" aria-hidden />
@@ -421,6 +426,43 @@ function LogTrigger({
         <LogPanel game={game} onLogged={() => setTimeout(() => setOpen(false), 1200)} />
       </DialogContent>
     </Dialog>
+  );
+}
+
+const pickReason = (r: PickReason) =>
+  r.kind === 'friends'
+    ? `${r.count} ${r.count === 1 ? 'friend follows' : 'friends follow'} it`
+    : r.kind === 'category'
+      ? `You like ${CATEGORY_LABELS[r.category].toLowerCase()} games`
+      : 'Popular with players';
+
+function Picks({ picks }: { picks: GamePick[] }) {
+  return (
+    <section aria-labelledby="for-you-heading" className="flex flex-col gap-3" data-testid="picks">
+      <h2 id="for-you-heading" className="text-xl">
+        Picked for you
+      </h2>
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {picks.map(({ game: g, reason }) => (
+          <li
+            key={g.id}
+            className="relative flex items-center gap-3 rounded-lg border-[length:var(--bw)] border-line bg-surface p-3 shadow-lift-sm"
+          >
+            <GameIcon icon={g.icon} color={g.accentColor} size="sm" />
+            <span className="min-w-0 flex-1">
+              <Link
+                href={`/games/${g.slug}`}
+                className="block truncate font-display font-semibold hover:underline"
+              >
+                {g.name}
+              </Link>
+              <span className="block truncate text-sm text-ink-soft">{pickReason(reason)}</span>
+            </span>
+            <FollowButton gameId={g.id} gameName={g.name} following={false} compact />
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
