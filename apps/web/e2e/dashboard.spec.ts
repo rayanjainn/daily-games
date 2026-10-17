@@ -90,6 +90,11 @@ test.describe('dashboard', () => {
     await page.getByRole('button', { name: 'Move Strands up' }).click();
     const order = ['Connections', 'Strands', 'Wordle'];
     await expect.poll(names).toEqual(order);
+    // Wait for the saves to finish before reloading.
+    await expect(page.getByRole('list', { name: "Today's games" })).toHaveAttribute(
+      'aria-busy',
+      'false',
+    );
     await page.getByRole('button', { name: 'Done' }).click();
     await page.reload();
     await expect.poll(names).toEqual(order);
