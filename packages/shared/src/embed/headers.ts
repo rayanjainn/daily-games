@@ -60,9 +60,21 @@ export function analyzeFrameHeaders(
       ? { verdict: 'allowed', reason: `CSP frame-ancestors allows ${embedder.host}` }
       : { verdict: 'blocked', reason: `CSP frame-ancestors: ${ancestors.join(' ')}` };
   }
-  const xfo = headers.xFrameOptions?.trim().toUpperCase();
+  // Repeated headers arrive comma-joined; identical repeats mean that one value.
+  const xfoValues = [
+    ...new Set(
+      (headers.xFrameOptions ?? '')
+        .split(',')
+        .map((v) => v.trim().toUpperCase())
+        .filter(Boolean),
+    ),
+  ];
+  const xfo = xfoValues.length === 1 ? xfoValues[0] : xfoValues.length ? 'CONFLICTING' : null;
   if (xfo) {
     if (xfo === 'DENY') return { verdict: 'blocked', reason: 'X-Frame-Options: DENY' };
+    // HTML spec: several distinct values block the frame.
+    if (xfo === 'CONFLICTING')
+      return { verdict: 'blocked', reason: `conflicting X-Frame-Options: ${xfoValues.join(', ')}` };
     if (xfo === 'SAMEORIGIN')
       return embedder.origin === page.origin
         ? { verdict: 'allowed', reason: 'X-Frame-Options: SAMEORIGIN (same origin)' }
