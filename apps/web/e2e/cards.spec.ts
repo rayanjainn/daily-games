@@ -58,4 +58,40 @@ test.describe('stat cards', () => {
     await signInAs(page);
     expect((await page.request.get('/api/cards/game/not-a-game')).status()).toBe(404);
   });
+
+  test('the month poster renders this month and last, and refuses other months', async ({
+    page,
+  }) => {
+    const u = await signInAs(page);
+    await played(u.id, 'wordle', [0, 1, 2, 3, 40], { attempts: 3, maxAttempts: 6 });
+    await played(u.id, 'connections', [0, 2], { attempts: 4, maxAttempts: 4 });
+    await played(u.id, 'tradle', [1], { source: 'checkbox', fromArchive: true });
+
+    const month = await page.request.get('/api/cards/month');
+    expect(month.status()).toBe(200);
+    expect(month.headers()['cache-control']).toContain('private');
+    const png = await month.body();
+    expect(size(png)).toEqual([1080, 1350]);
+    keep('month-poster', png);
+
+    const now = new Date();
+    const ym = (d: Date) => d.toISOString().slice(0, 7);
+    const last = ym(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15)));
+    const lastRes = await page.request.get(`/api/cards/month?month=${last}`);
+    expect(lastRes.status()).toBe(200);
+    keep('month-poster-last', await lastRes.body());
+    const next = ym(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 15)));
+    for (const bad of [next, '2026-13', 'october', '1999-01'])
+      expect((await page.request.get(`/api/cards/month?month=${bad}`)).status()).toBe(404);
+
+    await page.goto('/recap');
+    await page.getByRole('link', { name: 'This month' }).click();
+    await expect(page.getByRole('link', { name: 'This month' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    const img = page.getByTestId('share-image');
+    await expect(img).toHaveAttribute('src', /\/api\/cards\/month\?month=\d{4}-\d{2}/);
+    await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(1080);
+  });
 });
