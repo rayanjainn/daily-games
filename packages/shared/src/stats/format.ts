@@ -24,6 +24,7 @@ export function formatResult(
 ): string {
   switch (scoring.type) {
     case 'attempts':
+      if (!r.solved && r.maxAttempts !== null) return `X/${r.maxAttempts}`;
       if (r.attempts === null) return r.solved ? 'Solved' : 'Not solved';
       return `${r.solved ? r.attempts : 'X'}/${r.maxAttempts ?? '?'}`;
     case 'time':
