@@ -9,12 +9,15 @@ import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
 import { TodayLog } from '@/components/game/today-log';
+import { Distribution, Heatmap, History, StatTiles } from '@/components/stats/game-stats';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING, siteOf } from '@/lib/catalog-labels';
 import { describeReset } from '@/lib/reset-copy';
 import { attributionLine, getGameBySlug, isFollowing, toCatalogGame } from '@/server/catalog';
 import { existingResult } from '@/server/results';
+import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
 import { ReportDialog } from './report-dialog';
 
@@ -42,6 +45,7 @@ export default async function GamePage({ params }: { params: Params }) {
   const following = await isFollowing(user.id, row.id);
   const reset = describeReset(clockFromGame(row).reset, user.timezone);
   const site = siteOf(game.url);
+  const view = await getGameStats(user, row);
   const todays = await existingResult(
     user.id,
     row.id,
@@ -159,6 +163,36 @@ export default async function GamePage({ params }: { params: Params }) {
           />
         </Card>
       </div>
+
+      <Card asSection className="flex flex-col gap-6 p-5 sm:p-6" aria-labelledby="stats-heading">
+        <h2 id="stats-heading" className="text-xl">
+          Your stats
+        </h2>
+        {view.stats.played === 0 ? (
+          <EmptyState title="No results yet" className="py-6">
+            {TRACKING[game.tier].hint} Your streak, history and charts build up from here.
+          </EmptyState>
+        ) : (
+          <>
+            <StatTiles stats={view.stats} completion={row.scoringType === 'completion'} />
+            <div className="grid gap-6 md:grid-cols-2">
+              {view.stats.distribution.length ? (
+                <Distribution
+                  bars={view.stats.distribution}
+                  title={row.scoringType === 'attempts' ? 'Guess distribution' : 'Score spread'}
+                />
+              ) : null}
+              <Heatmap weeks={view.heatmap} />
+            </div>
+            <details className="group" open={view.history.length <= 7}>
+              <summary className="cursor-pointer font-display font-semibold">
+                History ({view.stats.played})
+              </summary>
+              <History rows={view.history} />
+            </details>
+          </>
+        )}
+      </Card>
 
       <section aria-labelledby="about-heading">
         <Card tone="muted" lift="sm" className="flex flex-col gap-3 p-5">

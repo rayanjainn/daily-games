@@ -91,7 +91,56 @@ async function wordleToday(): Promise<number> {
 const share = (n: number) =>
   `Wordle ${n.toLocaleString('en-US')} 4/6\n\n⬛🟨⬛⬛⬛\n⬛⬛🟩🟨⬛\n🟩⬛🟩⬛🟩\n🟩🟩🟩🟩🟩`;
 
+/** About five months of Wordle with gaps, losses and a spread of scores. */
+async function wordleHistory(userId: string) {
+  const pattern = [4, 3, 5, 4, 0, 3, 4, 6, 2, 4, 5, 3];
+  for (let d = 0; d < 150; d++) {
+    if (d % 17 === 9 || d % 23 === 14) continue; // missed days
+    const a = pattern[d % pattern.length]!;
+    await played(
+      userId,
+      'wordle',
+      [d],
+      a === 0 ? { solved: false, maxAttempts: 6 } : { attempts: a, maxAttempts: 6 },
+    );
+  }
+}
+
 const SETS: Record<string, Screen[]> = {
+  stats: [
+    {
+      name: 'stats-wordle',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await wordleHistory(u.id);
+        await page.goto('/games/wordle');
+        await expect(page.getByTestId('distribution')).toBeVisible();
+      },
+    },
+    {
+      name: 'stats-mini-times',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const times = [41, 58, 95, 33, 72, 64, 120, 47, 39, 88];
+        for (const [i, t] of times.entries())
+          await played(u.id, 'nyt-mini', [i + 1], { timeSeconds: t });
+        await page.goto('/games/nyt-mini');
+        await expect(page.getByTestId('distribution')).toBeVisible();
+      },
+    },
+    {
+      name: 'stats-checkoff',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await played(u.id, 'tradle', [0, 1, 2, 3, 5, 6, 9], { source: 'checkbox' });
+        await page.goto('/games/tradle');
+        await expect(page.getByTestId('heatmap')).toBeVisible();
+      },
+    },
+  ],
   logging: [
     {
       name: 'log-paste-preview',

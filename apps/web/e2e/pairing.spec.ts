@@ -53,8 +53,9 @@ test.describe('device pairing', () => {
       .map(Number)
       .find((n) => n !== laptop.number)!;
     await page.getByRole('button', { name: String(wrong), exact: true }).click();
+    // Scope to our message: Next's route announcer is also role=alert.
     await expect(
-      page.getByRole('alert').or(page.getByText("That number didn't match")),
+      page.getByRole('alert').filter({ hasText: "That number didn't match" }),
     ).toBeVisible();
     await expect(
       laptop.page.getByText('The request was declined on your other device.'),
