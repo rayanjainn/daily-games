@@ -19,6 +19,9 @@
     "seed:games": "pnpm --filter @everydaily/scripts exec tsx seed-games.ts",
     "user:role": "pnpm --filter @everydaily/scripts exec tsx set-role.ts",
     "icons:generate": "pnpm --filter @everydaily/scripts exec tsx generate-icons.ts",
+    "keys:realtime": "pnpm --filter @everydaily/scripts exec tsx generate-realtime-keys.ts",
+    "keys:vapid": "pnpm --filter @everydaily/scripts exec tsx generate-vapid-keys.ts",
+    "dev:redis-shim": "pnpm --filter @everydaily/scripts exec tsx dev/upstash-shim.ts",
     "seed:demo": "pnpm --filter @everydaily/scripts exec tsx seed-demo.ts",
     "probe:embeds": "NODE_USE_ENV_PROXY=1 pnpm --filter @everydaily/scripts exec tsx probe-embeds.ts",
     "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts"
