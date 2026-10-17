@@ -4,7 +4,7 @@ import { fail, type Parser } from './types';
 // The main daily round only. Themed rounds add " · YYYY-MM-DD" to the title and practice rounds
 // add " · PRACTICE"; neither is the Daily Dive.
 const HEADER = /^KRILLION · THE DAILY DIVE$/im;
-const SCORE = /^(\d{1,3})\/700 · ([\d.,\s ]+) m$/m;
+const SCORE = /^(\d{1,3})\/700 · ([\d.,\s\u202f]+) m$/m;
 const MAX = 700;
 
 /**
