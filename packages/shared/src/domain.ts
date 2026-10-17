@@ -67,6 +67,11 @@ export type GameReportKind = (typeof GAME_REPORT_KINDS)[number];
 
 export const REPORT_STATUSES = ['open', 'resolved', 'dismissed'] as const;
 export const SUBMISSION_STATUSES = ['pending', 'approved', 'rejected', 'duplicate'] as const;
+export const SOLUTION_STATUSES = ['pending', 'approved', 'rejected'] as const;
+export type SolutionStatus = (typeof SOLUTION_STATUSES)[number];
+export const MAX_SOLUTION_LENGTH = 1000;
+/** How many past puzzles a solution can be shared for. */
+export const SOLUTION_WINDOW = 7;
 export const PAIRING_STATUSES = ['pending', 'approved', 'denied', 'consumed', 'expired'] as const;
 export const USER_ROLES = ['user', 'mod', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];

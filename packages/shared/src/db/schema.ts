@@ -23,12 +23,14 @@ import {
   GAME_REPORT_KINDS,
   GAME_STATUSES,
   MAX_NOTE_LENGTH,
+  MAX_SOLUTION_LENGTH,
   MAX_SHARE_TEXT_LENGTH,
   PAIRING_STATUSES,
   REPORT_STATUSES,
   RESET_MODES,
   RESULT_SOURCES,
   SCORING_TYPES,
+  SOLUTION_STATUSES,
   SUBMISSION_STATUSES,
   USER_ROLES,
   DIFFICULTIES,
@@ -431,6 +433,46 @@ export const gameNotes = pgTable(
   ],
 );
 
+/**
+ * Player-submitted answers for past puzzles. Nothing is shown until a moderator approves it, it
+ * always links to where the answer came from, and it is never shown for a puzzle the viewer can
+ * still play today.
+ */
+export const solutions = pgTable(
+  'solutions',
+  {
+    id: id(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    puzzleNumber: integer('puzzle_number').notNull(),
+    puzzleDate: date('puzzle_date').notNull(),
+    authorId: uuid('author_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    body: text('body').notNull(),
+    sourceUrl: text('source_url').notNull(),
+    status: text('status').$type<(typeof SOLUTION_STATUSES)[number]>().notNull().default('pending'),
+    decidedBy: uuid('decided_by').references(() => users.id, { onDelete: 'set null' }),
+    decidedAt: timestamp('decided_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('solutions_author_puzzle_key').on(t.authorId, t.gameId, t.puzzleNumber),
+    index('solutions_game_puzzle_idx').on(t.gameId, t.puzzleNumber, t.status),
+    index('solutions_status_idx').on(t.status, t.createdAt),
+    check('solutions_status_check', oneOf('status', SOLUTION_STATUSES)),
+    check(
+      'solutions_body_length',
+      sql`char_length(${t.body}) BETWEEN 1 AND ${sql.raw(String(MAX_SOLUTION_LENGTH))}`,
+    ),
+    check(
+      'solutions_source_https',
+      sql`${t.sourceUrl} ~ '^https://' AND char_length(${t.sourceUrl}) <= 500`,
+    ),
+  ],
+);
+
 /** Cache derived from results; recomputed on every result write. Never the source of truth. */
 export const streaks = pgTable(
   'streaks',
@@ -476,6 +518,7 @@ export type User = typeof users.$inferSelect;
 export type Game = typeof games.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
 export type Result = typeof results.$inferSelect;
+export type Solution = typeof solutions.$inferSelect;
 export type NewResult = typeof results.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type PasskeyCredential = typeof passkeyCredentials.$inferSelect;

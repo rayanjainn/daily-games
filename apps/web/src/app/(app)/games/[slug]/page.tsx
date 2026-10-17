@@ -3,6 +3,7 @@ import {
   CalendarDays,
   History as HistoryIcon,
   Info,
+  KeyRound,
   NotebookPen,
   TriangleAlert,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import { ArchiveTracker } from '@/components/game/archive-tracker';
 import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
 import { GameNotes } from '@/components/game/game-notes';
+import { YesterdaySolution } from '@/components/game/yesterday-solution';
 import { TodayLog } from '@/components/game/today-log';
 import { Distribution, Heatmap, History, StatTiles } from '@/components/stats/game-stats';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +31,7 @@ import { getNote } from '@/server/notes';
 import { existingResult } from '@/server/results';
 import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
+import { yesterdaysSolutions } from '@/server/solutions';
 import { ReportDialog } from './report-dialog';
 
 type Params = Promise<{ slug: string }>;
@@ -56,7 +59,7 @@ export default async function GamePage({ params }: { params: Params }) {
   const site = siteOf(game.url);
   // The tracker needs the follow date, so stats wait for it; today's result doesn't.
   const followed = followedAt(user.id, row.id);
-  const [following, view, todays, note] = await Promise.all([
+  const [following, view, todays, note, solution] = await Promise.all([
     followed.then(Boolean),
     followed.then((f) => getGameStats(user, row, f)),
     existingResult(
@@ -65,6 +68,7 @@ export default async function GamePage({ params }: { params: Params }) {
       currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
     ),
     getNote(user.id, row.id),
+    yesterdaysSolutions(user, row),
   ]);
   const loggable = {
     slug: row.slug,
@@ -208,6 +212,20 @@ export default async function GamePage({ params }: { params: Params }) {
           </>
         )}
       </Card>
+
+      {solution ? (
+        <Card
+          asSection
+          className="flex flex-col gap-3 p-5 sm:p-6"
+          aria-labelledby="solution-heading"
+        >
+          <h2 id="solution-heading" className="flex items-center gap-2 text-xl">
+            <KeyRound className="size-5 text-ink-soft" aria-hidden />
+            Yesterday&apos;s answer
+          </h2>
+          <YesterdaySolution slug={row.slug} gameName={row.name} view={solution} />
+        </Card>
+      ) : null}
 
       <Card asSection className="flex flex-col gap-3 p-5 sm:p-6" aria-labelledby="notes-heading">
         <h2 id="notes-heading" className="flex items-center gap-2 text-xl">
