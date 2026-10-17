@@ -268,6 +268,32 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  badges: [
+    {
+      name: 'badges',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections']);
+        await wordleHistory(u.id);
+        await played(u.id, 'connections', [0, 1, 2, 3], { attempts: 4, maxAttempts: 4 });
+        await played(u.id, 'tradle', [30, 31], { source: 'checkbox', fromArchive: true });
+        await page.goto('/badges');
+        await expect(page.getByTestId('badges')).toBeVisible();
+      },
+    },
+    {
+      name: 'today-links',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections']);
+        await played(u.id, 'wordle', [0, 1, 2], { attempts: 4, maxAttempts: 6 });
+        await page.goto('/today');
+        await expect(page.getByRole('link', { name: /Badges/ })).toBeVisible();
+      },
+    },
+  ],
   cards: [
     {
       name: 'recap',
