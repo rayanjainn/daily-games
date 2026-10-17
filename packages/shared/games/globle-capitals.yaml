@@ -1,0 +1,28 @@
+slug: 'globle-capitals'
+name: 'Globle: Capitals'
+publisher: 'Globle Game'
+description: 'Find the mystery capital city; each guess shows how close you are.'
+url: 'https://globle-capitals.com/'
+category: 'geography'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#177660'
+icon: 'globe'
+attribution: 'Made and hosted by Globle Game.'
+verifiedLiveAt: '2026-10-17T16:45:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

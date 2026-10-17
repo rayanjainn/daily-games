@@ -530,6 +530,33 @@ describe('clues by sam', () => {
   });
 });
 
+describe('krillion', () => {
+  const sample = 'KRILLION · THE DAILY DIVE\n420/700 · 4,200 m';
+
+  it('reads the score for today (00:00 UTC reset)', () => {
+    const v = expectOk(parse('krillion', sample));
+    expect(v).toMatchObject({ puzzleDate: '2026-10-17', solved: true, score: 420 });
+    expect(v.details).toMatchObject({ depthMeters: 4200 });
+  });
+
+  it('accepts other number formats for the depth', () => {
+    expect(expectOk(parse('krillion', sample.replace('4,200', '4.200'))).score).toBe(420);
+  });
+
+  it('rejects themed and practice rounds, bad scores and missing lines', () => {
+    expectErr(
+      parse('krillion', 'KRILLION · AT THE MOVIES · 2026-10-17\n300/700 · 3,000 pts'),
+      'not_this_game',
+    );
+    expectErr(
+      parse('krillion', sample.replace('THE DAILY DIVE', 'THE DAILY DIVE · PRACTICE')),
+      'not_this_game',
+    );
+    expectErr(parse('krillion', sample.replace('420/700', '720/700')), 'inconsistent');
+    expectErr(parse('krillion', 'KRILLION · THE DAILY DIVE'), 'malformed');
+  });
+});
+
 describe('generic (tier 2)', () => {
   it('extracts number, score and grid and keys the result to today', () => {
     const v = expectOk(

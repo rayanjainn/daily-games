@@ -1,0 +1,33 @@
+slug: 'krillion'
+name: 'Krillion'
+publisher: 'Krillion'
+description: 'Seven trivia prompts a day where rarer correct answers dive deeper.'
+url: 'https://www.krillion.org/play/daily/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'fixed'
+  timezone: 'UTC'
+  hour: 0
+  note: 'New prompts at 00:00 UTC (from the game code).'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'krillion'
+scoring:
+  type: 'points'
+  unit: 'pts'
+shareTextSamples:
+  - |-
+    KRILLION · THE DAILY DIVE
+    420/700 · 4,200 m
+accentColor: '#0E7C86'
+icon: 'question'
+attribution: 'Made and hosted by Krillion.'
+verifiedLiveAt: '2026-10-17T16:45:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

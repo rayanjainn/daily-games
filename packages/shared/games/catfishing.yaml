@@ -1,0 +1,28 @@
+slug: 'catfishing'
+name: 'Catfishing'
+publisher: 'catfishing.net'
+description: 'Guess ten Wikipedia articles a day from their categories alone.'
+url: 'https://catfishing.net/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#2F6FB0'
+icon: 'book'
+attribution: 'Made and hosted by catfishing.net.'
+verifiedLiveAt: '2026-10-17T16:45:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

@@ -27,6 +27,15 @@
     "accentColor": "#7A55D6"
   },
   {
+    "slug": "catfishing",
+    "name": "Catfishing",
+    "publisher": "catfishing.net",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "book",
+    "accentColor": "#2F6FB0"
+  },
+  {
     "slug": "chronophoto",
     "name": "Chronophoto",
     "publisher": "Chronophoto",
@@ -171,6 +180,24 @@
     "accentColor": "#277DA1"
   },
   {
+    "slug": "gisnep",
+    "name": "Gisnep",
+    "publisher": "Gisnep",
+    "category": "word",
+    "tier": 3,
+    "icon": "tiles",
+    "accentColor": "#B5523B"
+  },
+  {
+    "slug": "globle-capitals",
+    "name": "Globle: Capitals",
+    "publisher": "Globle Game",
+    "category": "geography",
+    "tier": 3,
+    "icon": "globe",
+    "accentColor": "#177660"
+  },
+  {
     "slug": "globle",
     "name": "Globle",
     "publisher": "Globle Game",
@@ -225,6 +252,15 @@
     "accentColor": "#C9184A"
   },
   {
+    "slug": "krillion",
+    "name": "Krillion",
+    "publisher": "Krillion",
+    "category": "trivia",
+    "tier": 1,
+    "icon": "question",
+    "accentColor": "#0E7C86"
+  },
+  {
     "slug": "letter-boxed",
     "name": "Letter Boxed",
     "publisher": "The New York Times",
@@ -241,6 +277,15 @@
     "tier": 3,
     "icon": "note",
     "accentColor": "#8338EC"
+  },
+  {
+    "slug": "maptap",
+    "name": "MapTap",
+    "publisher": "MapTap",
+    "category": "geography",
+    "tier": 3,
+    "icon": "pin",
+    "accentColor": "#2E7424"
   },
   {
     "slug": "mathler",
@@ -268,6 +313,15 @@
     "tier": 3,
     "icon": "brain",
     "accentColor": "#6A994E"
+  },
+  {
+    "slug": "mini-sudoku",
+    "name": "Mini Sudoku",
+    "publisher": "LinkedIn",
+    "category": "logic",
+    "tier": 3,
+    "icon": "sudoku",
+    "accentColor": "#4A6FA5"
   },
   {
     "slug": "minute-cryptic",
@@ -439,6 +493,15 @@
     "tier": 3,
     "icon": "magnify",
     "accentColor": "#495057"
+  },
+  {
+    "slug": "scrandle",
+    "name": "Scrandle",
+    "publisher": "Scrandle",
+    "category": "visual",
+    "tier": 3,
+    "icon": "camera",
+    "accentColor": "#C27C0E"
   },
   {
     "slug": "sedecordle",
