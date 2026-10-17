@@ -55,12 +55,39 @@ jobs:
       - name: Install Playwright Chromium
         working-directory: apps/web
         run: pnpm exec playwright install --with-deps chromium
-      - name: Playwright (functional, a11y, visual)
+      - name: Playwright (functional + accessibility)
         working-directory: apps/web
-        run: pnpm exec playwright test --project e2e --project visual
+        run: pnpm exec playwright test --project e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
+          name: playwright-report-e2e
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  # Visual regression runs in Playwright's pinned image so font rendering matches the
+  # committed baselines exactly. Baselines are produced by the visual-baselines workflow.
+  visual:
+    runs-on: ubuntu-latest
+    needs: checks
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Playwright (visual regression)
+        working-directory: apps/web
+        env:
+          VISUAL: '1'
+        run: pnpm exec playwright test --project visual
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-visual
           path: apps/web/playwright-report
           retention-days: 7
