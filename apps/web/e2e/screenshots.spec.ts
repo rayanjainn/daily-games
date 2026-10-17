@@ -175,6 +175,54 @@ const SETS: Record<string, Screen[]> = {
       },
     },
   ],
+  settings: [
+    {
+      name: 'settings',
+      path: '/',
+      setup: async (page) => {
+        await signedIn(page);
+        await page.goto('/settings');
+        await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+      },
+    },
+    {
+      name: 'settings-new-phrase',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signedIn(page);
+        await page.goto('/settings');
+        await page.getByRole('button', { name: 'Make a new phrase' }).click();
+        await page.getByRole('dialog').getByRole('button', { name: 'Make a new phrase' }).click();
+        await expect(page.getByTestId('new-recovery-phrase').locator('[data-word]')).toHaveCount(6);
+      },
+    },
+    {
+      name: 'settings-remove-last',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signedIn(page);
+        await page.goto('/settings');
+        await page.getByRole('button', { name: /^Remove / }).click();
+        await page.getByRole('dialog').getByRole('button', { name: 'Remove', exact: true }).click();
+        await expect(
+          page.getByRole('dialog').getByText('This is your last passkey.'),
+        ).toBeVisible();
+      },
+    },
+    {
+      name: 'settings-delete',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signedIn(page);
+        await page.goto('/settings');
+        await page.getByRole('button', { name: 'Delete account' }).click();
+        await expect(page.getByRole('dialog')).toBeVisible();
+      },
+    },
+  ],
   signup: [
     { name: 'landing', path: '/' },
     {
