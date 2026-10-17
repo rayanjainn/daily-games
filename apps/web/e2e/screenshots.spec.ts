@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test';
 import { fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
 import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
+import { e2eSql } from './support/db';
+import { signInAs } from './support/session';
 import { THEMES, VIEWPORTS, capture, shotsDir } from './support/shots';
 
 /**
@@ -56,7 +58,156 @@ async function pendingPairing(page: Page) {
   return { number, path, close: () => ctx.close() };
 }
 
+/** Fixed ids so parallel captures share one report and one suggestion in the queue. */
+async function seedQueue() {
+  const sql = e2eSql();
+  await sql`INSERT INTO game_reports (id, game_id, kind, details)
+    SELECT '00000000-0000-4000-8000-000000000001', id, 'wrong_reset',
+      'It changes at 6 AM UTC now, not midnight. Saw it twice this week.'
+    FROM games WHERE slug = 'flagle' ON CONFLICT DO NOTHING`;
+  await sql`INSERT INTO game_reports (id, game_id, kind, details)
+    SELECT '00000000-0000-4000-8000-000000000002', id, 'moved', NULL
+    FROM games WHERE slug = 'tradle' ON CONFLICT DO NOTHING`;
+  const [u] = await sql`SELECT id FROM users LIMIT 1`;
+  await sql`INSERT INTO game_submissions (id, submitted_by, url, normalized_key, name, category,
+      reset_hint, sample_share_text, fetched_title, fetched_description, probe_result)
+    VALUES ('00000000-0000-4000-8000-000000000003', ${u!.id}, 'https://example.com/hexbloom',
+      'example.com/hexbloom', 'Hexbloom', 'logic', 'Midnight local time',
+      ${'Hexbloom #212\n🟩🟩🟨⬜\nSolved in 4'}, 'Hexbloom: a daily hex puzzle',
+      'Grow the flower by placing six hexes. New puzzle every day.',
+      ${sql.json({ status: 200, verdict: 'blocked', reason: 'X-Frame-Options: DENY' })})
+    ON CONFLICT DO NOTHING`;
+  await sql.end();
+}
+
 const SETS: Record<string, Screen[]> = {
+  catalog: [
+    {
+      name: 'catalog',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games');
+        await expect(page.getByTestId('game-card').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'catalog-search',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games?q=ordle');
+        await expect(page.getByTestId('game-card').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'catalog-filtered',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games?category=geography&difficulty=easy');
+        await expect(page.getByTestId('game-card').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'catalog-no-match',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games?q=zzzz');
+        await expect(page.getByText('No games match')).toBeVisible();
+      },
+    },
+    {
+      name: 'catalog-following-empty',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games?following=1');
+        await expect(page.getByText('Nothing followed yet')).toBeVisible();
+      },
+    },
+    {
+      name: 'game-wordle',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/wordle');
+        await expect(page.getByTestId('attribution')).toBeVisible();
+      },
+    },
+    {
+      name: 'game-mini-fixed-reset',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page, { timezone: 'Asia/Kolkata' });
+        await page.goto('/games/nyt-mini');
+        await expect(page.getByTestId('attribution')).toBeVisible();
+      },
+    },
+    {
+      name: 'game-long-name',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/connections-sports');
+        await expect(page.getByTestId('attribution')).toBeVisible();
+      },
+    },
+    {
+      name: 'game-report',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/flagle');
+        await page.getByRole('button', { name: 'Report a problem' }).click();
+        await page
+          .getByRole('dialog')
+          .getByLabel(/Wrong reset time/)
+          .check();
+      },
+    },
+    {
+      name: 'suggest-errors',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page, { role: 'mod' });
+        await page.goto('/games/suggest');
+        await page.getByRole('button', { name: 'Send suggestion' }).click();
+        await expect(page.getByText('What is the game called?')).toBeVisible();
+      },
+    },
+    {
+      name: 'admin-queue',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page, { role: 'mod' });
+        await seedQueue();
+        await page.goto('/admin');
+        await expect(page.getByTestId('submission').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'admin-games',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page, { role: 'mod' });
+        await page.goto('/admin/games');
+        await page.getByLabel('Filter games').fill('nyt');
+      },
+    },
+    {
+      name: 'admin-game-editor-issues',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page, { role: 'mod' });
+        await page.goto('/admin/games/tradle');
+        await page.getByLabel('Tier', { exact: true }).selectOption('2');
+        await expect(page.getByTestId('rule-issues')).toBeVisible();
+      },
+    },
+  ],
   styleguide: [
     { name: 'styleguide', path: '/styleguide' },
     {
