@@ -7,6 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 VAPID_SUBJECT = "mailto:hello@everydaily.raycode.tech"
 # Development-only routes (e.g. /dev/push). Never set to "1" in production.
 DEV_ROUTES = "0"
+APP_URL = "https://everydaily.raycode.tech"
 
 # Secrets (wrangler secret put …):
 #   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, REALTIME_PUBLIC_KEY, INTERNAL_BROADCAST_SECRET
@@ -18,3 +19,15 @@ class_name = "RoomDO"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["RoomDO"]
+
+# Postgres through Hyperdrive. Create it with
+#   wrangler hyperdrive create everydaily-db --connection-string="<Neon direct URL>"
+# and put the returned id here. localConnectionString is used by `wrangler dev` only.
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "00000000000000000000000000000000"
+localConnectionString = "postgres://everydaily:everydaily@localhost:5432/everydaily"
+
+[triggers]
+# Daily game URL health check (see src/health.ts).
+crons = ["17 4 * * *"]

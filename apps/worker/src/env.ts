@@ -10,4 +10,8 @@ export interface Env {
   VAPID_PUBLIC_KEY: string;
   VAPID_PRIVATE_KEY: string;
   DEV_ROUTES?: string;
+  /** Postgres via Hyperdrive (used by the scheduled jobs). */
+  HYPERDRIVE: Hyperdrive;
+  /** The web app's origin; framing checks are made against it. */
+  APP_URL: string;
 }

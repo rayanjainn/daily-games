@@ -1,0 +1,1672 @@
+{
+  "startedAt": "2026-10-17T12:38:32.991Z",
+  "embedder": "https://everydaily.raycode.tech",
+  "games": [
+    {
+      "slug": "actorle",
+      "name": "Actorle",
+      "url": "https://actorle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://actorle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "angle",
+      "name": "Angle",
+      "url": "https://www.angle.wtf/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://angle.wtf/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 301,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "bandle",
+      "name": "Bandle",
+      "url": "https://bandle.app/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://bandle.app/",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors 'none'"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors 'none'"
+      }
+    },
+    {
+      "slug": "chronophoto",
+      "name": "Chronophoto",
+      "url": "https://www.chronophoto.app/daily.html",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.chronophoto.app/daily.html",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "clues-by-sam",
+      "name": "Clues by Sam",
+      "url": "https://cluesbysam.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://cluesbysam.com/",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors 'none'"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors 'none'"
+      }
+    },
+    {
+      "slug": "colorfle",
+      "name": "Colorfle",
+      "url": "https://colorfle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://colorfle.com/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "connections",
+      "name": "Connections",
+      "url": "https://www.nytimes.com/games/connections",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/games/connections",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "connections-sports",
+      "name": "Connections: Sports Edition",
+      "url": "https://www.nytimes.com/athletic/connections-sports-edition/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/athletic/connections-sports-edition/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "contexto",
+      "name": "Contexto",
+      "url": "https://contexto.me/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://contexto.me/",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors 'none'"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors 'none'"
+      }
+    },
+    {
+      "slug": "costcodle",
+      "name": "Costcodle",
+      "url": "https://costcodle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://costcodle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "countryle",
+      "name": "Countryle",
+      "url": "https://countryle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://countryle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "crossclimb",
+      "name": "Crossclimb",
+      "url": "https://www.linkedin.com/games/crossclimb",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.linkedin.com/games/crossclimb",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' *.www.linkedin.com:*"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' *.www.linkedin.com:*"
+      }
+    },
+    {
+      "slug": "dordle",
+      "name": "Dordle",
+      "url": "https://zaratustra.itch.io/dordle",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://zaratustra.itch.io/dordle",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' https://itch.io"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' https://itch.io"
+      }
+    },
+    {
+      "slug": "emovi",
+      "name": "Emovi",
+      "url": "https://emovi.teuteuf.fr/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://emovi.teuteuf.fr/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "flagle",
+      "name": "Flagle",
+      "url": "https://www.flagle.io/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.flagle.io/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "foodguessr",
+      "name": "FoodGuessr",
+      "url": "https://www.foodguessr.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.foodguessr.com/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "framed",
+      "name": "Framed",
+      "url": "https://framed.wtf/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://framed.wtf/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "gamedle",
+      "name": "Gamedle",
+      "url": "https://www.gamedle.wtf/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.gamedle.wtf/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "geogrid",
+      "name": "GeoGrid",
+      "url": "https://www.geogridgame.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.geogridgame.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "globle",
+      "name": "Globle",
+      "url": "https://globle-game.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://globle-game.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "guardian-quick",
+      "name": "Quick Crossword",
+      "url": "https://www.theguardian.com/crosswords/series/quick",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.theguardian.com/crosswords/series/quick",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "guess-the-game",
+      "name": "Guess The Game",
+      "url": "https://guessthe.game/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://guessthe.game/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "heardle-80s",
+      "name": "Heardle 80s",
+      "url": "https://www.heardle80s.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://heardle80s.com/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "hexcodle",
+      "name": "Hexcodle",
+      "url": "https://hexcodle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://hexcodle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "immaculate-grid",
+      "name": "Immaculate Grid",
+      "url": "https://www.sports-reference.com/immaculate-grid/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.sports-reference.com/immaculate-grid/",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' http://*.srdevel.com https://*.srdevel.com *.mlb.com"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' http://*.srdevel.com https://*.srdevel.com *.mlb.com"
+      }
+    },
+    {
+      "slug": "letter-boxed",
+      "name": "Letter Boxed",
+      "url": "https://www.nytimes.com/puzzles/letter-boxed",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/puzzles/letter-boxed",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "lyricle",
+      "name": "Lyricle",
+      "url": "https://lyricle.app/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.lyricle.app/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "mathler",
+      "name": "Mathler",
+      "url": "https://www.mathler.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.mathler.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "metaflora",
+      "name": "Metaflora",
+      "url": "https://flora.metazooa.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://flora.metazooa.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "metazooa",
+      "name": "Metazooa",
+      "url": "https://metazooa.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://metazooa.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "minute-cryptic",
+      "name": "Minute Cryptic",
+      "url": "https://www.minutecryptic.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.minutecryptic.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "murdle",
+      "name": "Murdle",
+      "url": "https://murdle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://murdle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "nerdle",
+      "name": "Nerdle",
+      "url": "https://nerdlegame.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://nerdlegame.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": true,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "the page breaks out of frames"
+      }
+    },
+    {
+      "slug": "nerdle-mini",
+      "name": "Mini Nerdle",
+      "url": "https://nerdlegame.com/mini",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://nerdlegame.com/mini",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": true,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "the page breaks out of frames"
+      }
+    },
+    {
+      "slug": "numberle",
+      "name": "Numberle",
+      "url": "https://numberle.org/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://numberle.org/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "nyt-crossword",
+      "name": "The Crossword",
+      "url": "https://www.nytimes.com/crosswords/game/daily",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/crosswords/game/daily",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "nyt-mini",
+      "name": "The Mini",
+      "url": "https://www.nytimes.com/crosswords/game/mini",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/crosswords/game/mini",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "nyt-sudoku",
+      "name": "Sudoku",
+      "url": "https://www.nytimes.com/puzzles/sudoku",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/puzzles/sudoku",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "nyt-tiles",
+      "name": "Tiles",
+      "url": "https://www.nytimes.com/puzzles/tiles",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/puzzles/tiles",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "octordle",
+      "name": "Octordle",
+      "url": "https://www.merriam-webster.com/games/octordle/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.merriam-webster.com/games/octordle/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": false,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "no load event within 20 s"
+      },
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "frame did not load: no load event within 20 s"
+      }
+    },
+    {
+      "slug": "phrazle",
+      "name": "Phrazle",
+      "url": "https://solitaired.com/phrazle",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://solitaired.com/phrazle",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "pinpoint",
+      "name": "Pinpoint",
+      "url": "https://www.linkedin.com/games/pinpoint",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.linkedin.com/games/pinpoint",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' *.www.linkedin.com:*"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' *.www.linkedin.com:*"
+      }
+    },
+    {
+      "slug": "pips",
+      "name": "Pips",
+      "url": "https://www.nytimes.com/games/pips",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/games/pips",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "pokedoku",
+      "name": "PokeDoku",
+      "url": "https://pokedoku.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://pokedoku.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "puzzmo",
+      "name": "Puzzmo",
+      "url": "https://www.puzzmo.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.puzzmo.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "queens",
+      "name": "Queens",
+      "url": "https://www.linkedin.com/games/queens",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.linkedin.com/games/queens",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      }
+    },
+    {
+      "slug": "quordle",
+      "name": "Quordle",
+      "url": "https://www.merriam-webster.com/games/quordle/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.merriam-webster.com/games/quordle/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": false,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "no load event within 20 s"
+      },
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "frame did not load: no load event within 20 s"
+      }
+    },
+    {
+      "slug": "raddle",
+      "name": "Raddle",
+      "url": "https://raddle.quest/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://raddle.quest/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "redactle",
+      "name": "Redactle",
+      "url": "https://redactle.net/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://redactle.net/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "sedecordle",
+      "name": "Sedecordle",
+      "url": "https://www.sedecordle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://sedecordle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 301,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "semantle",
+      "name": "Semantle",
+      "url": "https://semantle.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://semantle.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "songless",
+      "name": "Songless",
+      "url": "https://lessgames.com/songless",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://lessgames.com/songless",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "spelling-bee",
+      "name": "Spelling Bee",
+      "url": "https://www.nytimes.com/puzzles/spelling-bee",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/puzzles/spelling-bee",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "spotle",
+      "name": "Spotle",
+      "url": "https://spotle.io/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://spotle.io/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "squaredle",
+      "name": "Squaredle",
+      "url": "https://squaredle.app/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://squaredle.app/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "statele",
+      "name": "Statele",
+      "url": "https://statele.teuteuf.fr/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://statele.teuteuf.fr/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "strands",
+      "name": "Strands",
+      "url": "https://www.nytimes.com/games/strands",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/games/strands",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "tango",
+      "name": "Tango",
+      "url": "https://www.linkedin.com/games/tango",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.linkedin.com/games/tango",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      }
+    },
+    {
+      "slug": "thrice",
+      "name": "Thrice",
+      "url": "https://thrice.geekswhodrink.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://thrice.geekswhodrink.com/",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "timeguessr",
+      "name": "TimeGuessr",
+      "url": "https://timeguessr.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://timeguessr.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "tradle",
+      "name": "Tradle",
+      "url": "https://oec.world/en/games/tradle",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://oec.world/en/games/tradle",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: SAMEORIGIN"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: SAMEORIGIN"
+      }
+    },
+    {
+      "slug": "travle",
+      "name": "Travle",
+      "url": "https://travle.earth/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://travle.earth/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "waffle",
+      "name": "Waffle",
+      "url": "https://wafflegame.net/daily",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://wafflegame.net/daily",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' https://airmail.news https://*.airmail.news https://*.airmailmedia.com https://puzzlist.com https://*.puzzlist.com https://waffleclub.com https://*.waffleclub.com https://waffle.dev http://localhost:5173"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' https://airmail.news https://*.airmail.news https://*.airmailmedia.com https://puzzlist.com https://*.puzzlist.com https://waffleclub.com https://*.waffleclub.com https://waffle.dev http://localhost:5173"
+      }
+    },
+    {
+      "slug": "weaver",
+      "name": "Weaver",
+      "url": "https://wordwormdormdork.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://wordwormdormdork.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "whentaken",
+      "name": "WhenTaken",
+      "url": "https://whentaken.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://whentaken.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "wheretaken",
+      "name": "WhereTaken",
+      "url": "https://wheretaken.teuteuf.fr/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://wheretaken.teuteuf.fr/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "wordiply",
+      "name": "Wordiply",
+      "url": "https://www.wordiply.com/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.wordiply.com/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "wordle",
+      "name": "Wordle",
+      "url": "https://www.nytimes.com/games/wordle/index.html",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.nytimes.com/games/wordle/index.html",
+        "verdict": "blocked",
+        "reason": "X-Frame-Options: DENY"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "X-Frame-Options: DENY"
+      }
+    },
+    {
+      "slug": "worldle",
+      "name": "Worldle",
+      "url": "https://worldle.teuteuf.fr/",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://worldle.teuteuf.fr/",
+        "verdict": "unknown",
+        "reason": "no framing headers; needs a browser check"
+      },
+      "browser": {
+        "loaded": true,
+        "refused": false,
+        "blank": false,
+        "frameBusting": false,
+        "status": 200,
+        "detail": "loaded"
+      },
+      "proposal": {
+        "mode": "iframe",
+        "changed": true,
+        "live": true,
+        "why": "no framing headers; needs a browser check; loaded in a frame"
+      }
+    },
+    {
+      "slug": "zip",
+      "name": "Zip",
+      "url": "https://www.linkedin.com/games/zip",
+      "current": "popout",
+      "header": {
+        "ok": true,
+        "status": 200,
+        "finalUrl": "https://www.linkedin.com/games/zip",
+        "verdict": "blocked",
+        "reason": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      },
+      "browser": null,
+      "proposal": {
+        "mode": "popout",
+        "changed": false,
+        "live": true,
+        "why": "CSP frame-ancestors: 'self' *.www.linkedin.com:* *.prod.linkedin.com ciafilestore.corp.linkedin.com www.coolmathgames.com www.forbes.com www-staging.forbes.com fbs.forbes.com www.msn.com www.usatoday.com www.accuweather.com"
+      }
+    }
+  ]
+}

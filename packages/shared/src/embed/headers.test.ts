@@ -63,6 +63,16 @@ describe('analyzeFrameHeaders', () => {
     ).toBe('blocked');
   });
 
+  it('reads repeated X-Frame-Options headers', () => {
+    expect(analyzeFrameHeaders({ xFrameOptions: 'SAMEORIGIN, sameorigin' }, US, PAGE).verdict).toBe(
+      'blocked',
+    );
+    // Distinct values block the frame (HTML spec).
+    expect(analyzeFrameHeaders({ xFrameOptions: 'DENY, SAMEORIGIN' }, US, PAGE).verdict).toBe(
+      'blocked',
+    );
+  });
+
   it('is unknown without headers or with ALLOW-FROM', () => {
     expect(analyzeFrameHeaders({}, US, PAGE).verdict).toBe('unknown');
     expect(

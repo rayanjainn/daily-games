@@ -1,5 +1,6 @@
 import type { Env } from './env';
 import { buildPushRequest, sendPush, vapidFromEnv, type PushSubscription } from './push';
+import { HEALTH_CRON, runDailyHealth } from './health';
 import { handleBroadcast, handleConnect } from './realtime-routes';
 
 export { RoomDO } from './room';
@@ -41,5 +42,9 @@ export default {
     }
 
     return new Response('Not found', { status: 404 });
+  },
+
+  async scheduled(controller, env, ctx): Promise<void> {
+    if (controller.cron === HEALTH_CRON) ctx.waitUntil(runDailyHealth(env));
   },
 } satisfies ExportedHandler<Env>;

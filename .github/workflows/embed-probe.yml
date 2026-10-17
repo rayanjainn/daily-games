@@ -1,0 +1,36 @@
+name: Embed probe
+
+# Weekly full probe (server headers + a real browser frame) for every game in the catalog.
+# The report is uploaded and shown in the run summary; YAML is never changed automatically.
+on:
+  schedule:
+    - cron: '41 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        working-directory: scripts
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Probe
+        # --check fails the run if a game marked iframe in YAML no longer frames.
+        run: pnpm probe:embeds --check
+      - name: Summary
+        if: always()
+        run: cat docs/embed-probe/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: embed-probe-report
+          path: docs/embed-probe/
+          retention-days: 30
