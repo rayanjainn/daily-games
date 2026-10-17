@@ -23,6 +23,15 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: { default: BRAND.name, template: `%s · ${BRAND.name}` },
   description: BRAND.description,
+  applicationName: BRAND.name,
+  icons: {
+    icon: [
+      { url: '/icons/icon.svg', type: 'image/svg+xml' },
+      { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: { capable: true, title: BRAND.name, statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = {
