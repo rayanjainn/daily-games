@@ -4,7 +4,9 @@ import { addVirtualAuthenticator, expect, test, type Page } from './support/fixt
 
 const name = () => `login_${Math.random().toString(36).slice(2, 8)}`;
 
+/** Sign out lives in Settings. */
 async function signOut(page: Page) {
+  await page.goto('/settings');
   await page.getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL((u) => u.pathname === '/');
 }
@@ -148,6 +150,7 @@ test.describe('passkey sign-in', () => {
 
 test.describe('recovery phrase sign-in', () => {
   test('signs in with the phrase and offers to add a passkey', async ({ page }) => {
+    test.slow(); // sign-up plus an argon2id verify under parallel load
     const device = await addVirtualAuthenticator(page);
     const { username, phrase } = await signUpViaUi(page, name());
     await signOut(page);
@@ -155,6 +158,9 @@ test.describe('recovery phrase sign-in', () => {
     await device.remove();
     await page.goto('/login');
     await page.getByRole('link', { name: 'Use my recovery phrase' }).click();
+    // Let the client-side navigation commit before typing, or the form can remount mid-fill.
+    await page.waitForURL((u) => u.pathname === '/login/recover');
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled();
     await page.getByLabel('Player name').fill(username.toUpperCase());
     // Four-letter prefixes and odd spacing are accepted.
     await page
@@ -163,7 +169,7 @@ test.describe('recovery phrase sign-in', () => {
     await page.getByRole('button', { name: 'Sign in' }).click();
     // argon2id (64 MiB, 3 passes) is deliberately slow; under a parallel test load it can take a while.
     await expect(page.getByRole('heading', { name: "You're in!" })).toBeVisible({
-      timeout: 20_000,
+      timeout: 45_000,
     });
     await page.getByRole('button', { name: 'Not now' }).click();
     await page.waitForURL(/\/today/);
