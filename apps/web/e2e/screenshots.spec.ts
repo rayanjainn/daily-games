@@ -81,7 +81,110 @@ async function seedQueue() {
   await sql.end();
 }
 
+async function wordleToday(): Promise<number> {
+  const sql = e2eSql();
+  const [r] = await sql`SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
+    FROM games WHERE slug = 'wordle'`;
+  await sql.end();
+  return Number(r!.n);
+}
+const share = (n: number) =>
+  `Wordle ${n.toLocaleString('en-US')} 4/6\n\n⬛🟨⬛⬛⬛\n⬛⬛🟩🟨⬛\n🟩⬛🟩⬛🟩\n🟩🟩🟩🟩🟩`;
+
 const SETS: Record<string, Screen[]> = {
+  logging: [
+    {
+      name: 'log-paste-preview',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/wordle');
+        await page.getByLabel('Your Wordle share text').fill(share(await wordleToday()));
+        await expect(page.getByTestId('log-preview')).toBeVisible();
+      },
+    },
+    {
+      name: 'log-paste-error',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/wordle');
+        await page.getByLabel('Your Wordle share text').fill(share((await wordleToday()) + 3));
+        await expect(page.locator('#log-panel').getByRole('alert')).toBeVisible();
+      },
+    },
+    {
+      name: 'log-manual-time',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/nyt-mini');
+        await page.getByRole('tab', { name: 'Enter score' }).click();
+        await page.getByLabel('Time').fill('0:42');
+      },
+    },
+    {
+      name: 'log-checkoff',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/tradle');
+        await expect(page.getByRole('button', { name: 'Mark today done' })).toBeVisible();
+      },
+    },
+    {
+      name: 'log-saved',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await played(u.id, 'wordle', [1, 2, 3]);
+        await page.goto('/games/wordle');
+        await page.getByLabel('Your Wordle share text').fill(share(await wordleToday()));
+        await expect(page.getByTestId('log-preview')).toBeVisible();
+        await page.locator('#log-panel').getByRole('button', { name: 'Save result' }).click();
+        await expect(page.getByTestId('log-success')).toBeVisible();
+      },
+    },
+    {
+      name: 'log-already-logged',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await played(u.id, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+        await page.goto('/games/wordle');
+        await expect(page.getByTestId('logged-today')).toBeVisible();
+      },
+    },
+    {
+      name: 'log-popup-blocked',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.addInitScript(() => {
+          window.open = () => null;
+        });
+        await page.goto('/games/wordle');
+        await page.getByTestId('play-button').click();
+        await expect(page.getByTestId('popup-blocked')).toBeVisible();
+      },
+    },
+    {
+      name: 'log-dashboard-sheet',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'tradle']);
+        await page.goto('/today');
+        await page.getByRole('button', { name: 'Log Wordle result' }).click();
+        await page
+          .getByRole('dialog')
+          .getByLabel('Your Wordle share text')
+          .fill(share(await wordleToday()));
+        await expect(page.getByRole('dialog').getByTestId('log-preview')).toBeVisible();
+      },
+    },
+  ],
   dashboard: [
     {
       name: 'today-empty',

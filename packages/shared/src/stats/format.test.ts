@@ -18,6 +18,11 @@ describe('formatResult', () => {
     ).toBe('X/6');
   });
 
+  it('shows a failure as X even without a guess count', () => {
+    expect(formatResult(r({ solved: false, maxAttempts: 6 }), { type: 'attempts' })).toBe('X/6');
+    expect(formatResult(r({ solved: false }), { type: 'attempts' })).toBe('Not solved');
+  });
+
   it('formats times', () => {
     expect(formatResult(r({ timeSeconds: 42 }), { type: 'time' })).toBe('0:42');
     expect(formatDuration(3725)).toBe('1:02:05');

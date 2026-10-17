@@ -22,10 +22,10 @@ test.describe('dashboard', () => {
     await expect(rows(page)).toHaveCount(1);
     await expect(page.getByTestId('today-headline')).toHaveText('1 puzzle waiting for you.');
     await expect(rows(page).first()).toContainText('Wordle');
-    await expect(rows(page).first().getByRole('link', { name: /Play/ })).toHaveAttribute(
-      'href',
-      'https://www.nytimes.com/games/wordle/index.html',
-    );
+    await expect(rows(page).first().getByRole('button', { name: /^Play/ })).toBeVisible();
+    await expect(
+      rows(page).first().getByRole('button', { name: 'Log Wordle result' }),
+    ).toBeVisible();
   });
 
   test('shows progress, results and streaks', async ({ page }) => {
@@ -49,7 +49,8 @@ test.describe('dashboard', () => {
     const flagle = rows(page).filter({ hasText: 'Flagle' });
     await expect(flagle).toHaveAttribute('data-done', 'false');
     await expect(flagle.getByRole('img', { name: /1-day streak, play today/ })).toBeVisible();
-    await expect(flagle.getByRole('link', { name: /Play/ })).toBeVisible();
+    await expect(flagle.getByRole('button', { name: /^Play/ })).toBeVisible();
+    await expect(flagle.getByRole('button', { name: 'Log Flagle result' })).toBeVisible();
   });
 
   test('shows failures as X and celebrates a full checklist', async ({ page }) => {

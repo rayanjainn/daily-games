@@ -122,10 +122,12 @@ test.describe('catalog', () => {
     await expect(page.getByTestId('attribution')).toHaveText(
       "Made by The New York Times. EveryDaily isn't affiliated with The New York Times; we just help you keep track.",
     );
-    const play = page.getByRole('link', { name: /Play on nytimes\.com/ });
-    await expect(play).toHaveAttribute('href', 'https://www.nytimes.com/games/wordle/index.html');
-    await expect(play).toHaveAttribute('target', '_blank');
-    await expect(play).toHaveAttribute('rel', 'noopener noreferrer');
+    // Play opens a popout from the click (see results.spec); the site link is a plain, safe link.
+    await expect(page.getByRole('button', { name: /Play on nytimes\.com/ })).toBeVisible();
+    const site = page.getByRole('link', { name: 'nytimes.com', exact: true });
+    await expect(site).toHaveAttribute('href', 'https://www.nytimes.com/games/wordle/index.html');
+    await expect(site).toHaveAttribute('target', '_blank');
+    await expect(site).toHaveAttribute('rel', 'noopener noreferrer');
 
     await page.getByRole('button', { name: /Follow\s+Wordle/ }).click();
     await expect(page.getByRole('button', { name: /Following\s+Wordle/ })).toBeVisible();
