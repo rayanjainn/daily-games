@@ -1,0 +1,11 @@
+name = "everydaily-worker"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+VAPID_SUBJECT = "mailto:hello@everydaily.raycode.tech"
+# Development-only routes (e.g. /dev/push). Never set to "1" in production.
+DEV_ROUTES = "0"
+
+# Secrets (wrangler secret put …): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY

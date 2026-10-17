@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>push spike</title>
+<script>
+  window.subscribe = async (applicationServerKey) => {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
+    return sub.toJSON();
+  };
+</script>
