@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import type { DistributionBar, GameStats } from '@everydaily/shared/stats/summary';
+import type { MonthRecap } from '@everydaily/shared/stats/month';
 import type { WeekPoster } from '@everydaily/shared/stats/week';
 import { BRAND } from '@everydaily/shared';
 
@@ -431,6 +432,209 @@ export async function weekPosterImage(input: {
           <Stat label="Days" value={`${p.activeDays}/7`} />
           <Stat label="Streak" value={String(input.streak)} />
         </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Brand />
+          <div style={{ fontSize: 24, fontWeight: 600, color: C.soft }}>
+            everydaily.raycode.tech
+          </div>
+        </div>
+      </div>
+    </div>,
+    { width: 1080, height: 1350, fonts: await loadFonts(), headers },
+  );
+}
+
+const WEEKDAYS = [
+  'Mondays',
+  'Tuesdays',
+  'Wednesdays',
+  'Thursdays',
+  'Fridays',
+  'Saturdays',
+  'Sundays',
+];
+/** Calendar tile colour by results that day: none, one, two, three or more. */
+const heat = ['#EFDCBD', '#A7EBCF', '#5FDBAC', C.mint];
+
+export const monthLabel = (month: string) =>
+  new Date(`${month}-15T12:00:00Z`).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+
+/** 1080×1350 portrait poster of a month: a calendar heatmap, totals and the top games. */
+export async function monthPosterImage(input: { playerName: string; recap: MonthRecap }) {
+  const r = input.recap;
+  const running = r.elapsed < r.days.length;
+  // Monday-first calendar: blank cells before the 1st.
+  const lead = (new Date(`${r.days[0]}T12:00:00Z`).getUTCDay() + 6) % 7;
+  const cells: (number | null | 'blank')[] = [...Array<'blank'>(lead).fill('blank'), ...r.perDay];
+  const weeks: (typeof cells)[] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  const tileW = 108;
+  const tileH = weeks.length > 5 ? 52 : 62;
+  return new ImageResponse(
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        background: C.paper,
+        padding: 48,
+        fontFamily: 'Nunito',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+          background: C.surface,
+          borderRadius: 40,
+          border: `6px solid ${C.line}`,
+          boxShadow: `0 12px 0 ${C.line}`,
+          padding: '44px 52px',
+          gap: 26,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 800,
+              color: C.pop,
+              textTransform: 'uppercase',
+              letterSpacing: 2,
+            }}
+          >
+            My puzzle month
+          </div>
+          <div
+            style={{
+              fontFamily: 'Fredoka',
+              fontSize: 72,
+              fontWeight: 700,
+              color: C.ink,
+              lineHeight: 1.05,
+            }}
+          >
+            {input.playerName}
+          </div>
+          <div style={{ fontSize: 30, fontWeight: 600, color: C.soft }}>
+            {`${monthLabel(r.month)}${running ? ' so far' : ''}`}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  width: tileW,
+                  justifyContent: 'center',
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: C.soft,
+                }}
+              >
+                {d}
+              </div>
+            ))}
+          </div>
+          {weeks.map((w, wi) => (
+            <div key={wi} style={{ display: 'flex', gap: 12 }}>
+              {w.map((c, i) => {
+                const day = wi * 7 + i - lead + 1;
+                if (c === 'blank') return <div key={i} style={{ display: 'flex', width: tileW }} />;
+                const future = c === null;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      width: tileW,
+                      height: tileH,
+                      borderRadius: 12,
+                      padding: '4px 10px',
+                      background: future ? C.surface : heat[Math.min(c, 3)],
+                      border: `4px solid ${future || c === 0 ? C.lineSoft : C.line}`,
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: future ? C.lineSoft : C.ink,
+                    }}
+                  >
+                    {String(day)}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: 16 }}>
+          <Stat label="Played" value={String(r.played)} />
+          <Stat label="Solved" value={String(r.solved)} />
+          <Stat label="Days" value={`${r.activeDays}/${r.elapsed}`} />
+          <Stat label="Streak" value={String(r.bestStreak)} />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+          {r.top.length ? (
+            r.top.map((g, i) => (
+              <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    width: 40,
+                    fontFamily: 'Fredoka',
+                    fontSize: 30,
+                    fontWeight: 700,
+                    color: C.soft,
+                  }}
+                >
+                  {`${i + 1}.`}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    background: g.accentColor,
+                    border: `3px solid ${C.line}`,
+                  }}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    flex: 1,
+                    fontFamily: 'Fredoka',
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: C.ink,
+                  }}
+                >
+                  {g.name.length > 24 ? `${g.name.slice(0, 23)}…` : g.name}
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: C.soft }}>
+                  {`${g.played} played · ${g.solved} solved`}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ fontSize: 30, color: C.soft }}>No puzzles logged this month yet.</div>
+          )}
+          {r.busiestWeekday !== null ? (
+            <div style={{ fontSize: 24, fontWeight: 600, color: C.soft, marginTop: 6 }}>
+              {`Most puzzles on ${WEEKDAYS[r.busiestWeekday]}`}
+            </div>
+          ) : null}
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Brand />
           <div style={{ fontSize: 24, fontWeight: 600, color: C.soft }}>
