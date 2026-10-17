@@ -66,6 +66,7 @@ export default async function SettingsPage() {
         displayName: user.displayName,
         timezone: user.timezone,
         email: user.emailVerifiedAt ? user.email : null,
+        spoilerSafe: user.spoilerSafe,
       }}
       passkeys={passkeys.map((p) => ({
         ...p,

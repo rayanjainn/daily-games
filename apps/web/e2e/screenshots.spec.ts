@@ -105,6 +105,30 @@ const approvedAnswer = (_viewer: string, slug: string, body: string) =>
 const pendingAnswer = (_viewer: string, slug: string, body: string) =>
   seedAnswer(slug, body, 'pending');
 
+/** Creates named players (once) and links them to `u` with the given relationship. */
+async function befriend(
+  u: { id: string },
+  names: string[],
+  kind: 'accepted' | 'incoming' | 'outgoing',
+): Promise<string[]> {
+  const sql = e2eSql();
+  const ids: string[] = [];
+  for (const name of names) {
+    await sql`INSERT INTO users (id, username, timezone) VALUES (gen_random_uuid(), ${name}, 'UTC')
+      ON CONFLICT DO NOTHING`;
+    const [o] = await sql`SELECT id FROM users WHERE username = ${name}`;
+    const other = o!.id as string;
+    const [a, b] = u.id < other ? [u.id, other] : [other, u.id];
+    await sql`INSERT INTO friendships (user_a, user_b, status, requested_by, accepted_at)
+      VALUES (${a}, ${b}, ${kind === 'accepted' ? 'accepted' : 'pending'},
+        ${kind === 'outgoing' ? u.id : other}, ${kind === 'accepted' ? new Date() : null})
+      ON CONFLICT DO NOTHING`;
+    ids.push(other);
+  }
+  await sql.end();
+  return ids;
+}
+
 async function wordleToday(): Promise<number> {
   const sql = e2eSql();
   const [r] = await sql`SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
@@ -131,6 +155,44 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  friends: [
+    {
+      name: 'friends-list',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await befriend(u, ['ava_plays', 'ben_words'], 'accepted');
+        await befriend(u, ['cai_maps'], 'incoming');
+        await befriend(u, ['dee_logic'], 'outgoing');
+        await page.goto('/friends');
+        await expect(page.getByTestId('friends')).toBeVisible();
+      },
+    },
+    {
+      name: 'friends-h2h',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const [ava] = await befriend(u, ['ava_plays'], 'accepted');
+        // ava_plays is shared by every capture; start from a clean history each time.
+        const sql = e2eSql();
+        await sql`DELETE FROM results WHERE user_id = ${ava!}`;
+        await sql.end();
+        for (const [slug, mine, theirs] of [
+          ['wordle', [3, 4, 5, 2, 4], [4, 4, 3, 5, 6]],
+          ['connections', [4, 4, 4], [4, 4, 4]],
+        ] as const) {
+          for (const [i, a] of mine.entries())
+            await played(u.id, slug, [i + 1], { attempts: a, maxAttempts: 6 });
+          for (const [i, a] of theirs.entries())
+            await played(ava!, slug, [i + 1], { attempts: a, maxAttempts: 6 });
+        }
+        await played(ava!, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+        await page.goto('/friends/ava_plays');
+        await expect(page.getByTestId('h2h-games')).toBeVisible();
+      },
+    },
+  ],
   polish: [
     {
       name: 'polish-games',

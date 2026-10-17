@@ -30,6 +30,8 @@ const LIMITS = {
   'push-test': { tokens: 5, window: '10 m' },
   'reminder-edit': { tokens: 120, window: '10 m' },
   'email-verify': { tokens: 5, window: '1 d' },
+  'friend-request': { tokens: 30, window: '1 d' },
+  'friend-edit': { tokens: 120, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;
