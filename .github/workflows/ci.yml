@@ -88,6 +88,20 @@ jobs:
     needs: checks
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: everydaily
+          POSTGRES_PASSWORD: everydaily
+          POSTGRES_DB: everydaily_e2e
+        options: >-
+          --health-cmd "pg_isready -U everydaily" --health-interval 2s --health-retries 20
+      redis:
+        image: redis:7-alpine
+    env:
+      E2E_DATABASE_URL: postgres://everydaily:everydaily@postgres:5432/everydaily_e2e
+      REDIS_URL: redis://redis:6379
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
