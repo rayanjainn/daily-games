@@ -26,6 +26,7 @@ import {
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
 import { db } from './db';
+import { publishSafely } from './realtime';
 import { HttpError } from './session';
 
 export const groupNameSchema = z.string().trim().min(1, 'Give the group a name.').max(40);
@@ -300,4 +301,18 @@ export async function groupBoard(
     hidden,
     week: rankWeek(weekRows),
   };
+}
+
+/**
+ * Tells every group the player is in that their board changed (after a result is saved or
+ * removed). Best effort: a missed message only means a board refreshes on the next load.
+ */
+export async function announceResultChange(userId: string) {
+  const rows = await db()
+    .select({ groupId: groupMembers.groupId })
+    .from(groupMembers)
+    .where(eq(groupMembers.userId, userId));
+  await Promise.all(
+    rows.map((r) => publishSafely(`group:${r.groupId}`, 'leaderboard.updated', { userId })),
+  );
 }

@@ -260,6 +260,29 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  realtime: [
+    {
+      name: 'realtime-thread',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        const { postId } = await seedCommunity('wordle');
+        await page.goto(`/c/wordle/${postId}`);
+        // A second reader, typing.
+        const other = await page.context().browser()!.newContext();
+        // Leave the room when this capture ends, so the next one starts with two readers.
+        page.once('close', () => void other.close());
+        const p2 = await other.newPage();
+        await signInAs(p2);
+        await p2.goto(`/c/wordle/${postId}`);
+        await expect(page.getByTestId('live-bar')).toContainText('2 here');
+        await p2.getByLabel('Add a comment').pressSequentially('I think');
+        await expect(page.getByTestId('live-bar')).toContainText('is typing');
+        await page.getByRole('heading', { name: /Comments/ }).scrollIntoViewIfNeeded();
+      },
+    },
+  ],
   community: [
     {
       name: 'community-index',

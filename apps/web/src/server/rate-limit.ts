@@ -39,6 +39,7 @@ const LIMITS = {
   'comment-create': { tokens: 60, window: '10 m' },
   vote: { tokens: 300, window: '10 m' },
   'content-report': { tokens: 20, window: '1 d' },
+  'realtime-token': { tokens: 120, window: '10 m' },
 } as const satisfies Record<string, { tokens: number; window: Duration }>;
 
 export type LimitName = keyof typeof LIMITS;

@@ -1,7 +1,31 @@
+import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { defineConfig, devices } from '@playwright/test';
 import { E2E_PORT, E2E_REDIS_DB, REDIS_URL, SERVER_ENV, SHIM_PORT } from './e2e/support/env';
 
 const BASE_URL = `http://localhost:${E2E_PORT}`;
+
+/**
+ * E2E_REALTIME=1 also starts the worker (wrangler dev) with throwaway keys, so live comments,
+ * presence and boards run end to end. Off by default: CI covers the worker in its own suite.
+ */
+const REALTIME = process.env.E2E_REALTIME === '1';
+const WORKER_PORT = 8790;
+const realtimeEnv: Record<string, string> = {};
+const workerVars: string[] = [];
+if (REALTIME) {
+  const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+  const secret = randomBytes(24).toString('base64url');
+  realtimeEnv.REALTIME_URL = `ws://localhost:${WORKER_PORT}`;
+  realtimeEnv.WORKER_INTERNAL_URL = `http://localhost:${WORKER_PORT}`;
+  realtimeEnv.REALTIME_SIGNING_KEY = privateKey
+    .export({ format: 'der', type: 'pkcs8' })
+    .toString('base64url');
+  realtimeEnv.INTERNAL_BROADCAST_SECRET = secret;
+  workerVars.push(
+    `--var REALTIME_PUBLIC_KEY:${publicKey.export({ format: 'jwk' }).x}`,
+    `--var INTERNAL_BROADCAST_SECRET:${secret}`,
+  );
+}
 
 // Lets offline emulation and routing reach requests made by the service worker itself.
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS ??= '1';
@@ -68,7 +92,17 @@ export default defineConfig({
       url: BASE_URL,
       reuseExistingServer: !process.env.CI,
       timeout: 240_000,
-      env: SERVER_ENV,
+      env: { ...SERVER_ENV, ...realtimeEnv },
     },
+    ...(REALTIME
+      ? [
+          {
+            command: `pnpm --filter @everydaily/worker exec wrangler dev --port ${WORKER_PORT} ${workerVars.join(' ')}`,
+            url: `http://localhost:${WORKER_PORT}/health`,
+            reuseExistingServer: false,
+            timeout: 120_000,
+          },
+        ]
+      : []),
   ],
 });

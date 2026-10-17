@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { and, eq, games, results } from '@everydaily/shared/db';
 import { db } from '@/server/db';
+import { announceResultChange } from '@/server/groups';
 import { enforceLimit, HttpError, mutation } from '@/server/http';
 import { refreshStreak } from '@/server/results';
 import { requireSession } from '@/server/session';
@@ -22,6 +23,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
     if (!deleted.length) throw new HttpError(404, 'not_found', 'Result not found.');
     const [game] = await db().select().from(games).where(eq(games.id, deleted[0]!.gameId));
     if (game) await refreshStreak(user.id, game, user.timezone);
+    await announceResultChange(user.id);
     return { ok: true };
   })(req);
 }

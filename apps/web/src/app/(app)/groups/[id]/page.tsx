@@ -2,6 +2,7 @@ import { ArrowLeft, CalendarDays, EyeOff, Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { LiveBoard } from '@/components/realtime/live-board';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -50,6 +51,7 @@ export default async function GroupPage({ params, searchParams }: Props) {
             <p className="mt-1 text-ink-soft">
               {board.members.length} {board.members.length === 1 ? 'player' : 'players'}
             </p>
+            <LiveBoard groupId={id} />
           </div>
           <GroupManage groupId={id} name={m.group.name} role={m.role} />
         </div>
