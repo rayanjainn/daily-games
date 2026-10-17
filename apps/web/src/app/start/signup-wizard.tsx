@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Field, Input } from '@/components/ui/input';
 import { api, ApiError } from '@/lib/api';
+import { useHydrated } from '@/lib/use-hydrated';
 import { cn } from '@/lib/cn';
 import { solvePow, type SolvedPow } from '@/lib/pow';
 import { useDebounced } from '@/lib/use-debounced';
@@ -124,6 +125,7 @@ function NameStep({
   const [state, setState] = useState<{ for: string; result: Availability } | null>(null);
   const [checking, setChecking] = useState(false);
   const [shuffling, setShuffling] = useState(false);
+  const hydrated = useHydrated();
 
   useEffect(() => {
     let live = true;
@@ -242,7 +244,7 @@ function NameStep({
             type="submit"
             size="lg"
             className="sm:flex-1"
-            disabled={!current?.available || pending}
+            disabled={!hydrated || !current?.available || pending}
           >
             That&apos;s me
           </Button>
@@ -419,6 +421,7 @@ function ConfirmStep({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const hydrated = useHydrated();
   return (
     <section>
       <StepHeading eyebrow="Step 5 of 5" title="Quick check">
@@ -463,7 +466,7 @@ function ConfirmStep({
             </Field>
           ))}
           {error ? <Notice tone="danger">{error}</Notice> : null}
-          <Button type="submit" size="lg" block loading={busy} disabled={done}>
+          <Button type="submit" size="lg" block loading={busy} disabled={!hydrated || done}>
             {done ? 'All set!' : 'Finish'}
           </Button>
         </Card>
