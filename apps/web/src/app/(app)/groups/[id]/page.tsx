@@ -101,14 +101,18 @@ export default async function GroupPage({ params, searchParams }: Props) {
         {board.game ? (
           <ol className="divide-y-2 divide-line-soft" data-testid="today-board">
             {board.today.map((e) => (
-              <li key={e.userId} className="flex items-center justify-between gap-3 py-2.5">
+              <li
+                key={e.userId}
+                className={cn(
+                  'flex items-center justify-between gap-3 py-2.5',
+                  e.userId === user.id && '-mx-2 rounded-md bg-surface-2 px-2',
+                )}
+              >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="w-6 text-right font-display font-bold text-ink-soft">
                     {e.rank ?? '–'}
                   </span>
-                  <span
-                    className={cn('truncate font-semibold', e.userId === user.id && 'text-pop')}
-                  >
+                  <span className="truncate font-semibold">
                     {e.name}
                     {e.userId === user.id ? ' (you)' : ''}
                   </span>

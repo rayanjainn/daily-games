@@ -30,7 +30,7 @@ export function InviteLink({
       <p className="text-sm font-semibold">Invite link</p>
       <div className="flex flex-wrap items-center gap-2">
         <code
-          className="min-w-0 flex-1 break-all rounded-md bg-surface-2 px-2 py-1.5 text-sm"
+          className="min-w-0 flex-1 basis-full break-all rounded-md bg-surface-2 px-2 py-1.5 text-sm sm:basis-0"
           data-testid="invite-link"
         >
           {url}

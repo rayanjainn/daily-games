@@ -129,6 +129,41 @@ async function befriend(
   return ids;
 }
 
+/**
+ * A group owned by `ownerId` with named players who played Wordle today and earlier this week.
+ * The named players are shared by every capture, so their history is reset first.
+ */
+async function seedGroup(ownerId: string, name: string, members: string[]): Promise<string> {
+  const sql = e2eSql();
+  const [g] = await sql`INSERT INTO groups (id, name, invite_code, owner_id)
+    VALUES (gen_random_uuid(), ${name}, ${`shots${ownerId.slice(0, 8)}${name.length}`}, ${ownerId})
+    RETURNING id`;
+  const groupId = g!.id as string;
+  await sql`INSERT INTO group_members (group_id, user_id, role) VALUES (${groupId}, ${ownerId}, 'owner')`;
+  const ids: string[] = [];
+  for (const m of members) {
+    await sql`INSERT INTO users (id, username, timezone) VALUES (gen_random_uuid(), ${m}, 'UTC')
+      ON CONFLICT DO NOTHING`;
+    const [u] = await sql`SELECT id FROM users WHERE username = ${m}`;
+    await sql`INSERT INTO group_members (group_id, user_id) VALUES (${groupId}, ${u!.id})`;
+    await sql`DELETE FROM results WHERE user_id = ${u!.id}`;
+    ids.push(u!.id as string);
+  }
+  await sql.end();
+  const today = [3, 5, 0, 4];
+  for (const [i, id] of ids.entries()) {
+    const a = today[i % today.length]!;
+    await played(
+      id,
+      'wordle',
+      [0],
+      a ? { attempts: a, maxAttempts: 6 } : { solved: false, maxAttempts: 6 },
+    );
+    await played(id, 'wordle', [1, 2, 3].slice(0, i + 1), { attempts: 4, maxAttempts: 6 });
+  }
+  return groupId;
+}
+
 async function wordleToday(): Promise<number> {
   const sql = e2eSql();
   const [r] = await sql`SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
@@ -155,6 +190,40 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  groups: [
+    {
+      name: 'groups-list',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await seedGroup(u.id, 'Family puzzlers', ['ava_plays', 'ben_words', 'cai_maps']);
+        await seedGroup(u.id, 'Office league', ['dee_logic']);
+        await page.goto('/groups');
+        await expect(page.getByTestId('groups')).toBeVisible();
+      },
+    },
+    {
+      name: 'groups-board-hidden',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const id = await seedGroup(u.id, 'Family puzzlers', ['ava_plays', 'ben_words', 'cai_maps']);
+        await page.goto(`/groups/${id}?game=wordle`);
+        await expect(page.getByTestId('today-board')).toBeVisible();
+      },
+    },
+    {
+      name: 'groups-board',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const id = await seedGroup(u.id, 'Family puzzlers', ['ava_plays', 'ben_words', 'cai_maps']);
+        await played(u.id, 'wordle', [0], { attempts: 4, maxAttempts: 6 });
+        await page.goto(`/groups/${id}?game=wordle`);
+        await expect(page.getByTestId('today-board')).toContainText('4/6');
+      },
+    },
+  ],
   friends: [
     {
       name: 'friends-list',
