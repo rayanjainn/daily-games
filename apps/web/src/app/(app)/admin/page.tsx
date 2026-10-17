@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { asc, eq, gameReports, gameSubmissions, games, users } from '@everydaily/shared/db';
 import { db } from '@/server/db';
+import { pendingSolutions } from '@/server/solutions';
 import { ModQueue } from './mod-queue';
 
 export const metadata: Metadata = { title: 'Moderation queue' };
 
 export default async function AdminQueuePage() {
-  const [reports, submissions] = await Promise.all([
+  const [reports, submissions, solutionRows] = await Promise.all([
     db()
       .select({
         id: gameReports.id,
@@ -41,6 +42,7 @@ export default async function AdminQueuePage() {
       .where(eq(gameSubmissions.status, 'pending'))
       .orderBy(asc(gameSubmissions.createdAt))
       .limit(100),
+    pendingSolutions(),
   ]);
 
   return (
@@ -51,6 +53,7 @@ export default async function AdminQueuePage() {
         probeResult: (s.probeResult ?? {}) as Record<string, unknown>,
         createdAt: s.createdAt.toISOString(),
       }))}
+      solutions={solutionRows.map((s) => ({ ...s, createdAt: s.createdAt.toISOString() }))}
     />
   );
 }

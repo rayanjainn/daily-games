@@ -41,6 +41,17 @@ interface Submission {
   submitter: string | null;
 }
 
+interface PendingSolution {
+  id: string;
+  body: string;
+  sourceUrl: string;
+  puzzleNumber: number;
+  puzzleDate: string;
+  createdAt: string;
+  game: { slug: string; name: string; numberingPublic: boolean };
+  author: string;
+}
+
 const KIND_LABELS: Record<string, string> = {
   wrong_reset: 'Wrong reset time',
   moved: 'Moved',
@@ -58,9 +69,11 @@ const errorText = (err: unknown) =>
 export function ModQueue({
   reports,
   submissions,
+  solutions,
 }: {
   reports: Report[];
   submissions: Submission[];
+  solutions: PendingSolution[];
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -79,6 +92,25 @@ export function ModQueue({
           <Card lift="sm">
             <EmptyState title="No open reports" className="py-6">
               Players&apos; problem reports land here.
+            </EmptyState>
+          </Card>
+        )}
+      </section>
+
+      <section aria-labelledby="solutions-heading" className="flex flex-col gap-3">
+        <h2 id="solutions-heading" className="flex items-center gap-2 text-2xl sm:text-3xl">
+          Answers <Badge tone={solutions.length ? 'pop' : 'neutral'}>{solutions.length}</Badge>
+        </h2>
+        {solutions.length ? (
+          <ul className="flex flex-col gap-3">
+            {solutions.map((s) => (
+              <SolutionRow key={s.id} solution={s} />
+            ))}
+          </ul>
+        ) : (
+          <Card lift="sm">
+            <EmptyState title="No answers waiting" className="py-6">
+              Answers players share for past puzzles land here.
             </EmptyState>
           </Card>
         )}
@@ -106,6 +138,80 @@ export function ModQueue({
         )}
       </section>
     </div>
+  );
+}
+
+function SolutionRow({ solution: s }: { solution: PendingSolution }) {
+  const router = useRouter();
+  const toast = useToast();
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function decide(decision: 'approve' | 'reject') {
+    setBusy(decision);
+    try {
+      await api(`/api/admin/solutions/${s.id}`, { decision });
+      toast({ tone: 'success', title: decision === 'approve' ? 'Approved' : 'Rejected' });
+      router.refresh();
+    } catch (err) {
+      toast({ tone: 'error', title: errorText(err) });
+      setBusy(null);
+    }
+  }
+
+  const day = new Date(`${s.puzzleDate}T12:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+  return (
+    <li>
+      <Card lift="sm" className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start">
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-semibold">
+            {s.game.name}{' '}
+            <span className="text-ink-soft">
+              {s.game.numberingPublic ? `#${s.puzzleNumber.toLocaleString('en-US')} · ` : ''}
+              {day}
+            </span>
+          </p>
+          <p className="mt-1 whitespace-pre-wrap break-words text-sm">{s.body}</p>
+          <a
+            href={s.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="mt-1 inline-flex max-w-full items-center gap-1 break-all text-sm font-semibold underline decoration-2 underline-offset-2"
+          >
+            <ExternalLink className="size-3.5 shrink-0" aria-hidden />
+            {s.sourceUrl}
+          </a>
+          <p className="mt-1 text-xs text-ink-soft">
+            From {s.author} · {when(s.createdAt)}
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button
+            size="sm"
+            variant="mint"
+            loading={busy === 'approve'}
+            disabled={busy !== null}
+            onClick={() => decide('approve')}
+          >
+            <Check aria-hidden />
+            Approve
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            loading={busy === 'reject'}
+            disabled={busy !== null}
+            onClick={() => decide('reject')}
+          >
+            <X aria-hidden />
+            Reject
+          </Button>
+        </div>
+      </Card>
+    </li>
   );
 }
 

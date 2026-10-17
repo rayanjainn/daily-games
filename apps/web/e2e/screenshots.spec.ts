@@ -81,6 +81,30 @@ async function seedQueue() {
   await sql.end();
 }
 
+/**
+ * One answer for yesterday's puzzle from a fixed player, so parallel captures share it instead of
+ * stacking copies.
+ */
+async function seedAnswer(slug: string, body: string, status: string) {
+  const sql = e2eSql();
+  const author = status === 'approved' ? 'shots_author' : 'shots_pending';
+  await sql`INSERT INTO users (id, username, timezone) VALUES (gen_random_uuid(), ${author}, 'UTC')
+    ON CONFLICT DO NOTHING`;
+  const [a] = await sql`SELECT id FROM users WHERE username = ${author}`;
+  await sql`INSERT INTO solutions (id, game_id, puzzle_number, puzzle_date, author_id, body,
+      source_url, status, decided_at)
+    SELECT gen_random_uuid(), g.id,
+      g.epoch_number + ((now() AT TIME ZONE 'UTC')::date - 1 - g.puzzle_epoch),
+      (now() AT TIME ZONE 'UTC')::date - 1, ${a!.id}, ${body},
+      'https://example.org/tradle/answers', ${status}, now()
+    FROM games g WHERE g.slug = ${slug} ON CONFLICT DO NOTHING`;
+  await sql.end();
+}
+const approvedAnswer = (_viewer: string, slug: string, body: string) =>
+  seedAnswer(slug, body, 'approved');
+const pendingAnswer = (_viewer: string, slug: string, body: string) =>
+  seedAnswer(slug, body, 'pending');
+
 async function wordleToday(): Promise<number> {
   const sql = e2eSql();
   const [r] = await sql`SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
@@ -107,6 +131,72 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  solutions: [
+    {
+      name: 'solution-hidden',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await approvedAnswer(u.id, 'tradle', 'Mongolia. The big clue was copper exports to China.');
+        await page.goto('/games/tradle');
+        await page.getByRole('heading', { name: "Yesterday's answer" }).scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: 'solution-revealed',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await approvedAnswer(u.id, 'tradle', 'Mongolia. The big clue was copper exports to China.');
+        await page.goto('/games/tradle');
+        await page.getByText('Reveal the answer').click();
+        await page.getByRole('heading', { name: "Yesterday's answer" }).scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: 'solution-share',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/tradle');
+        await page.getByRole('button', { name: 'Share the answer' }).click();
+        const dialog = page.getByRole('dialog');
+        await dialog.getByLabel('Answer').fill('Mongolia');
+        await dialog.getByLabel("Where it's published").fill('http://localhost');
+        await dialog.getByRole('button', { name: 'Send for review' }).click();
+        await expect(dialog.getByRole('alert')).toBeVisible();
+      },
+    },
+    {
+      name: 'solution-pending',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/tradle');
+        await page.getByRole('button', { name: 'Share the answer' }).click();
+        const dialog = page.getByRole('dialog');
+        await dialog.getByLabel('Answer').fill('Mongolia');
+        await dialog.getByLabel("Where it's published").fill('https://example.org/tradle');
+        await dialog.getByRole('button', { name: 'Send for review' }).click();
+        await expect(page.getByTestId('solution-mine')).toBeVisible();
+        await page.getByRole('heading', { name: "Yesterday's answer" }).scrollIntoViewIfNeeded();
+      },
+    },
+    {
+      name: 'solution-mod-queue',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page, { role: 'mod' });
+        await pendingAnswer(u.id, 'tradle', 'Mongolia (copper and coal exports).');
+        await page.goto('/admin');
+        await expect(page.getByRole('heading', { name: /Answers/ })).toBeVisible();
+      },
+    },
+  ],
   notes: [
     {
       name: 'notes-empty',
