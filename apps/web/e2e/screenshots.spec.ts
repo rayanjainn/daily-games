@@ -131,6 +131,50 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  reminders: [
+    {
+      name: 'reminders-off',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands']);
+        await page
+          .context()
+          .grantPermissions(['notifications'], { origin: new URL(page.url()).origin });
+        await page.goto('/settings');
+        await expect(page.getByTestId('push-state')).toHaveText('Off for this device');
+        await page
+          .getByRole('region', { name: 'Reminders' })
+          .evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      },
+    },
+    {
+      name: 'reminders-configured',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands']);
+        const sql = e2eSql();
+        await sql`UPDATE users SET streak_nudge_at = '20:30', quiet_hours_start = '22:00',
+          quiet_hours_end = '07:30' WHERE id = ${u.id}`;
+        await sql`UPDATE follows SET remind_at = '08:00' WHERE user_id = ${u.id}
+          AND game_id = (SELECT id FROM games WHERE slug = 'wordle')`;
+        await sql`INSERT INTO push_subscriptions (id, user_id, endpoint, p256dh, auth, label)
+          VALUES (gen_random_uuid(), ${u.id}, ${`https://push.example.com/${u.id}`}, 'k', 'a',
+          'Chrome on Android')`;
+        await sql.end();
+        await page
+          .context()
+          .grantPermissions(['notifications'], { origin: new URL(page.url()).origin });
+        await page.goto('/settings');
+        await expect(page.getByTestId('push-state')).toHaveText('Off for this device');
+        await page
+          .getByRole('region', { name: 'Reminders' })
+          .evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      },
+    },
+  ],
   solutions: [
     {
       name: 'solution-hidden',

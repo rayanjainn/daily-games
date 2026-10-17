@@ -11,6 +11,7 @@ import {
   sessions,
 } from '@everydaily/shared/db';
 import { db } from '@/server/db';
+import { getReminderSettings } from '@/server/reminders';
 import { requireSession } from '@/server/session';
 import { describeDevice } from '@/server/auth/pairing';
 import { SettingsView } from './settings-view';
@@ -19,7 +20,7 @@ export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const { user, sessionId } = await requireSession();
-  const [passkeys, sessionRows, phrase] = await Promise.all([
+  const [passkeys, sessionRows, phrase, reminders] = await Promise.all([
     db()
       .select({
         id: passkeyCredentials.id,
@@ -53,6 +54,7 @@ export default async function SettingsPage() {
       .select({ createdAt: recoveryPhraseHashes.createdAt })
       .from(recoveryPhraseHashes)
       .where(eq(recoveryPhraseHashes.userId, user.id)),
+    getReminderSettings(user),
   ]);
 
   return (
@@ -75,6 +77,7 @@ export default async function SettingsPage() {
         lastSeenAt: s.lastSeenAt.toISOString(),
         current: s.id === sessionId,
       }))}
+      reminders={reminders}
       recovery={{
         exists: phrase.length > 0,
         confirmed: Boolean(user.recoveryConfirmedAt),

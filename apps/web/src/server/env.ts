@@ -37,6 +37,10 @@ const groups = {
     /** "off", "admin" (mods and admins only, the launch default) or "all" signed-in players */
     FEATURE_SUBMISSIONS: z.enum(['off', 'admin', 'all']).default('admin'),
   }),
+  push: z.object({
+    /** VAPID public key (base64url); without it the Reminders section explains it is off. */
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(80).optional(),
+  }),
   realtime: z.object({
     REALTIME_URL: z.string().url(),
     WORKER_INTERNAL_URL: z.string().url(),

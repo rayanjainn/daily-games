@@ -35,5 +35,17 @@ localConnectionString = "postgres://everydaily:everydaily@localhost:5432/everyda
 # custom_domain = true
 
 [triggers]
-# Daily game URL health check (see src/health.ts).
-crons = ["17 4 * * *"]
+# Daily game URL health check (src/health.ts) and reminders every 15 minutes (src/reminders.ts).
+crons = ["17 4 * * *", "*/15 * * * *"]
+
+# Reminder fan-out: the cron enqueues one message per reminder, the consumer sends the pushes.
+# Create once with: wrangler queues create everydaily-reminders
+[[queues.producers]]
+binding = "REMINDERS"
+queue = "everydaily-reminders"
+
+[[queues.consumers]]
+queue = "everydaily-reminders"
+max_batch_size = 50
+max_batch_timeout = 5
+max_retries = 3

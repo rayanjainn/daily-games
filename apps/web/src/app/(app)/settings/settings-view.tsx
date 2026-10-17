@@ -18,6 +18,10 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { InstallApp } from '@/components/pwa/install-app';
+import {
+  ReminderSettings,
+  type ReminderSettingsProps,
+} from '@/components/reminders/reminder-settings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -48,6 +52,7 @@ interface Props {
   passkeys: Passkey[];
   sessions: SessionRow[];
   recovery: { exists: boolean; confirmed: boolean; createdAt: string | null };
+  reminders: ReminderSettingsProps;
 }
 
 const fmt = (iso: string | null) =>
@@ -92,7 +97,7 @@ function Section({
   );
 }
 
-export function SettingsView({ user, passkeys, sessions, recovery }: Props) {
+export function SettingsView({ user, passkeys, sessions, recovery, reminders }: Props) {
   const atRisk = !user.email && (passkeys.length <= 1 || !recovery.confirmed);
   return (
     <div className="flex flex-col gap-5">
@@ -119,6 +124,7 @@ export function SettingsView({ user, passkeys, sessions, recovery }: Props) {
       ) : null}
       <ProfileSection user={user} />
       <InstallApp />
+      <ReminderSettings {...reminders} />
       <PasskeysSection passkeys={passkeys} />
       <RecoverySection recovery={recovery} />
       <SessionsSection sessions={sessions} />

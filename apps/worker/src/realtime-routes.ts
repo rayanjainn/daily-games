@@ -78,3 +78,31 @@ export async function handleBroadcast(request: Request, env: Env): Promise<Respo
     body: JSON.stringify({ kind: parsed.data.kind, data: parsed.data.data }),
   });
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** POST /internal/push-test — the web app asks for a test notification to a player's devices. */
+export async function handlePushTest(
+  request: Request,
+  env: Env,
+  deliver: (userId: string) => Promise<unknown>,
+): Promise<Response> {
+  const body = await request.text();
+  if (body.length > 1024) return new Response('Too large', { status: 413 });
+  const ok = await verifyInternalRequest(
+    env.INTERNAL_BROADCAST_SECRET,
+    body,
+    request.headers.get(SIGNATURE_HEADER),
+    request.headers.get(TIMESTAMP_HEADER),
+  );
+  if (!ok) return new Response('Bad signature', { status: 401 });
+  let userId: unknown;
+  try {
+    userId = (JSON.parse(body) as { userId?: unknown }).userId;
+  } catch {
+    return new Response('Invalid JSON', { status: 400 });
+  }
+  if (typeof userId !== 'string' || !UUID.test(userId))
+    return new Response('Invalid body', { status: 400 });
+  return Response.json(await deliver(userId));
+}

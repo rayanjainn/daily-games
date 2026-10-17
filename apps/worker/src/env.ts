@@ -1,3 +1,4 @@
+import type { ReminderMessage } from './reminders';
 import type { RoomDO } from './room';
 
 export interface Env {
@@ -12,6 +13,8 @@ export interface Env {
   DEV_ROUTES?: string;
   /** Postgres via Hyperdrive (used by the scheduled jobs). */
   HYPERDRIVE: Hyperdrive;
+  /** Reminder fan-out: the cron produces, the queue consumer sends. */
+  REMINDERS: Queue<ReminderMessage>;
   /** The web app's origin; framing checks are made against it. */
   APP_URL: string;
 }

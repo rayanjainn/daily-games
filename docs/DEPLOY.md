@@ -84,7 +84,13 @@ pnpm exec wrangler hyperdrive create everydaily-db --connection-string='postgres
    pnpm exec wrangler secret put VAPID_PRIVATE_KEY
    ```
 
-4. Deploy and check it:
+4. Create the reminders queue (once):
+
+   ```sh
+   pnpm exec wrangler queues create everydaily-reminders
+   ```
+
+5. Deploy and check it:
 
    ```sh
    pnpm run deploy
@@ -92,8 +98,14 @@ pnpm exec wrangler hyperdrive create everydaily-db --connection-string='postgres
    ```
 
 `APP_URL` and `VAPID_SUBJECT` are plain vars in `wrangler.toml`; change them there if the domain
-changes. The daily game health check runs at 04:17 UTC (`[triggers]`); its results show up in
-the moderation queue as "Health check" reports.
+changes. Two cron triggers run (`[triggers]`):
+
+- 04:17 UTC daily: the game health check; results show up in the moderation queue as "Health
+  check" reports.
+- Every 15 minutes: reminders. The cron works out who is due (per-game times, streak-at-risk
+  nudges, quiet hours, each in the player's timezone), records each reminder so it is sent at
+  most once, and puts them on the `everydaily-reminders` queue; the queue consumer sends the
+  Web Push messages and removes expired subscriptions.
 
 ## 5. Web app (Vercel)
 

@@ -1,7 +1,16 @@
+import { createDb, type Database } from '@everydaily/shared/db';
 import type { Env } from './env';
 import { buildPushRequest, sendPush, vapidFromEnv, type PushSubscription } from './push';
 import { HEALTH_CRON, runDailyHealth } from './health';
-import { handleBroadcast, handleConnect } from './realtime-routes';
+import {
+  dbSubscriptionStore,
+  deliverToUser,
+  handleReminderBatch,
+  REMINDER_CRON,
+  runReminderCron,
+  type ReminderMessage,
+} from './reminders';
+import { handleBroadcast, handleConnect, handlePushTest } from './realtime-routes';
 
 export { RoomDO } from './room';
 
@@ -19,6 +28,19 @@ export default {
 
     if (url.pathname === '/internal/broadcast' && request.method === 'POST') {
       return handleBroadcast(request, env);
+    }
+
+    if (url.pathname === '/internal/push-test' && request.method === 'POST') {
+      return handlePushTest(request, env, (userId) =>
+        withDb(env, (db) =>
+          deliverToUser(dbSubscriptionStore(db), vapidFromEnv(env), userId, {
+            title: 'Reminders are on',
+            body: "This is how EveryDaily will nudge you. You're all set.",
+            url: '/settings',
+            tag: 'test',
+          }),
+        ),
+      );
     }
 
     if (env.DEV_ROUTES === '1' && request.method === 'POST') {
@@ -46,5 +68,20 @@ export default {
 
   async scheduled(controller, env, ctx): Promise<void> {
     if (controller.cron === HEALTH_CRON) ctx.waitUntil(runDailyHealth(env));
+    if (controller.cron === REMINDER_CRON)
+      ctx.waitUntil(runReminderCron(env, new Date(controller.scheduledTime)));
   },
-} satisfies ExportedHandler<Env>;
+
+  async queue(batch, env): Promise<void> {
+    await handleReminderBatch(batch, env);
+  },
+} satisfies ExportedHandler<Env, ReminderMessage>;
+
+async function withDb<T>(env: Env, fn: (db: Database) => Promise<T>): Promise<T> {
+  const { db, client } = createDb(env.HYPERDRIVE.connectionString, { max: 1 });
+  try {
+    return await fn(db);
+  } finally {
+    await client.end();
+  }
+}
