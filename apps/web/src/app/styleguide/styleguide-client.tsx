@@ -2,8 +2,10 @@
 
 import { Bell, Flame, Play, Plus, Search, Sparkles, Trash2 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
+import { CATALOG_SUMMARY } from '@everydaily/shared/registry/catalog-summary';
 import { Logo } from '@/components/brand/logo';
 import { confettiBurst } from '@/components/game/confetti';
+import { GameIcon } from '@/components/game/game-icon';
 import { ProgressRing } from '@/components/game/progress-ring';
 import { StreakFlame } from '@/components/game/streak-flame';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
@@ -331,6 +333,23 @@ export function StyleguideClient() {
           </div>
           <Skeleton className="h-24 w-full" />
         </Card>
+      </Section>
+
+      <Section title={`Game icons (${CATALOG_SUMMARY.length})`}>
+        <div className="flex flex-wrap items-end gap-3">
+          <GameIcon icon="grid" color="#6AAA64" size="xs" />
+          <GameIcon icon="grid" color="#6AAA64" size="sm" />
+          <GameIcon icon="grid" color="#6AAA64" size="md" />
+          <GameIcon icon="grid" color="#6AAA64" size="lg" />
+        </div>
+        <ul className="grid grid-cols-3 gap-x-3 gap-y-4 sm:grid-cols-6 lg:grid-cols-10">
+          {CATALOG_SUMMARY.map((g) => (
+            <li key={g.slug} className="flex min-w-0 flex-col items-center gap-1.5 text-center">
+              <GameIcon icon={g.icon} color={g.accentColor} />
+              <span className="w-full truncate font-display text-xs font-semibold">{g.name}</span>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section title="Long text">
