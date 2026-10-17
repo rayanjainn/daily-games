@@ -259,7 +259,43 @@ async function wordleHistory(userId: string) {
   }
 }
 
+async function cardsWeek(page: Page) {
+  const u = await signInAs(page);
+  await follow(page, ['wordle', 'connections', 'tradle']);
+  await wordleHistory(u.id);
+  await played(u.id, 'connections', [0, 2, 3], { attempts: 4, maxAttempts: 4 });
+  await played(u.id, 'tradle', [1, 6], { source: 'checkbox' });
+}
+
 const SETS: Record<string, Screen[]> = {
+  cards: [
+    {
+      name: 'recap',
+      path: '/',
+      setup: async (page) => {
+        await cardsWeek(page);
+        await page.goto('/recap');
+        const img = page.getByTestId('share-image');
+        await expect
+          .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBe(1080);
+      },
+    },
+    {
+      name: 'stat-card-dialog',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await cardsWeek(page);
+        await page.goto('/games/wordle');
+        await page.getByRole('button', { name: 'Stat card' }).click();
+        const img = page.getByTestId('share-image');
+        await expect
+          .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBe(1200);
+      },
+    },
+  ],
   realtime: [
     {
       name: 'realtime-thread',

@@ -4,6 +4,8 @@ const config: NextConfig = {
   // packages/shared ships TypeScript source.
   transpilePackages: ['@everydaily/shared'],
   poweredByHeader: false,
+  // Stat card images read these fonts from disk at request time.
+  outputFileTracingIncludes: { '/api/cards/**': ['./src/assets/fonts/*.ttf'] },
   async headers() {
     return [
       {
