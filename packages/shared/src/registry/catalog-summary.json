@@ -1,0 +1,632 @@
+[
+  {
+    "slug": "actorle",
+    "name": "Actorle",
+    "publisher": "Actorle",
+    "category": "visual",
+    "tier": 3,
+    "icon": "film",
+    "accentColor": "#D62828"
+  },
+  {
+    "slug": "angle",
+    "name": "Angle",
+    "publisher": "Angle",
+    "category": "math",
+    "tier": 2,
+    "icon": "angle",
+    "accentColor": "#3D5A80"
+  },
+  {
+    "slug": "bandle",
+    "name": "Bandle",
+    "publisher": "Bandle",
+    "category": "music",
+    "tier": 2,
+    "icon": "music",
+    "accentColor": "#7A55D6"
+  },
+  {
+    "slug": "chronophoto",
+    "name": "Chronophoto",
+    "publisher": "Chronophoto",
+    "category": "visual",
+    "tier": 3,
+    "icon": "clock",
+    "accentColor": "#A68A64"
+  },
+  {
+    "slug": "clues-by-sam",
+    "name": "Clues by Sam",
+    "publisher": "Clues by Sam",
+    "category": "logic",
+    "tier": 3,
+    "icon": "magnify",
+    "accentColor": "#A85A1A"
+  },
+  {
+    "slug": "colorfle",
+    "name": "Colorfle",
+    "publisher": "Colorfle",
+    "category": "visual",
+    "tier": 3,
+    "icon": "palette",
+    "accentColor": "#FF66C4"
+  },
+  {
+    "slug": "connections-sports",
+    "name": "Connections: Sports Edition",
+    "publisher": "The Athletic",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "ball",
+    "accentColor": "#1F7A8C"
+  },
+  {
+    "slug": "connections",
+    "name": "Connections",
+    "publisher": "The New York Times",
+    "category": "word",
+    "tier": 1,
+    "icon": "link",
+    "accentColor": "#B9A0F0"
+  },
+  {
+    "slug": "contexto",
+    "name": "Contexto",
+    "publisher": "Contexto",
+    "category": "word",
+    "tier": 3,
+    "icon": "brain",
+    "accentColor": "#0E7A9E"
+  },
+  {
+    "slug": "costcodle",
+    "name": "Costcodle",
+    "publisher": "Costcodle",
+    "category": "trivia",
+    "tier": 2,
+    "icon": "price",
+    "accentColor": "#E31837"
+  },
+  {
+    "slug": "countryle",
+    "name": "Countryle",
+    "publisher": "Countryle",
+    "category": "geography",
+    "tier": 3,
+    "icon": "compass",
+    "accentColor": "#F3722C"
+  },
+  {
+    "slug": "crossclimb",
+    "name": "Crossclimb",
+    "publisher": "LinkedIn",
+    "category": "word",
+    "tier": 3,
+    "icon": "path",
+    "accentColor": "#0E7490"
+  },
+  {
+    "slug": "dordle",
+    "name": "Dordle",
+    "publisher": "Zaratustra",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid-multi",
+    "accentColor": "#C46BAE"
+  },
+  {
+    "slug": "emovi",
+    "name": "Emovi",
+    "publisher": "Teuteuf",
+    "category": "visual",
+    "tier": 2,
+    "icon": "film",
+    "accentColor": "#F4A259"
+  },
+  {
+    "slug": "flagle",
+    "name": "Flagle",
+    "publisher": "Teuteuf",
+    "category": "geography",
+    "tier": 2,
+    "icon": "flag",
+    "accentColor": "#E4572E"
+  },
+  {
+    "slug": "foodguessr",
+    "name": "FoodGuessr",
+    "publisher": "FoodGuessr",
+    "category": "geography",
+    "tier": 3,
+    "icon": "pin",
+    "accentColor": "#F8961E"
+  },
+  {
+    "slug": "framed",
+    "name": "Framed",
+    "publisher": "Framed",
+    "category": "visual",
+    "tier": 3,
+    "icon": "film",
+    "accentColor": "#FFB703"
+  },
+  {
+    "slug": "gamedle",
+    "name": "Gamedle",
+    "publisher": "Gamedle",
+    "category": "visual",
+    "tier": 3,
+    "icon": "gamepad",
+    "accentColor": "#7209B7"
+  },
+  {
+    "slug": "geogrid",
+    "name": "GeoGrid",
+    "publisher": "GeoGrid",
+    "category": "geography",
+    "tier": 3,
+    "icon": "globe",
+    "accentColor": "#277DA1"
+  },
+  {
+    "slug": "globle",
+    "name": "Globle",
+    "publisher": "Globle Game",
+    "category": "geography",
+    "tier": 1,
+    "icon": "globe",
+    "accentColor": "#3FA34D"
+  },
+  {
+    "slug": "guardian-quick",
+    "name": "Quick Crossword",
+    "publisher": "The Guardian",
+    "category": "crossword",
+    "tier": 3,
+    "icon": "crossword",
+    "accentColor": "#052962"
+  },
+  {
+    "slug": "guess-the-game",
+    "name": "Guess The Game",
+    "publisher": "GuessThe.Game",
+    "category": "visual",
+    "tier": 2,
+    "icon": "gamepad",
+    "accentColor": "#5E60CE"
+  },
+  {
+    "slug": "heardle-80s",
+    "name": "Heardle 80s",
+    "publisher": "Heardle 80s",
+    "category": "music",
+    "tier": 3,
+    "icon": "music",
+    "accentColor": "#FB5607"
+  },
+  {
+    "slug": "hexcodle",
+    "name": "Hexcodle",
+    "publisher": "Hexcodle",
+    "category": "visual",
+    "tier": 3,
+    "icon": "palette",
+    "accentColor": "#00B4D8"
+  },
+  {
+    "slug": "immaculate-grid",
+    "name": "Immaculate Grid",
+    "publisher": "Sports Reference",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "ball",
+    "accentColor": "#C9184A"
+  },
+  {
+    "slug": "letter-boxed",
+    "name": "Letter Boxed",
+    "publisher": "The New York Times",
+    "category": "word",
+    "tier": 3,
+    "icon": "square-box",
+    "accentColor": "#FC716B"
+  },
+  {
+    "slug": "lyricle",
+    "name": "Lyricle",
+    "publisher": "Lyricle",
+    "category": "music",
+    "tier": 3,
+    "icon": "note",
+    "accentColor": "#8338EC"
+  },
+  {
+    "slug": "mathler",
+    "name": "Mathler",
+    "publisher": "Mathler",
+    "category": "math",
+    "tier": 3,
+    "icon": "calculator",
+    "accentColor": "#2A9D8F"
+  },
+  {
+    "slug": "metaflora",
+    "name": "Metaflora",
+    "publisher": "Metazooa",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "brain",
+    "accentColor": "#386641"
+  },
+  {
+    "slug": "metazooa",
+    "name": "Metazooa",
+    "publisher": "Metazooa",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "brain",
+    "accentColor": "#6A994E"
+  },
+  {
+    "slug": "minute-cryptic",
+    "name": "Minute Cryptic",
+    "publisher": "Minute Cryptic",
+    "category": "crossword",
+    "tier": 1,
+    "icon": "cryptic",
+    "accentColor": "#C03D63"
+  },
+  {
+    "slug": "murdle",
+    "name": "Murdle",
+    "publisher": "G. T. Karber",
+    "category": "logic",
+    "tier": 3,
+    "icon": "magnify",
+    "accentColor": "#9D0208"
+  },
+  {
+    "slug": "nerdle-mini",
+    "name": "Mini Nerdle",
+    "publisher": "Nerdle",
+    "category": "math",
+    "tier": 3,
+    "icon": "equation",
+    "accentColor": "#B5179E"
+  },
+  {
+    "slug": "nerdle",
+    "name": "Nerdle",
+    "publisher": "Nerdle",
+    "category": "math",
+    "tier": 3,
+    "icon": "equation",
+    "accentColor": "#820458"
+  },
+  {
+    "slug": "numberle",
+    "name": "Numberle",
+    "publisher": "Numberle",
+    "category": "math",
+    "tier": 3,
+    "icon": "calculator",
+    "accentColor": "#264653"
+  },
+  {
+    "slug": "nyt-crossword",
+    "name": "The Crossword",
+    "publisher": "The New York Times",
+    "category": "crossword",
+    "tier": 3,
+    "icon": "crossword",
+    "accentColor": "#2B2D42"
+  },
+  {
+    "slug": "nyt-mini",
+    "name": "The Mini",
+    "publisher": "The New York Times",
+    "category": "crossword",
+    "tier": 1,
+    "icon": "mini-grid",
+    "accentColor": "#4A90E2"
+  },
+  {
+    "slug": "nyt-sudoku",
+    "name": "Sudoku",
+    "publisher": "The New York Times",
+    "category": "logic",
+    "tier": 3,
+    "icon": "sudoku",
+    "accentColor": "#F79C42"
+  },
+  {
+    "slug": "nyt-tiles",
+    "name": "Tiles",
+    "publisher": "The New York Times",
+    "category": "logic",
+    "tier": 3,
+    "icon": "tiles",
+    "accentColor": "#B5A6E5"
+  },
+  {
+    "slug": "octordle",
+    "name": "Octordle",
+    "publisher": "Merriam-Webster",
+    "category": "word",
+    "tier": 1,
+    "icon": "grid-multi",
+    "accentColor": "#E8833A"
+  },
+  {
+    "slug": "phrazle",
+    "name": "Phrazle",
+    "publisher": "Solitaired",
+    "category": "word",
+    "tier": 3,
+    "icon": "note",
+    "accentColor": "#EF476F"
+  },
+  {
+    "slug": "pinpoint",
+    "name": "Pinpoint",
+    "publisher": "LinkedIn",
+    "category": "word",
+    "tier": 3,
+    "icon": "question",
+    "accentColor": "#0A66C2"
+  },
+  {
+    "slug": "pips",
+    "name": "Pips",
+    "publisher": "The New York Times",
+    "category": "logic",
+    "tier": 3,
+    "icon": "dots",
+    "accentColor": "#A4589E"
+  },
+  {
+    "slug": "pokedoku",
+    "name": "PokeDoku",
+    "publisher": "PokeDoku",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "sudoku",
+    "accentColor": "#D62F3D"
+  },
+  {
+    "slug": "puzzmo",
+    "name": "Puzzmo",
+    "publisher": "Puzzmo",
+    "category": "logic",
+    "tier": 3,
+    "icon": "brackets",
+    "accentColor": "#111827"
+  },
+  {
+    "slug": "queens",
+    "name": "Queens",
+    "publisher": "LinkedIn",
+    "category": "logic",
+    "tier": 3,
+    "icon": "crown",
+    "accentColor": "#7F56D9"
+  },
+  {
+    "slug": "quordle",
+    "name": "Quordle",
+    "publisher": "Merriam-Webster",
+    "category": "word",
+    "tier": 1,
+    "icon": "grid-multi",
+    "accentColor": "#F2B134"
+  },
+  {
+    "slug": "raddle",
+    "name": "Raddle",
+    "publisher": "Raddle",
+    "category": "word",
+    "tier": 3,
+    "icon": "path",
+    "accentColor": "#7B2CBF"
+  },
+  {
+    "slug": "redactle",
+    "name": "Redactle",
+    "publisher": "Redactle",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "magnify",
+    "accentColor": "#495057"
+  },
+  {
+    "slug": "sedecordle",
+    "name": "Sedecordle",
+    "publisher": "Sedecordle",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid-multi",
+    "accentColor": "#8A4BDA"
+  },
+  {
+    "slug": "semantle",
+    "name": "Semantle",
+    "publisher": "Semantle",
+    "category": "word",
+    "tier": 3,
+    "icon": "brain",
+    "accentColor": "#5F0F40"
+  },
+  {
+    "slug": "songless",
+    "name": "Songless",
+    "publisher": "Less Games",
+    "category": "music",
+    "tier": 3,
+    "icon": "note",
+    "accentColor": "#E6005F"
+  },
+  {
+    "slug": "spelling-bee",
+    "name": "Spelling Bee",
+    "publisher": "The New York Times",
+    "category": "word",
+    "tier": 3,
+    "icon": "hexagon",
+    "accentColor": "#F7DA21"
+  },
+  {
+    "slug": "spotle",
+    "name": "Spotle",
+    "publisher": "Spotle",
+    "category": "music",
+    "tier": 3,
+    "icon": "music",
+    "accentColor": "#1DB954"
+  },
+  {
+    "slug": "squaredle",
+    "name": "Squaredle",
+    "publisher": "Squaredle",
+    "category": "word",
+    "tier": 3,
+    "icon": "dots",
+    "accentColor": "#00A6A6"
+  },
+  {
+    "slug": "statele",
+    "name": "Statele",
+    "publisher": "Teuteuf",
+    "category": "geography",
+    "tier": 3,
+    "icon": "pin",
+    "accentColor": "#577590"
+  },
+  {
+    "slug": "strands",
+    "name": "Strands",
+    "publisher": "The New York Times",
+    "category": "word",
+    "tier": 1,
+    "icon": "strands",
+    "accentColor": "#5BC0BE"
+  },
+  {
+    "slug": "tango",
+    "name": "Tango",
+    "publisher": "LinkedIn",
+    "category": "logic",
+    "tier": 3,
+    "icon": "dots",
+    "accentColor": "#F59E0B"
+  },
+  {
+    "slug": "thrice",
+    "name": "Thrice",
+    "publisher": "Geeks Who Drink",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "question",
+    "accentColor": "#F94144"
+  },
+  {
+    "slug": "timeguessr",
+    "name": "TimeGuessr",
+    "publisher": "TimeGuessr",
+    "category": "visual",
+    "tier": 3,
+    "icon": "clock",
+    "accentColor": "#6D597A"
+  },
+  {
+    "slug": "tradle",
+    "name": "Tradle",
+    "publisher": "OEC",
+    "category": "geography",
+    "tier": 3,
+    "icon": "trade",
+    "accentColor": "#4361EE"
+  },
+  {
+    "slug": "travle",
+    "name": "Travle",
+    "publisher": "Travle",
+    "category": "geography",
+    "tier": 3,
+    "icon": "route",
+    "accentColor": "#43AA8B"
+  },
+  {
+    "slug": "waffle",
+    "name": "Waffle",
+    "publisher": "Waffle Game",
+    "category": "word",
+    "tier": 2,
+    "icon": "waffle",
+    "accentColor": "#E9B949"
+  },
+  {
+    "slug": "weaver",
+    "name": "Weaver",
+    "publisher": "Weaver Games",
+    "category": "word",
+    "tier": 3,
+    "icon": "path",
+    "accentColor": "#06A77D"
+  },
+  {
+    "slug": "whentaken",
+    "name": "WhenTaken",
+    "publisher": "WhenTaken",
+    "category": "visual",
+    "tier": 3,
+    "icon": "camera",
+    "accentColor": "#355070"
+  },
+  {
+    "slug": "wheretaken",
+    "name": "WhereTaken",
+    "publisher": "Teuteuf",
+    "category": "geography",
+    "tier": 3,
+    "icon": "camera",
+    "accentColor": "#90BE6D"
+  },
+  {
+    "slug": "wordiply",
+    "name": "Wordiply",
+    "publisher": "The Guardian",
+    "category": "word",
+    "tier": 3,
+    "icon": "book",
+    "accentColor": "#052962"
+  },
+  {
+    "slug": "wordle",
+    "name": "Wordle",
+    "publisher": "The New York Times",
+    "category": "word",
+    "tier": 1,
+    "icon": "grid",
+    "accentColor": "#6AAA64"
+  },
+  {
+    "slug": "worldle",
+    "name": "Worldle",
+    "publisher": "Teuteuf",
+    "category": "geography",
+    "tier": 1,
+    "icon": "pin",
+    "accentColor": "#2EC4B6"
+  },
+  {
+    "slug": "zip",
+    "name": "Zip",
+    "publisher": "LinkedIn",
+    "category": "logic",
+    "tier": 3,
+    "icon": "path",
+    "accentColor": "#EA580C"
+  }
+]

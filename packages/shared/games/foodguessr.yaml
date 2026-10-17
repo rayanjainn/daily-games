@@ -1,0 +1,28 @@
+slug: 'foodguessr'
+name: 'FoodGuessr'
+publisher: 'FoodGuessr'
+description: 'Guess where in the world a dish comes from.'
+url: 'https://www.foodguessr.com/'
+category: 'geography'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#F8961E'
+icon: 'pin'
+attribution: 'Made and hosted by FoodGuessr.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

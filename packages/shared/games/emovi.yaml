@@ -1,0 +1,34 @@
+slug: 'emovi'
+name: 'Emovi'
+publisher: 'Teuteuf'
+description: 'Guess the movie from a line of emoji.'
+url: 'https://emovi.teuteuf.fr/'
+category: 'visual'
+difficulty: 'easy'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'attempts'
+  maxAttempts: 3
+shareTextSamples:
+  - |-
+    #Emovi 🎬 #1314
+    🧙‍♂️💍🌋
+    🟥🟩⬜
+    https://emovi.teuteuf.fr
+accentColor: '#F4A259'
+icon: 'film'
+attribution: 'Made by Teuteuf Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'movies'

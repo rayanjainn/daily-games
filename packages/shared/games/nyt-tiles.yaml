@@ -1,0 +1,29 @@
+slug: 'nyt-tiles'
+name: 'Tiles'
+publisher: 'The New York Times'
+description: 'Match shared patterns across tiles to clear the board.'
+url: 'https://www.nytimes.com/puzzles/tiles'
+category: 'logic'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#B5A6E5'
+icon: 'tiles'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

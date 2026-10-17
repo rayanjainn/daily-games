@@ -1,0 +1,28 @@
+slug: 'hexcodle'
+name: 'Hexcodle'
+publisher: 'Hexcodle'
+description: 'Guess the hex code of a colour.'
+url: 'https://hexcodle.com/'
+category: 'visual'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#00B4D8'
+icon: 'palette'
+attribution: 'Made and hosted by Hexcodle.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

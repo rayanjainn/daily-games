@@ -1,0 +1,29 @@
+slug: 'nyt-sudoku'
+name: 'Sudoku'
+publisher: 'The New York Times'
+description: 'Classic number placement in easy, medium and hard grids.'
+url: 'https://www.nytimes.com/puzzles/sudoku'
+category: 'logic'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#F79C42'
+icon: 'sudoku'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

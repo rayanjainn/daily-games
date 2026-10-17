@@ -1,0 +1,46 @@
+slug: 'worldle'
+name: 'Worldle'
+publisher: 'Teuteuf'
+description: 'Name the country from its silhouette in six guesses.'
+url: 'https://worldle.teuteuf.fr/'
+category: 'geography'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2022-01-21'
+  epochNumber: 0
+  public: true
+parserId: 'worldle'
+scoring:
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    #Worldle #1730 (17.10.2026) 3/6 (100%)
+    🔥 Current Win Streak: 12 days
+    🟩🟩🟩⬛⬛↗️
+    🟩🟩🟩🟩🟨⬅️
+    🟩🟩🟩🟩🟩🎉
+    https://worldle.teuteuf.fr/share
+  - |-
+    #Worldle #1729 (16.10.2026) X/6 (82%)
+    🔥 Current Win Streak: 0 days
+    🟩⬛⬛⬛⬛⬇️
+    🟩🟩⬛⬛⬛↙️
+    🟩🟩🟩⬛⬛⬅️
+    🟩🟩🟩🟨⬛⬅️
+    🟩🟩🟩🟩⬛↖️
+    🟩🟩🟩🟩🟨⬆️
+    https://worldle.teuteuf.fr/share
+accentColor: '#2EC4B6'
+icon: 'pin'
+attribution: 'Made by Teuteuf Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'countries'

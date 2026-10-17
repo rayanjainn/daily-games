@@ -1,0 +1,35 @@
+slug: 'guess-the-game'
+name: 'Guess The Game'
+publisher: 'GuessThe.Game'
+description: 'Name the video game from up to six screenshots.'
+url: 'https://guessthe.game/'
+category: 'visual'
+difficulty: 'medium'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    #GuessTheGame #1252
+
+    🎮 🟥 🟥 🟩 ⬜ ⬜ ⬜
+
+    https://GuessThe.Game/
+accentColor: '#5E60CE'
+icon: 'gamepad'
+attribution: 'Made by GuessThe.Game.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'video-games'

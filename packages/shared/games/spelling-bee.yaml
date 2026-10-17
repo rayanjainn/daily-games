@@ -1,0 +1,30 @@
+slug: 'spelling-bee'
+name: 'Spelling Bee'
+publisher: 'The New York Times'
+description: 'Make as many words as you can from seven letters.'
+url: 'https://www.nytimes.com/puzzles/spelling-bee'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'fixed'
+  timezone: 'America/New_York'
+  hour: 3
+  note: 'New puzzle at 3:00 a.m. Eastern.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#F7DA21'
+icon: 'hexagon'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

@@ -1,0 +1,28 @@
+slug: 'travle'
+name: 'Travle'
+publisher: 'Travle'
+description: 'Connect two countries through the fewest neighbours.'
+url: 'https://travle.earth/'
+category: 'geography'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#43AA8B'
+icon: 'route'
+attribution: 'Made and hosted by Travle.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

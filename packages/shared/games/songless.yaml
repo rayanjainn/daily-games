@@ -1,0 +1,28 @@
+slug: 'songless'
+name: 'Songless'
+publisher: 'Less Games'
+description: 'Name the song from the shortest possible clip.'
+url: 'https://lessgames.com/songless'
+category: 'music'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#E6005F'
+icon: 'note'
+attribution: 'Made and hosted by Less Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

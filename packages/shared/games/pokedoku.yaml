@@ -1,0 +1,28 @@
+slug: 'pokedoku'
+name: 'PokeDoku'
+publisher: 'PokeDoku'
+description: 'A grid of creatures that match two categories each.'
+url: 'https://pokedoku.com/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#D62F3D'
+icon: 'sudoku'
+attribution: 'Made and hosted by PokeDoku.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

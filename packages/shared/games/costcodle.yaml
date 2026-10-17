@@ -1,0 +1,34 @@
+slug: 'costcodle'
+name: 'Costcodle'
+publisher: 'Costcodle'
+description: 'Guess the price of a warehouse-club product in six tries.'
+url: 'https://costcodle.com/'
+category: 'trivia'
+difficulty: 'easy'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    Costcodle #612 3/6
+    ⬆️🟥
+    ⬇️🟨
+    ✅
+    https://costcodle.com
+accentColor: '#E31837'
+icon: 'price'
+attribution: 'Made by an independent developer; not affiliated with any retailer.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags: []

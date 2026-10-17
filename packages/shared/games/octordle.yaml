@@ -1,0 +1,43 @@
+slug: 'octordle'
+name: 'Octordle'
+publisher: 'Merriam-Webster'
+description: 'Eight five-letter words, thirteen guesses, one keyboard.'
+url: 'https://www.merriam-webster.com/games/octordle/'
+category: 'word'
+difficulty: 'hard'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2022-01-25'
+  epochNumber: 1
+  public: true
+parserId: 'octordle'
+scoring:
+  type: 'distance'
+  unit: 'points'
+shareTextSamples:
+  - |-
+    Daily Octordle #1727
+    8️⃣🔟
+    7️⃣🕚
+    5️⃣6️⃣
+    4️⃣9️⃣
+    Score: 60
+  - |-
+    Daily Octordle #1726
+    🕛🟥
+    7️⃣5️⃣
+    3️⃣🔟
+    🕚🕐
+    Score: 75
+accentColor: '#E8833A'
+icon: 'grid-multi'
+attribution: 'Published by Merriam-Webster.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'multi-board'

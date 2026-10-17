@@ -1,0 +1,40 @@
+slug: 'strands'
+name: 'Strands'
+publisher: 'The New York Times'
+description: 'Find themed words hidden in a letter grid, plus the spangram.'
+url: 'https://www.nytimes.com/games/strands'
+category: 'word'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2024-03-04'
+  epochNumber: 1
+  public: true
+parserId: 'strands'
+scoring:
+  type: 'distance'
+  unit: 'hints'
+shareTextSamples:
+  - |-
+    Strands #958
+    “Kitchen drawer”
+    🔵🔵💡🔵
+    🔵🟡🔵🔵
+  - |-
+    Strands #957
+    “Get a move on”
+    💡💡🔵🔵
+    🟡🔵🔵💡
+    🔵
+accentColor: '#5BC0BE'
+icon: 'strands'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'

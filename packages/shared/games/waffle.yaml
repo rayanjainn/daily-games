@@ -1,0 +1,40 @@
+slug: 'waffle'
+name: 'Waffle'
+publisher: 'Waffle Game'
+description: 'Swap letters to fix a waffle-shaped grid of words in 15 moves.'
+url: 'https://wafflegame.net/daily'
+category: 'word'
+difficulty: 'medium'
+tier: 2
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: 'generic'
+scoring:
+  type: 'points'
+  unit: 'stars'
+shareTextSamples:
+  - |-
+    #waffle1365 4/5
+
+    🟩🟩🟩🟩🟩
+    🟩⭐🟩⭐🟩
+    🟩🟩⭐🟩🟩
+    🟩⬜🟩⭐🟩
+    🟩🟩🟩🟩🟩
+
+    🔥 streak: 12
+    wafflegame.net
+accentColor: '#E9B949'
+icon: 'waffle'
+attribution: 'Made by Waffle Game.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'word-grid'

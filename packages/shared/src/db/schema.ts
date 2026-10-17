@@ -214,11 +214,22 @@ export const games = pgTable(
     resetMode: text('reset_mode').$type<(typeof RESET_MODES)[number]>().notNull(),
     resetTz: text('reset_tz'),
     resetHour: smallint('reset_hour').notNull().default(0),
+    resetGraceHours: smallint('reset_grace_hours').notNull().default(0),
+    resetNote: text('reset_note'),
     puzzleEpoch: date('puzzle_epoch').notNull(),
     epochNumber: integer('epoch_number').notNull(),
+    /** false: the game shows no number; `epoch_number` indexes days for storage only */
+    numberingPublic: boolean('numbering_public').notNull().default(false),
     parserId: text('parser_id'),
     scoringType: text('scoring_type').$type<(typeof SCORING_TYPES)[number]>().notNull(),
     maxAttempts: smallint('max_attempts'),
+    scoringUnit: text('scoring_unit'),
+    tags: text('tags')
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    /** set when a moderator edits the row in the admin UI */
+    adminEditedAt: timestamp('admin_edited_at', { withTimezone: true }),
     status: text('status').$type<(typeof GAME_STATUSES)[number]>().notNull().default('active'),
     accentColor: text('accent_color').notNull(),
     icon: text('icon').notNull(),
@@ -238,7 +249,8 @@ export const games = pgTable(
     check('games_tier_check', sql`${t.tier} IN (1, 2, 3)`),
     check('games_embed_mode_check', oneOf('embed_mode', EMBED_MODES)),
     check('games_reset_mode_check', oneOf('reset_mode', RESET_MODES)),
-    check('games_reset_hour_check', sql`${t.resetHour} BETWEEN 0 AND 23`),
+    check('games_reset_hour_check', sql`${t.resetHour} BETWEEN -12 AND 23`),
+    check('games_reset_grace_check', sql`${t.resetGraceHours} BETWEEN 0 AND 12`),
     check('games_scoring_type_check', oneOf('scoring_type', SCORING_TYPES)),
     check('games_status_check', oneOf('status', GAME_STATUSES)),
     check('games_fixed_reset_has_tz', sql`${t.resetMode} <> 'fixed' OR ${t.resetTz} IS NOT NULL`),

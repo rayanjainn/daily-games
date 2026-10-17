@@ -1,0 +1,46 @@
+slug: 'wordle'
+name: 'Wordle'
+publisher: 'The New York Times'
+description: 'Guess the hidden five-letter word in six tries.'
+url: 'https://www.nytimes.com/games/wordle/index.html'
+category: 'word'
+difficulty: 'medium'
+tier: 1
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2021-06-19'
+  epochNumber: 0
+  public: true
+parserId: 'wordle'
+scoring:
+  type: 'attempts'
+  maxAttempts: 6
+shareTextSamples:
+  - |-
+    Wordle 1,946 4/6
+
+    ⬛🟨⬛⬛⬛
+    ⬛⬛🟩🟨⬛
+    🟩⬛🟩⬛🟩
+    🟩🟩🟩🟩🟩
+  - |-
+    Wordle 1,945 X/6*
+
+    ⬜⬜🟨⬜⬜
+    🟨🟩⬜⬜⬜
+    ⬜🟩🟩⬜🟩
+    ⬜🟩🟩🟨🟩
+    🟨🟩🟩⬜🟩
+    ⬜🟩🟩🟩🟩
+accentColor: '#6AAA64'
+icon: 'grid'
+attribution: 'Published by The New York Times as part of NYT Games.'
+verifiedLiveAt: '2026-10-17T07:30:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'nyt'
+  - 'classic'
