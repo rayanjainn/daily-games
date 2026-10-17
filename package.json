@@ -19,6 +19,7 @@
     "seed:games": "pnpm --filter @everydaily/scripts exec tsx seed-games.ts",
     "user:role": "pnpm --filter @everydaily/scripts exec tsx set-role.ts",
     "icons:generate": "pnpm --filter @everydaily/scripts exec tsx generate-icons.ts",
+    "probe:embeds": "NODE_USE_ENV_PROXY=1 pnpm --filter @everydaily/scripts exec tsx probe-embeds.ts",
     "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts"
   },
   "devDependencies": {
