@@ -19,3 +19,5 @@ console.log(
 console.log(
   `INTERNAL_BROADCAST_SECRET=${b64url(crypto.getRandomValues(new Uint8Array(32)).buffer)}`,
 );
+
+export {};

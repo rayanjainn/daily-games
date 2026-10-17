@@ -94,7 +94,8 @@ try {
       ),
     vapidPublic,
   );
-  console.log('push service:', new URL(subscription.endpoint).host);
+  const endpoint = subscription.endpoint!;
+  console.log('push service:', new URL(endpoint).host);
 
   // RELAY=1: the worker encrypts and signs, this script performs the HTTP send. Needed where
   // the local runtime cannot reach the internet directly (sandboxed CI behind a proxy).
@@ -106,7 +107,7 @@ try {
   });
   if (relay) {
     const built = (await res.json()) as { headers: Record<string, string>; body: string };
-    const sent = await fetch(subscription.endpoint, {
+    const sent = await fetch(endpoint, {
       method: 'POST',
       headers: built.headers,
       body: Buffer.from(built.body, 'base64'),
