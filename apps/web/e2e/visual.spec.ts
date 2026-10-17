@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { follow, played } from './support/play';
 import { signInAs } from './support/session';
 import { settle } from './support/shots';
 
@@ -13,6 +14,23 @@ test.describe('visual regression', () => {
       await page.goto('/styleguide');
       await settle(page);
       await expect(page).toHaveScreenshot(`styleguide-${theme}.png`, { fullPage: true });
+    });
+
+    test(`dashboard (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      const user = await signInAs(page);
+      await follow(page, ['wordle', 'connections', 'flagle']);
+      await played(user.id, 'wordle', [0, 1, 2], { attempts: 3, maxAttempts: 6 });
+      await page.goto('/today');
+      await settle(page);
+      await expect(page).toHaveScreenshot(`dashboard-${theme}.png`, {
+        // The date, greeting (random test username) and puzzle numbers change between runs.
+        mask: [
+          page.getByTestId('today-date'),
+          page.getByRole('heading', { level: 1 }),
+          page.getByTestId('puzzle-label'),
+        ],
+      });
     });
 
     test(`catalog (${theme})`, async ({ page }) => {

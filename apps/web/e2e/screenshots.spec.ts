@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
 import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 import { e2eSql } from './support/db';
+import { follow, played } from './support/play';
 import { signInAs } from './support/session';
 import { THEMES, VIEWPORTS, capture, shotsDir } from './support/shots';
 
@@ -81,6 +82,66 @@ async function seedQueue() {
 }
 
 const SETS: Record<string, Screen[]> = {
+  dashboard: [
+    {
+      name: 'today-empty',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/today');
+        await expect(page.getByText('Build your daily lineup')).toBeVisible();
+      },
+    },
+    {
+      name: 'today-in-progress',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands', 'nyt-mini', 'globle', 'flagle']);
+        await played(u.id, 'wordle', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], {
+          attempts: 4,
+          maxAttempts: 6,
+        });
+        await played(u.id, 'globle', [0, 1, 2], { solved: true });
+        await played(u.id, 'flagle', [1, 2], { source: 'checkbox' });
+        await page.goto('/today');
+        await expect(page.getByTestId('checklist-item')).toHaveCount(6);
+      },
+    },
+    {
+      name: 'today-all-done',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'flagle']);
+        await played(u.id, 'wordle', [0, 1], { solved: false, attempts: 6, maxAttempts: 6 });
+        await played(u.id, 'flagle', [0], { source: 'checkbox' });
+        await page.goto('/today');
+        await expect(page.getByText('All done for today')).toBeVisible();
+      },
+    },
+    {
+      name: 'today-at-risk',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['connections', 'sedecordle', 'connections-sports']);
+        await played(u.id, 'connections', [1, 2, 3, 4, 5]);
+        await page.goto('/today');
+        await expect(page.getByText(/keep your 5-day streak/)).toBeVisible();
+      },
+    },
+    {
+      name: 'today-reorder',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'strands']);
+        await page.goto('/today');
+        await page.getByRole('button', { name: 'Reorder' }).click();
+      },
+    },
+  ],
   catalog: [
     {
       name: 'catalog',
