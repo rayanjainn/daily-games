@@ -1,0 +1,1 @@
+ALTER TABLE "results" ADD COLUMN "from_archive" boolean DEFAULT false NOT NULL;

@@ -5,6 +5,8 @@ import { computeStreak, type Streak } from './streak';
 export interface StatResult extends ResultLike {
   puzzleNumber: number;
   puzzleDate: string;
+  /** Caught up later from the archive: counted in stats, not in streaks. */
+  fromArchive?: boolean;
 }
 
 export interface DistributionBar {
@@ -112,7 +114,9 @@ export function computeGameStats(
   const solvedList = results.filter((r) => r.solved);
   const solved = solvedList.length;
 
-  const sorted = [...results].sort((a, b) => a.puzzleNumber - b.puzzleNumber);
+  // Streaks only count puzzles played on their day; archive catch-ups never repair one.
+  const onTime = results.filter((r) => !r.fromArchive);
+  const sorted = [...onTime].sort((a, b) => a.puzzleNumber - b.puzzleNumber);
   let run = 0;
   let bestWin = 0;
   let prev: number | null = null;
@@ -144,7 +148,7 @@ export function computeGameStats(
     solved,
     solveRate: played ? Math.round((solved / played) * 100) : 0,
     streak: computeStreak(
-      results.map((r) => r.puzzleNumber),
+      onTime.map((r) => r.puzzleNumber),
       todayNumber,
     ),
     winStreak: { current: currentWin, best: bestWin },

@@ -382,6 +382,8 @@ export const results = pgTable(
     details: jsonb('details').$type<ResultDetails>().notNull().default({}),
     rawShareText: text('raw_share_text'),
     source: text('source').$type<(typeof RESULT_SOURCES)[number]>().notNull(),
+    /** Played later from the game's archive: counts in stats, never in streaks. */
+    fromArchive: boolean('from_archive').notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

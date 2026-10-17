@@ -55,6 +55,22 @@ describe('computeGameStats', () => {
     expect(computeGameStats([res(1, { attempts: 3 })], attempts, 10).winStreak.current).toBe(0);
   });
 
+  it('counts archive catch-ups in totals but never in streaks', () => {
+    const s = computeGameStats(
+      [
+        res(7, { attempts: 3 }),
+        res(8, { attempts: 4, fromArchive: true }),
+        res(9, { attempts: 2 }),
+        res(10, { attempts: 2 }),
+      ],
+      attempts,
+      10,
+    );
+    expect(s).toMatchObject({ played: 4, solved: 4 });
+    expect(s.streak).toMatchObject({ current: 2, best: 2 });
+    expect(s.winStreak).toEqual({ current: 2, best: 2 });
+  });
+
   it('uses lower-is-better for times and buckets them', () => {
     const results = [30, 42, 55, 61, 95].map((t, i) => res(i + 1, { timeSeconds: t }));
     const s = computeGameStats(results, { type: 'time' }, 5);

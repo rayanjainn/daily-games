@@ -55,6 +55,7 @@ export async function getDashboard(
         maxAttempts: results.maxAttempts,
         timeSeconds: results.timeSeconds,
         score: results.score,
+        fromArchive: results.fromArchive,
       })
       .from(results)
       .where(and(eq(results.userId, user.id), gte(results.puzzleDate, since))),
@@ -82,7 +83,7 @@ export async function getDashboard(
           }
         : null,
       streak: computeStreak(
-        mine.map((r) => r.puzzleNumber),
+        mine.filter((r) => !r.fromArchive).map((r) => r.puzzleNumber),
         p.number,
       ),
     };
@@ -90,7 +91,7 @@ export async function getDashboard(
 
   // Combined: days (by puzzle date) on which the player logged any daily puzzle at all.
   const combined = computeStreak(
-    recent.map((r) => dayIndex(r.puzzleDate)),
+    recent.filter((r) => !r.fromArchive).map((r) => dayIndex(r.puzzleDate)),
     dayIndex(today),
   );
 
