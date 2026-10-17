@@ -6,6 +6,6 @@ import { requireSession } from '@/server/session';
 export const PATCH = mutation(reminderPrefsSchema, async (p) => {
   const { user } = await requireSession();
   await enforceLimit('reminder-edit', user.id);
-  await saveReminderPrefs(user.id, p);
+  await saveReminderPrefs(user, p);
   return { ok: true };
 });

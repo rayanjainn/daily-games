@@ -86,6 +86,34 @@ describe('planDueReminders', () => {
     expect(await planDueReminders(db, NOW)).toEqual([]);
   });
 
+  it('reaches players by verified email when they have no device', async () => {
+    const wordle = await gameId('wordle');
+    const [email] = await db
+      .insert(users)
+      .values({
+        username: 'mailer',
+        timezone: 'America/New_York',
+        email: 'mailer@example.org',
+        emailVerifiedAt: new Date(),
+        emailReminders: true,
+      })
+      .returning();
+    const [unverified] = await db
+      .insert(users)
+      .values({
+        username: 'unverified',
+        timezone: 'America/New_York',
+        email: 'unverified@example.org',
+        emailReminders: true,
+      })
+      .returning();
+    await db.insert(follows).values([
+      { userId: email!.id, gameId: wordle.id, remindAt: '18:00' },
+      { userId: unverified!.id, gameId: wordle.id, remindAt: '18:00' },
+    ]);
+    expect((await planDueReminders(db, NOW)).map((p) => p.userId)).toEqual([email!.id]);
+  });
+
   it('nudges streaks at risk at the chosen time', async () => {
     const u = await player('cai', { streakNudgeAt: '18:00' });
     const wordle = await gameId('wordle');

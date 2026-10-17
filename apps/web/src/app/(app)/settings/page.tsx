@@ -11,6 +11,7 @@ import {
   sessions,
 } from '@everydaily/shared/db';
 import { db } from '@/server/db';
+import { emailEnabled, pendingVerification } from '@/server/email';
 import { getReminderSettings } from '@/server/reminders';
 import { requireSession } from '@/server/session';
 import { describeDevice } from '@/server/auth/pairing';
@@ -20,7 +21,7 @@ export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const { user, sessionId } = await requireSession();
-  const [passkeys, sessionRows, phrase, reminders] = await Promise.all([
+  const [passkeys, sessionRows, phrase, reminders, pending] = await Promise.all([
     db()
       .select({
         id: passkeyCredentials.id,
@@ -55,6 +56,7 @@ export default async function SettingsPage() {
       .from(recoveryPhraseHashes)
       .where(eq(recoveryPhraseHashes.userId, user.id)),
     getReminderSettings(user),
+    pendingVerification(user.id),
   ]);
 
   return (
@@ -63,7 +65,7 @@ export default async function SettingsPage() {
         username: user.username,
         displayName: user.displayName,
         timezone: user.timezone,
-        email: user.email,
+        email: user.emailVerifiedAt ? user.email : null,
       }}
       passkeys={passkeys.map((p) => ({
         ...p,
@@ -78,6 +80,12 @@ export default async function SettingsPage() {
         current: s.id === sessionId,
       }))}
       reminders={reminders}
+      email={{
+        email: user.email,
+        verified: Boolean(user.emailVerifiedAt),
+        pending,
+        enabled: emailEnabled(),
+      }}
       recovery={{
         exists: phrase.length > 0,
         confirmed: Boolean(user.recoveryConfirmedAt),

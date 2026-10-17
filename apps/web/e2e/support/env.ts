@@ -5,6 +5,8 @@ export const E2E_REDIS_DB = 1;
 
 export const E2E_DATABASE_URL =
   process.env.E2E_DATABASE_URL ?? 'postgres://everydaily:everydaily@localhost:5432/everydaily_e2e';
+/** Where the server writes emails in tests (it never sends real ones here). */
+export const E2E_OUTBOX = `${process.env.TMPDIR ?? '/tmp'}/everydaily-e2e-outbox`;
 export const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
 export const SERVER_ENV: Record<string, string> = {
@@ -19,6 +21,7 @@ export const SERVER_ENV: Record<string, string> = {
   POW_DIFFICULTY: '12',
   ENABLE_STYLEGUIDE: '1',
   NEXT_TELEMETRY_DISABLED: '1',
+  EMAIL_DEV_OUTBOX: E2E_OUTBOX,
   // A throwaway public key (its private half was never kept): lets the Reminders UI render.
   NEXT_PUBLIC_VAPID_PUBLIC_KEY:
     'BBucNJLlmhlhgrIGR-rRI_fGzi_cXz8N2TgD6EiUz67oKw2AfXEEZD-q8NVYsZPgyKaDu40ftjd2Ou-6bHGFgFQ',

@@ -1,4 +1,6 @@
-import { createDb, eq, pushSubscriptions, sql, type Database } from '@everydaily/shared/db';
+import { createDb, eq, pushSubscriptions, sql, users, type Database } from '@everydaily/shared/db';
+import { sendEmail, type EmailConfig } from '@everydaily/shared/email/resend';
+import { reminderEmail } from '@everydaily/shared/email/templates';
 import type { Notification } from '@everydaily/shared/reminders/plan';
 import { planDueReminders, pruneDeliveries } from '@everydaily/shared/reminders/run';
 import type { Env } from './env';
@@ -125,15 +127,45 @@ export async function runReminderCron(env: Env, now = new Date()) {
   }
 }
 
-/** Queue consumer: delivers each reminder, retrying the ones that hit temporary failures. */
+export function emailConfig(env: Env): EmailConfig | null {
+  return env.RESEND_API_KEY && env.EMAIL_FROM
+    ? { apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM }
+    : null;
+}
+
+/** The player's address when email reminders are on and the address is verified. */
+async function reminderAddress(db: Database, userId: string): Promise<string | null> {
+  const [u] = await db
+    .select({ email: users.email, verified: users.emailVerifiedAt, on: users.emailReminders })
+    .from(users)
+    .where(eq(users.id, userId));
+  return u?.email && u.verified && u.on ? u.email : null;
+}
+
+/**
+ * Queue consumer: delivers each reminder by push and, when the player opted in, by email. A
+ * message is retried only when nothing reached the player, so a retry never doubles up.
+ */
 export async function handleReminderBatch(batch: MessageBatch<ReminderMessage>, env: Env) {
   const { db, client } = createDb(env.HYPERDRIVE.connectionString, { max: 2 });
   try {
     const store = dbSubscriptionStore(db);
     const vapid = vapidFromEnv(env);
+    const mail = emailConfig(env);
     for (const msg of batch.messages) {
-      const r = await deliverToUser(store, vapid, msg.body.userId, msg.body.notification);
-      if (r.retryAfter !== null && r.sent === 0) msg.retry({ delaySeconds: r.retryAfter });
+      const { userId, notification } = msg.body;
+      const r = await deliverToUser(store, vapid, userId, notification);
+      let emailed = false;
+      let emailRetry = false;
+      const to = mail ? await reminderAddress(db, userId) : null;
+      if (mail && to) {
+        const out = await sendEmail(mail, reminderEmail(to, notification, env.APP_URL));
+        emailed = out.ok;
+        emailRetry = !out.ok && out.retry;
+      }
+      const delivered = r.sent > 0 || emailed;
+      if (!delivered && (r.retryAfter !== null || emailRetry))
+        msg.retry({ delaySeconds: r.retryAfter ?? 60 });
       else msg.ack();
     }
   } finally {

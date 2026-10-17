@@ -131,6 +131,43 @@ async function wordleHistory(userId: string) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  email: [
+    {
+      name: 'email-unconfirmed',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/settings');
+        const section = page.getByRole('region', { name: 'Email' });
+        await section.getByLabel('Email address').fill(`ava_${Date.now()}@example.org`);
+        await section.getByRole('button', { name: 'Send confirmation link' }).click();
+        await expect(section.getByTestId('email-status')).toBeVisible();
+        await section.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      },
+    },
+    {
+      name: 'email-confirmed',
+      path: '/',
+      viewportOnly: true,
+      setup: async (page) => {
+        const u = await signInAs(page);
+        const sql = e2eSql();
+        await sql`UPDATE users SET email = ${`cai_${u.id.slice(0, 8)}@example.org`},
+          email_verified_at = now(), email_reminders = true WHERE id = ${u.id}`;
+        await sql.end();
+        await page.goto('/settings');
+        await page
+          .getByRole('region', { name: 'Reminders' })
+          .evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      },
+    },
+    {
+      name: 'email-verify-page',
+      path: '/verify-email?token=not-a-real-token-but-long-enough',
+      viewportOnly: true,
+    },
+  ],
   reminders: [
     {
       name: 'reminders-off',
