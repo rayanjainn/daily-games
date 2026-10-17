@@ -1,5 +1,8 @@
 import type { Env } from './env';
 import { buildPushRequest, sendPush, vapidFromEnv, type PushSubscription } from './push';
+import { handleBroadcast, handleConnect } from './realtime-routes';
+
+export { RoomDO } from './room';
 
 export default {
   async fetch(request, env): Promise<Response> {
@@ -7,6 +10,14 @@ export default {
 
     if (url.pathname === '/health') {
       return Response.json({ ok: true, service: 'worker' });
+    }
+
+    if (url.pathname.startsWith('/rt/') && request.method === 'GET') {
+      return handleConnect(request, env, url.pathname);
+    }
+
+    if (url.pathname === '/internal/broadcast' && request.method === 'POST') {
+      return handleBroadcast(request, env);
     }
 
     if (env.DEV_ROUTES === '1' && request.method === 'POST') {

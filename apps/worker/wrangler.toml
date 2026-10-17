@@ -8,4 +8,13 @@ VAPID_SUBJECT = "mailto:hello@everydaily.raycode.tech"
 # Development-only routes (e.g. /dev/push). Never set to "1" in production.
 DEV_ROUTES = "0"
 
-# Secrets (wrangler secret put …): VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY
+# Secrets (wrangler secret put …):
+#   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, REALTIME_PUBLIC_KEY, INTERNAL_BROADCAST_SECRET
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "RoomDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RoomDO"]
