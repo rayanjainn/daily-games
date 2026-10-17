@@ -65,7 +65,9 @@ Design as built (matches PLAN.md section 10):
 | Reauth extends deadline; another user's token closes 4401; deadline enforced on next message and by the alarm sweep                                                                                                                                                               | workerd tests                        | Pass       |
 | **Live end to end:** `next dev` + `wrangler dev`, two real WebSocket clients: 401 for anonymous token request, connect, hello/presence, typing, three events published by Next.js arrive in order at both, token replay refused, wrong-room token refused, ping auto-reply, leave | `scripts/spikes/realtime/run.ts`     | 12/12 Pass |
 
-How to rerun: `pnpm vitest run --project worker` and `pnpm tsx scripts/spikes/realtime/run.ts`.
+How to rerun: `pnpm vitest run --project worker`. The live end-to-end script was retired in
+Phase 3 once real sessions existed; `E2E_REALTIME=1` Playwright runs (`realtime.spec.ts`) now
+cover the same path through the app's own UI and token route.
 
 Notes:
 
