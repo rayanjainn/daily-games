@@ -65,6 +65,8 @@ export async function createAccount(input: {
       await tx.insert(passkeyCredentials).values({
         userId: input.userId,
         credentialId: input.credential.id,
+        // The sign-up ceremony is also its first sign-in.
+        lastUsedAt: new Date(),
         ...credentialColumns(input.credential),
       });
       await tx
