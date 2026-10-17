@@ -70,7 +70,10 @@ describe('input handling', () => {
 
   it('survives zero-width characters, CRLF, fullwidth digits and stray indentation', () => {
     const v = expectOk(
-      parse('wordle', '\u200BWordle １,９４６ 3/6\r\n\r\n  ⬛🟨⬛⬛⬛\r\n🟩⬛🟩⬛🟩\r\n🟩🟩🟩🟩🟩  '),
+      parse(
+        'wordle',
+        '\u200BWordle １,９４６ 3/6\r\n\r\n  ⬛🟨⬛⬛⬛\r\n🟩⬛🟩⬛🟩\r\n🟩🟩🟩🟩🟩  ',
+      ),
     );
     expect(v.puzzleNumber).toBe(1946);
     expect(v.attempts).toBe(3);
