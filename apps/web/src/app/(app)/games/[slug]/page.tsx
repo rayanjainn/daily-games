@@ -33,6 +33,7 @@ import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
 import { yesterdaysSolutions } from '@/server/solutions';
 import { ReportDialog } from './report-dialog';
+import { StatCardDialog } from './stat-card-dialog';
 
 type Params = Promise<{ slug: string }>;
 
@@ -184,9 +185,14 @@ export default async function GamePage({ params }: { params: Params }) {
       </div>
 
       <Card asSection className="flex flex-col gap-6 p-5 sm:p-6" aria-labelledby="stats-heading">
-        <h2 id="stats-heading" className="text-xl">
-          Your stats
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="stats-heading" className="text-xl">
+            Your stats
+          </h2>
+          {view.stats.played > 0 ? (
+            <StatCardDialog slug={row.slug} gameName={row.name} username={user.username} />
+          ) : null}
+        </div>
         {view.stats.played === 0 ? (
           <EmptyState title="No results yet" className="py-6">
             {TRACKING[game.tier].hint} Your streak, history and charts build up from here.

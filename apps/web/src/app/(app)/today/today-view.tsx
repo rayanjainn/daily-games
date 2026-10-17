@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Check, ListOrdered, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, ImageIcon, ListOrdered, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -119,6 +119,19 @@ export function TodayView({
       ) : null}
 
       {total ? <Checklist items={items} /> : <Starters games={starters} />}
+
+      {total ? (
+        <Link
+          href="/recap"
+          className="flex items-center justify-between gap-3 rounded-lg border-[length:var(--bw)] border-line bg-surface-2 p-4 shadow-lift-sm hover:bg-surface-3"
+        >
+          <span>
+            <span className="block font-display text-lg font-semibold">Your week, as a poster</span>
+            <span className="text-sm text-ink-soft">Seven days on one board, ready to share.</span>
+          </span>
+          <ImageIcon className="size-6 shrink-0 text-ink-soft" aria-hidden />
+        </Link>
+      ) : null}
     </div>
   );
 }
