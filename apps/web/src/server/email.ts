@@ -2,9 +2,9 @@ import 'server-only';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
-import { and, emailTokens, eq, gt, isNull, users } from '@everydaily/shared/db';
+import { and, emailTokens, eq, gt, isNull, sql, users } from '@everydaily/shared/db';
 import { sendEmail, type EmailMessage } from '@everydaily/shared/email/resend';
-import { verifyEmail } from '@everydaily/shared/email/templates';
+import { loginEmail, verifyEmail } from '@everydaily/shared/email/templates';
 import { randomToken, sha256 } from './crypto';
 import { db } from './db';
 import { env } from './env';
@@ -135,4 +135,73 @@ export async function pendingVerification(userId: string) {
     )
     .limit(1);
   return rows.length > 0;
+}
+
+const LOGIN_TTL_MS = 15 * 60_000;
+
+/**
+ * Emails a one-time sign-in link to a confirmed address. Says nothing about whether the address
+ * belongs to anyone: callers always show the same reply.
+ */
+export async function sendLoginLink(email: string) {
+  const [u] = await db()
+    .select({ id: users.id })
+    .from(users)
+    .where(
+      and(
+        eq(users.email, email),
+        sql`${users.emailVerifiedAt} is not null`,
+        isNull(users.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!u) return;
+  const token = randomToken();
+  await db().transaction(async (tx) => {
+    // Only the newest link works.
+    await tx
+      .delete(emailTokens)
+      .where(and(eq(emailTokens.userId, u.id), eq(emailTokens.purpose, 'login')));
+    await tx.insert(emailTokens).values({
+      userId: u.id,
+      email,
+      tokenHash: sha256(token),
+      purpose: 'login',
+      expiresAt: new Date(Date.now() + LOGIN_TTL_MS),
+    });
+  });
+  const link = new URL(`/login/email/confirm?token=${token}`, env('core').APP_URL).toString();
+  await deliver(loginEmail(email, link));
+}
+
+export type LoginTokenOutcome =
+  { ok: true; userId: string } | { ok: false; reason: 'invalid' | 'expired' };
+
+/** Uses up a sign-in link. Single use, and only while the address is still the account's. */
+export async function consumeLoginToken(token: string): Promise<LoginTokenOutcome> {
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(token)) return { ok: false, reason: 'invalid' };
+  return db().transaction(async (tx) => {
+    const [t] = await tx
+      .select()
+      .from(emailTokens)
+      .where(and(eq(emailTokens.tokenHash, sha256(token)), eq(emailTokens.purpose, 'login')))
+      .for('update');
+    if (!t || t.usedAt) return { ok: false as const, reason: 'invalid' as const };
+    if (t.expiresAt < new Date()) return { ok: false as const, reason: 'expired' as const };
+    const [u] = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(
+        and(
+          eq(users.id, t.userId),
+          eq(users.email, t.email),
+          sql`${users.emailVerifiedAt} is not null`,
+          isNull(users.deletedAt),
+        ),
+      );
+    await tx.update(emailTokens).set({ usedAt: new Date() }).where(eq(emailTokens.id, t.id));
+    return u
+      ? { ok: true as const, userId: u.id }
+      : { ok: false as const, reason: 'invalid' as const };
+  });
 }

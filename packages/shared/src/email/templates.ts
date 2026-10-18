@@ -36,6 +36,18 @@ export function verifyEmail(to: string, link: string): EmailMessage {
   };
 }
 
+export function loginEmail(to: string, link: string): EmailMessage {
+  const subject = `Your ${BRAND.name} sign-in link`;
+  const body = 'Tap the button to sign in. The link works once and expires in 15 minutes.';
+  const footer = "If you didn't ask to sign in, ignore this email. Nobody can sign in without it.";
+  return {
+    to,
+    subject,
+    text: `${body}\n\n${link}\n\n${footer}`,
+    html: layout('Sign in', body, { label: 'Sign in', url: link }, footer),
+  };
+}
+
 export function reminderEmail(to: string, n: Notification, appUrl: string): EmailMessage {
   const url = new URL(n.url, appUrl).toString();
   const settings = new URL('/settings', appUrl).toString();

@@ -80,6 +80,7 @@ export default async function SettingsPage() {
         email: user.emailVerifiedAt ? user.email : null,
         spoilerSafe: user.spoilerSafe,
         showOnRankings: user.showOnRankings,
+        prefs: user.prefs,
       }}
       passkeys={passkeys.map((p) => ({
         ...p,

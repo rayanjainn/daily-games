@@ -5,7 +5,7 @@ import {
   startAuthentication,
   type PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/browser';
-import { KeyRound, ScrollText, Smartphone } from 'lucide-react';
+import { KeyRound, Mail, ScrollText, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -28,7 +28,7 @@ async function signIn(autofill: boolean) {
   await api('/api/auth/login/verify', { response });
 }
 
-export function LoginPanel({ next }: { next: string }) {
+export function LoginPanel({ next, emailLogin = false }: { next: string; emailLogin?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +102,13 @@ export function LoginPanel({ next }: { next: string }) {
             <Smartphone aria-hidden /> Use a device that&apos;s signed in
           </Link>
         </Button>
+        {emailLogin ? (
+          <Button asChild variant="secondary">
+            <Link href={`/login/email?next=${encodeURIComponent(next)}`}>
+              <Mail aria-hidden /> Email me a sign-in link
+            </Link>
+          </Button>
+        ) : null}
         <Button asChild variant="secondary">
           <Link href={`/login/recover?next=${encodeURIComponent(next)}`}>
             <ScrollText aria-hidden /> Use my recovery phrase
