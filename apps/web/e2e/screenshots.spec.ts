@@ -268,6 +268,32 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  'daily-score': [
+    {
+      name: 'today-freeze',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'globle', 'nyt-mini']);
+        await played(u.id, 'globle', [1, 2, 3, 4, 5, 6, 7]);
+        await played(u.id, 'wordle', [0, 1], { attempts: 3, maxAttempts: 6 });
+        await played(u.id, 'nyt-mini', [0], { timeSeconds: 64 });
+        await page.goto('/today');
+        await expect(page.getByTestId('freezes')).toBeVisible();
+      },
+    },
+    {
+      name: 'today-freeze-used',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'globle']);
+        await played(u.id, 'globle', [2, 3, 4, 5, 6, 7, 8]);
+        await page.goto('/today');
+        await expect(page.getByTestId('freeze-used')).toBeVisible();
+      },
+    },
+  ],
   gaps: [
     {
       name: 'badges-new',

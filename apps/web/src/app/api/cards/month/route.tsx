@@ -19,6 +19,8 @@ export const GET = query(async (req: Request) => {
       gameId: results.gameId,
       puzzleDate: results.puzzleDate,
       solved: results.solved,
+      attempts: results.attempts,
+      maxAttempts: results.maxAttempts,
       fromArchive: results.fromArchive,
     })
     .from(results)
@@ -33,7 +35,12 @@ export const GET = query(async (req: Request) => {
   const ids = [...new Set(rows.map((r) => r.gameId))];
   const gameRows = ids.length
     ? await db()
-        .select({ id: games.id, name: games.name, accentColor: games.accentColor })
+        .select({
+          id: games.id,
+          name: games.name,
+          accentColor: games.accentColor,
+          scoringType: games.scoringType,
+        })
         .from(games)
         .where(inArray(games.id, ids))
     : [];

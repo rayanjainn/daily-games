@@ -140,6 +140,22 @@ test.describe('dashboard', () => {
     );
   });
 
+  test('adds up a combined score across games', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'nyt-mini']);
+    await page.goto('/today');
+    await expect(page.getByTestId('points')).toHaveText('0 pts today · 0 this week');
+    // Wordle in 3 of 6 is 84, a timed Mini solve a flat 70; yesterday's Wordle in 4 is 76.
+    await played(user.id, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+    await played(user.id, 'nyt-mini', [0], { timeSeconds: 60 });
+    await played(user.id, 'wordle', [1], { attempts: 4, maxAttempts: 6 });
+    // A missed puzzle and a catch-up score nothing.
+    await played(user.id, 'wordle', [2], { solved: false, maxAttempts: 6 });
+    await played(user.id, 'wordle', [3], { attempts: 2, maxAttempts: 6, fromArchive: true });
+    await page.reload();
+    await expect(page.getByTestId('points')).toHaveText('154 pts today · 230 this week');
+  });
+
   test('seven days in a row earn a streak freeze, shown on the streak', async ({ page }) => {
     const user = await signInAs(page);
     await follow(page, ['wordle', 'globle']);

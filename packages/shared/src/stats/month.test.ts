@@ -9,15 +9,17 @@ import {
 } from './month';
 
 const games = [
-  { id: 'w', name: 'Wordle', accentColor: '#6aaa64' },
-  { id: 'c', name: 'Connections', accentColor: '#b4a7d6' },
-  { id: 't', name: 'Tradle', accentColor: '#3b82f6' },
-  { id: 'm', name: 'Mini', accentColor: '#4b9cd3' },
+  { id: 'w', name: 'Wordle', accentColor: '#6aaa64', scoringType: 'attempts' as const },
+  { id: 'c', name: 'Connections', accentColor: '#b4a7d6', scoringType: 'attempts' as const },
+  { id: 't', name: 'Tradle', accentColor: '#3b82f6', scoringType: 'completion' as const },
+  { id: 'm', name: 'Mini', accentColor: '#4b9cd3', scoringType: 'time' as const },
 ];
 const r = (gameId: string, puzzleDate: string, extra: Partial<MonthResult> = {}): MonthResult => ({
   gameId,
   puzzleDate,
   solved: true,
+  attempts: 3,
+  maxAttempts: 6,
   fromArchive: false,
   ...extra,
 });
@@ -41,7 +43,8 @@ describe('monthRecap', () => {
     expect(rec.elapsed).toBe(17);
     expect(rec.perDay.slice(0, 4)).toEqual([1, 1, 2, 0]);
     expect(rec.perDay[17]).toBeNull();
-    expect(rec).toMatchObject({ played: 4, solved: 3, activeDays: 3, bestStreak: 3 });
+    // Three Wordle solves in 3 of 6 (84 each), one miss, and Connections solved in 3 of 6.
+    expect(rec).toMatchObject({ played: 4, solved: 3, points: 252, activeDays: 3, bestStreak: 3 });
     expect(rec.top.map((g) => [g.name, g.played, g.solved])).toEqual([
       ['Wordle', 3, 2],
       ['Connections', 1, 1],

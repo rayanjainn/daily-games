@@ -59,7 +59,9 @@ test.describe('friends', () => {
     await expect(rows.first()).toContainText(them.user.username);
     await expect(rows.first()).toContainText('3/6');
     await expect(rows.nth(1)).toContainText(`${me.username} (you)`);
+    // Wordle in 3, 4 and 3 of 6 (84 + 76 + 84 points) for the player at the top.
     await expect(page.getByTestId('week-board')).toContainText('3 solved · 3 played');
+    await expect(page.getByTestId('week-board')).toContainText('pts');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await them.ctx.close();
   });

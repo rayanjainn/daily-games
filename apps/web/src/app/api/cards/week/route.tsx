@@ -14,7 +14,14 @@ export const GET = query(async (req: Request) => {
   const gameIds = dash.items.map((i) => i.game.id);
   const rows = gameIds.length
     ? await db()
-        .select({ gameId: results.gameId, puzzleDate: results.puzzleDate, solved: results.solved })
+        .select({
+          gameId: results.gameId,
+          puzzleDate: results.puzzleDate,
+          solved: results.solved,
+          attempts: results.attempts,
+          maxAttempts: results.maxAttempts,
+          fromArchive: results.fromArchive,
+        })
         .from(results)
         .where(
           and(
@@ -29,6 +36,7 @@ export const GET = query(async (req: Request) => {
     dash.items.map((i) => ({
       name: i.game.name,
       accentColor: i.game.accentColor,
+      scoringType: i.game.scoringType,
       results: rows.filter((r) => r.gameId === i.game.id),
     })),
   );

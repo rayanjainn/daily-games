@@ -85,7 +85,7 @@ export function TodayView({
   picks: GamePick[];
   badgeNews: BadgeNewsItem[];
 }) {
-  const { items, done, combined, today } = dashboard;
+  const { items, done, combined, today, points } = dashboard;
   const total = items.length;
   useAllDoneConfetti(today, total > 0 && done === total);
 
@@ -103,6 +103,10 @@ export function TodayView({
           <h1 className="mt-1 break-words text-3xl sm:text-4xl">Hi, {name}</h1>
           <p className="mt-2 text-md" data-testid="today-headline">
             {headline(done, total)}
+          </p>
+          <p className="mt-1 text-sm text-ink-soft" data-testid="points">
+            <strong className="text-ink">{points.today}</strong> pts today ·{' '}
+            <strong className="text-ink">{points.week}</strong> this week
           </p>
         </div>
         <div className="flex items-center gap-5 self-center sm:self-auto">

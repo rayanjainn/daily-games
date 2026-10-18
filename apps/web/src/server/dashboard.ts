@@ -2,6 +2,7 @@ import 'server-only';
 import { and, asc, eq, follows, games, gte, inArray, ne, results } from '@everydaily/shared/db';
 import { clockFromGame } from '@everydaily/shared/registry';
 import { formatResult } from '@everydaily/shared/stats/format';
+import { resultPoints } from '@everydaily/shared/stats/points';
 import {
   computeFrozenStreak,
   computeStreak,
@@ -31,6 +32,8 @@ export interface Dashboard {
   done: number;
   /** Days with any result in a row, with streak freezes. */
   combined: FrozenStreak;
+  /** Combined score over every game played: today's puzzles, and the last seven days. */
+  points: { today: number; week: number };
 }
 
 /**
@@ -63,8 +66,10 @@ export async function getDashboard(
         timeSeconds: results.timeSeconds,
         score: results.score,
         fromArchive: results.fromArchive,
+        scoringType: games.scoringType,
       })
       .from(results)
+      .innerJoin(games, eq(games.id, results.gameId))
       .where(and(eq(results.userId, user.id), gte(results.puzzleDate, since))),
   ]);
 
@@ -102,7 +107,17 @@ export async function getDashboard(
     dayIndex(today),
   );
 
-  return { today, items, done: items.filter((i) => i.done).length, combined };
+  const pointsSince = (from: string) =>
+    recent
+      .filter((r) => r.puzzleDate >= from && r.puzzleDate <= today)
+      .reduce((sum, r) => sum + resultPoints(r, r.scoringType), 0);
+  return {
+    today,
+    items,
+    done: items.filter((i) => i.done).length,
+    combined,
+    points: { today: pointsSince(today), week: pointsSince(addDays(today, -6)) },
+  };
 }
 
 /** Games new players usually start with, for the empty dashboard. */

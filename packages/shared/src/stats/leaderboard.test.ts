@@ -61,19 +61,32 @@ describe('rankDay', () => {
 });
 
 describe('rankWeek', () => {
-  it('orders by solves then games played, sharing ranks on ties', () => {
+  it('orders by points, then solves, then games played, sharing ranks on ties', () => {
     expect(
       rankWeek([
-        { userId: 'a', name: 'ava', played: 10, solved: 8 },
-        { userId: 'b', name: 'ben', played: 12, solved: 8 },
-        { userId: 'c', name: 'cai', played: 12, solved: 8 },
-        { userId: 'd', name: 'dee', played: 3, solved: 3 },
+        { userId: 'a', name: 'ava', played: 10, solved: 8, points: 600 },
+        { userId: 'b', name: 'ben', played: 12, solved: 8, points: 600 },
+        { userId: 'c', name: 'cai', played: 12, solved: 8, points: 600 },
+        { userId: 'd', name: 'dee', played: 3, solved: 3, points: 250 },
+        { userId: 'e', name: 'eve', played: 9, solved: 9, points: 700 },
       ]).map((r) => [r.name, r.rank]),
     ).toEqual([
+      ['eve', 1],
+      ['ben', 2],
+      ['cai', 2],
+      ['ava', 4],
+      ['dee', 5],
+    ]);
+  });
+
+  it('breaks a points tie by solves', () => {
+    const board = rankWeek([
+      { userId: 'a', name: 'ava', played: 4, solved: 2, points: 140 },
+      { userId: 'b', name: 'ben', played: 3, solved: 3, points: 140 },
+    ]);
+    expect(board.map((r) => [r.name, r.rank])).toEqual([
       ['ben', 1],
-      ['cai', 1],
-      ['ava', 3],
-      ['dee', 4],
+      ['ava', 2],
     ]);
   });
 });

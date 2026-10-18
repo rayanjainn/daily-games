@@ -1,12 +1,21 @@
+import type { ScoringType } from '../domain';
 import { addDays } from '../time/zoned';
+import { resultPoints } from './points';
 
 export type WeekTile = 'solved' | 'failed' | 'missed';
 
 export interface WeekRowInput {
   name: string;
   accentColor: string;
+  scoringType: ScoringType;
   /** Results by puzzle date (YYYY-MM-DD). */
-  results: { puzzleDate: string; solved: boolean }[];
+  results: {
+    puzzleDate: string;
+    solved: boolean;
+    attempts: number | null;
+    maxAttempts: number | null;
+    fromArchive: boolean;
+  }[];
 }
 
 export interface WeekPoster {
@@ -15,6 +24,8 @@ export interface WeekPoster {
   rows: { name: string; accentColor: string; tiles: WeekTile[] }[];
   played: number;
   solved: number;
+  /** Combined score of the week's puzzles. */
+  points: number;
   /** Days with at least one result. */
   activeDays: number;
 }
@@ -28,11 +39,13 @@ export function weekPoster(today: string, games: WeekRowInput[], maxRows = 8): W
   const inWeek = new Set(days);
   let played = 0;
   let solved = 0;
+  let points = 0;
   const active = new Set<string>();
   const rows = games.slice(0, maxRows).map((g) => {
     const byDay = new Map<string, boolean>();
     for (const r of g.results) {
       if (!inWeek.has(r.puzzleDate)) continue;
+      points += resultPoints(r, g.scoringType);
       byDay.set(r.puzzleDate, (byDay.get(r.puzzleDate) ?? false) || r.solved);
     }
     const tiles = days.map((d): WeekTile => {
@@ -47,5 +60,5 @@ export function weekPoster(today: string, games: WeekRowInput[], maxRows = 8): W
     });
     return { name: g.name, accentColor: g.accentColor, tiles };
   });
-  return { days, rows, played, solved, activeDays: active.size };
+  return { days, rows, played, solved, points, activeDays: active.size };
 }

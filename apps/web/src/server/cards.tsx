@@ -468,7 +468,7 @@ export async function weekPosterImage(input: {
         </div>
 
         <div style={{ display: 'flex', gap: 16 }}>
-          <Stat c={c} label="Played" value={String(p.played)} />
+          <Stat c={c} label="Points" value={String(p.points)} />
           <Stat c={c} label="Solved" value={String(p.solved)} />
           <Stat c={c} label="Days" value={`${p.activeDays}/7`} />
           <Stat c={c} label="Streak" value={String(input.streak)} />
@@ -621,7 +621,7 @@ export async function monthPosterImage(input: {
         </div>
 
         <div style={{ display: 'flex', gap: 16 }}>
-          <Stat c={c} label="Played" value={String(r.played)} />
+          <Stat c={c} label="Points" value={String(r.points)} />
           <Stat c={c} label="Solved" value={String(r.solved)} />
           <Stat c={c} label="Days" value={`${r.activeDays}/${r.elapsed}`} />
           <Stat c={c} label="Streak" value={String(r.bestStreak)} />
