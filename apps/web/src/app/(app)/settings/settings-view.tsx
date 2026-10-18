@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Switch } from '@/components/ui/switch';
+import { ExtensionSection, type CaptureTokenRow } from '@/components/extension/extension-section';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
 import { InstallApp } from '@/components/pwa/install-app';
@@ -63,6 +64,7 @@ interface Props {
   recovery: { exists: boolean; confirmed: boolean; createdAt: string | null };
   reminders: ReminderSettingsProps;
   email: EmailSettingsProps;
+  extension: { appUrl: string; tokens: CaptureTokenRow[] };
 }
 
 const fmt = (iso: string | null) =>
@@ -107,7 +109,15 @@ function Section({
   );
 }
 
-export function SettingsView({ user, passkeys, sessions, recovery, reminders, email }: Props) {
+export function SettingsView({
+  user,
+  passkeys,
+  sessions,
+  recovery,
+  reminders,
+  email,
+  extension,
+}: Props) {
   const atRisk = !user.email && (passkeys.length <= 1 || !recovery.confirmed);
   return (
     <div className="flex flex-col gap-5">
@@ -139,6 +149,7 @@ export function SettingsView({ user, passkeys, sessions, recovery, reminders, em
       <PasskeysSection passkeys={passkeys} />
       <RecoverySection recovery={recovery} />
       <SessionsSection sessions={sessions} />
+      <ExtensionSection {...extension} />
       <DataSection username={user.username} />
     </div>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import {
   and,
   asc,
+  captureTokens,
   desc,
   eq,
   gt,
@@ -11,6 +12,7 @@ import {
   sessions,
 } from '@everydaily/shared/db';
 import { db } from '@/server/db';
+import { env } from '@/server/env';
 import { emailEnabled, pendingVerification } from '@/server/email';
 import { getReminderSettings } from '@/server/reminders';
 import { requireSession } from '@/server/session';
@@ -21,7 +23,7 @@ export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const { user, sessionId } = await requireSession();
-  const [passkeys, sessionRows, phrase, reminders, pending] = await Promise.all([
+  const [passkeys, sessionRows, phrase, reminders, pending, tokenRows] = await Promise.all([
     db()
       .select({
         id: passkeyCredentials.id,
@@ -57,6 +59,16 @@ export default async function SettingsPage() {
       .where(eq(recoveryPhraseHashes.userId, user.id)),
     getReminderSettings(user),
     pendingVerification(user.id),
+    db()
+      .select({
+        id: captureTokens.id,
+        label: captureTokens.label,
+        createdAt: captureTokens.createdAt,
+        lastUsedAt: captureTokens.lastUsedAt,
+      })
+      .from(captureTokens)
+      .where(and(eq(captureTokens.userId, user.id), isNull(captureTokens.revokedAt)))
+      .orderBy(desc(captureTokens.createdAt)),
   ]);
 
   return (
@@ -82,6 +94,15 @@ export default async function SettingsPage() {
         current: s.id === sessionId,
       }))}
       reminders={reminders}
+      extension={{
+        appUrl: env('core').APP_URL,
+        tokens: tokenRows.map((t) => ({
+          id: t.id,
+          label: t.label,
+          createdAt: t.createdAt.toISOString(),
+          lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
+        })),
+      }}
       email={{
         email: user.email,
         verified: Boolean(user.emailVerifiedAt),

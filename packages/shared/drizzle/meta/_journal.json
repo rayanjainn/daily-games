@@ -99,6 +99,13 @@
       "when": 1792298339012,
       "tag": "0013_native_plays",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792301281729,
+      "tag": "0014_capture_tokens",
+      "breakpoints": true
     }
   ]
 }

@@ -169,6 +169,29 @@ export const sessions = pgTable(
   ],
 );
 
+/**
+ * Long-lived tokens for the browser extension. Only the sha256 of the token is stored; the raw
+ * token is shown once when it is made. A token can post results and nothing else.
+ */
+export const captureTokens = pgTable(
+  'capture_tokens',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    label: text('label').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    createdAt: createdAt(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex('capture_tokens_token_hash_key').on(t.tokenHash),
+    index('capture_tokens_user_idx').on(t.userId),
+  ],
+);
+
 export const devicePairings = pgTable(
   'device_pairings',
   {
