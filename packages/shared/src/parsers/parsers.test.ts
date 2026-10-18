@@ -48,7 +48,8 @@ describe('registry ↔ parsers', () => {
 
   it.each(
     catalog
-      .filter((g) => g.spec.tier === 1)
+      // Native games have no parser: their results come from play.
+      .filter((g) => g.spec.tier === 1 && g.spec.embedMode !== 'native')
       .map((g) => [g.spec.slug, g.spec.shareTextSamples[0]!, g.spec.parserId!] as const),
   )('%s samples are detected as their own game', (_slug, sample, parserId) => {
     expect(detectParsers(sample)).toContain(parserId);

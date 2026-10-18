@@ -19,7 +19,7 @@ scoring:
   type: 'attempts'
   maxAttempts: 8
 shareTextSamples: []
-accentColor: '#7C5CFF'
+accentColor: '#7357F5'
 icon: 'dots'
 attribution: 'An original EveryDaily game, played right here.'
 verifiedLiveAt: '2026-10-18T00:00:00Z'
