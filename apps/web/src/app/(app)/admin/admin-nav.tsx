@@ -10,11 +10,12 @@ const LINKS = [
   { href: '/admin/audit', label: 'Audit log' },
 ];
 
-export function AdminNav() {
+export function AdminNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const links = isAdmin ? [...LINKS, { href: '/admin/stats', label: 'Platform stats' }] : LINKS;
   return (
     <nav aria-label="Moderation" className="mt-2 flex gap-1 overflow-x-auto">
-      {LINKS.map((l) => {
+      {links.map((l) => {
         const active = l.exact ? pathname === l.href : pathname.startsWith(l.href);
         return (
           <Link

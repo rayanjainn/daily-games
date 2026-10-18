@@ -9,7 +9,8 @@ import { COOKIE, clearCookie, clientIp, secureCookies, userAgent } from './reque
 
 const SESSION_DAYS = 30;
 /** Sliding expiry is refreshed at most this often, to avoid a write per request. */
-const TOUCH_INTERVAL_MS = 60 * 60 * 1000;
+// Also what "online now" is built on, so it is kept short.
+const TOUCH_INTERVAL_MS = 5 * 60 * 1000;
 
 export type SessionMethod = 'passkey' | 'recovery' | 'pairing' | 'email' | 'signup';
 

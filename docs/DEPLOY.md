@@ -214,3 +214,11 @@ Settings and paste it, with the app address, into the extension's options.
   credentials.
 - **Health checks never run:** check **Workers → everydaily-worker → Triggers** shows the cron,
   and that the Hyperdrive id in `wrangler.toml` is the real one.
+
+## Platform stats (admin only)
+
+Signed in as the admin, open **Admin → Platform stats** (`/admin/stats`): people online now and
+active over 24 hours, 7 and 30 days, sign-ups, results and where they came from, players and solve
+rate per game, community activity and the busiest boards, and a 14-day table. It shows totals only,
+no names or emails, and moderators get a 404 there. "Online now" counts a signed-in visit in the
+last 10 minutes. There is exactly one way to become admin (see section 6); mods stay mods.
