@@ -3,8 +3,11 @@ import { enforceLimit, mutation, query } from '@/server/http';
 import { listNotifications, markRead, unreadCount } from '@/server/notifications';
 import { requireSession } from '@/server/session';
 
-export const GET = query(async () => {
+export const GET = query(async (req) => {
   const { user } = await requireSession();
+  // The header bell only needs the count, and asks for it after the page has loaded.
+  if (new URL(req.url).searchParams.get('count') === '1')
+    return { unread: await unreadCount(user.id) };
   return { unread: await unreadCount(user.id), items: await listNotifications(user.id) };
 });
 

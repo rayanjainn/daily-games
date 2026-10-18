@@ -56,7 +56,7 @@ export default defineConfig({
   projects: [
     {
       name: 'e2e',
-      testIgnore: [/visual\.spec\.ts/, /screenshots\.spec\.ts/],
+      testIgnore: [/visual\.spec\.ts/, /screenshots\.spec\.ts/, /lighthouse\.spec\.ts/],
       use: { ...devices['Desktop Chrome'] },
     },
     {
@@ -67,6 +67,13 @@ export default defineConfig({
         viewport: { width: 1440, height: 900 },
         contextOptions: { reducedMotion: 'reduce' },
       },
+    },
+    {
+      // Lighthouse audits on a production build: `pnpm --filter @everydaily/web lighthouse`.
+      name: 'lighthouse',
+      testMatch: /lighthouse\.spec\.ts/,
+      timeout: 120_000,
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'screenshots',

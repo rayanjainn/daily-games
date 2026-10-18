@@ -41,8 +41,8 @@ Sign-in by email appears automatically once email is set up. Make yourself admin
 
 ## Not built
 
-Lighthouse (needs a new dependency; the speed guards cover the same ground coarsely). See the
-known gaps in `docs/spec-audit.md`.
+Nothing from the brief is left except the known gaps in `docs/spec-audit.md`. Lighthouse was added
+afterwards.
 
 ## Screenshots index
 

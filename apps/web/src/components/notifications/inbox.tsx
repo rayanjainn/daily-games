@@ -36,6 +36,8 @@ export function Inbox({ items }: { items: InboxItem[] }) {
       await api('/api/notifications', { ids });
       setRead((r) => new Set([...r, ...(ids === 'all' ? items.map((i) => i.id) : ids)]));
       router.refresh();
+      // Tells the header bell to look at the count again.
+      window.dispatchEvent(new Event('focus'));
     } catch {
       // Marking is a convenience; the item still opens.
     }

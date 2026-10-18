@@ -58,7 +58,10 @@ idempotent; moderator edits survive re-seeding unless that game's YAML changed).
 
 ## 3. Redis (Upstash)
 
-Create a Redis database (any region close to Vercel's). From its page copy the **REST URL** and
+Create a Redis database **in the same region as your Vercel functions and Neon database** (for
+Singapore: Upstash `ap-southeast-1`). Redis is used on sign-in, posting and result logging, and
+each of those makes one or more Redis calls, so a database on another continent adds 150–250 ms
+per call. From its page copy the **REST URL** and
 **REST token** (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`).
 
 ## 4. Worker (Cloudflare)
@@ -222,3 +225,17 @@ active over 24 hours, 7 and 30 days, sign-ups, results and where they came from,
 rate per game, community activity and the busiest boards, and a 14-day table. It shows totals only,
 no names or emails, and moderators get a 404 there. "Online now" counts a signed-in visit in the
 last 10 minutes. There is exactly one way to become admin (see section 6); mods stay mods.
+
+## Speed checklist
+
+If the site feels slow, it is almost always distance, not code:
+
+1. **Function region** is set to `sin1` by `apps/web/vercel.json` (change it if your database is
+   elsewhere). It must match the Neon region; with them in different oceans every page pays 100 to
+   250 ms for each database round trip, and a page makes several.
+2. **Redis** must be in the same region too (see section 3).
+3. **Cloudflare Worker** uses Hyperdrive, which pools connections near your database; keep its
+   origin pointed at the same Neon database.
+4. Check the numbers: `pnpm --filter @everydaily/web lighthouse` audits the main pages on a local
+   production build (it can't see network distance, so it only guards the page itself), and the
+   deployed site can be tested with PageSpeed Insights.

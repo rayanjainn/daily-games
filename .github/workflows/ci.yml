@@ -80,11 +80,16 @@ jobs:
       # The e2e run leaves a production build behind; check how heavy it is.
       - name: Size budgets
         run: pnpm check:budgets
+      - name: Lighthouse
+        working-directory: apps/web
+        run: pnpm exec playwright test --project lighthouse
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report-e2e
-          path: apps/web/playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/lighthouse-reports
           retention-days: 7
 
   # Visual regression runs in Playwright's pinned image so font rendering matches the

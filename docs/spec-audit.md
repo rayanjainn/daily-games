@@ -76,7 +76,6 @@ parser.
 
 ## Known gaps
 
-- **Lighthouse** is not wired in (needs a dependency).
 - **Timed native games** can be beaten by a script written for them; Cipher is guess-limited.
 - **iOS tinted icon** can't be set from a web app.
 - **Community answers** are text only.

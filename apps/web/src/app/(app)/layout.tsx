@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { PrefsSync } from '@/components/theme/prefs-sync';
 import { AppShell } from '@/components/shell/app-shell';
-import { unreadCount } from '@/server/notifications';
 import { hasRole } from '@/server/roles';
 import { getSession } from '@/server/session';
 
@@ -15,7 +14,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     redirect(`/login?next=${encodeURIComponent(path)}`);
   }
   return (
-    <AppShell isMod={hasRole(session.user, 'mod')} unread={await unreadCount(session.user.id)}>
+    <AppShell isMod={hasRole(session.user, 'mod')}>
       <PrefsSync prefs={session.user.prefs} />
       {children}
     </AppShell>
