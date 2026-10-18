@@ -19,6 +19,7 @@ import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import type { BadgeNews as BadgeNewsItem } from '@everydaily/shared/stats/badges';
 import { dayIndex } from '@everydaily/shared/stats/streak';
 import { BadgeNews } from '@/components/game/badge-news';
+import { feedback } from '@/lib/prefs';
 import { confettiBurst } from '@/components/game/confetti';
 import { FollowButton } from '@/components/game/follow-button';
 import { GameIcon } from '@/components/game/game-icon';
@@ -67,6 +68,7 @@ function useAllDoneConfetti(today: string, allDone: boolean) {
     } catch {
       // Storage blocked: celebrate anyway, at most once per page view.
     }
+    feedback('win');
     confettiBurst();
   }, [today, allDone]);
 }

@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Switch } from '@/components/ui/switch';
+import { AppearanceSection } from '@/components/theme/appearance-section';
 import { ExtensionSection, type CaptureTokenRow } from '@/components/extension/extension-section';
 import { Notice } from '@/components/auth/auth-shell';
 import { SignOutButton } from '@/components/auth/sign-out-button';
@@ -58,6 +59,7 @@ interface Props {
     email: string | null;
     spoilerSafe: boolean;
     showOnRankings: boolean;
+    prefs: { sound?: boolean; haptics?: boolean; reducedMotion?: boolean };
   };
   passkeys: Passkey[];
   sessions: SessionRow[];
@@ -143,6 +145,7 @@ export function SettingsView({
         </Notice>
       ) : null}
       <ProfileSection user={user} />
+      <AppearanceSection prefs={user.prefs} />
       <InstallApp />
       <ReminderSettings {...reminders} />
       <EmailSettings {...email} />

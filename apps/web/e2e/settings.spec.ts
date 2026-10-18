@@ -1,7 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
-import { apiPost, csrfHeaders, signUpViaUi } from './support/auth';
+import { apiPost, apiSend, csrfHeaders, signUpViaUi } from './support/auth';
 import { e2eSql } from './support/db';
 import { addVirtualAuthenticator, expect, randomIp, test, type Page } from './support/fixtures';
+import { signInAs } from './support/session';
 
 const name = () => `set_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -211,5 +212,44 @@ test.describe('settings', () => {
     expect(
       r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`),
     ).toEqual([]);
+  });
+});
+
+test.describe('look and feel', () => {
+  test('motion, sound and vibration are saved and applied', async ({ page }) => {
+    const user = await signInAs(page);
+    await page.goto('/settings');
+    const section = page.getByRole('region', { name: 'Look and feel' });
+    await expect(section.getByRole('group', { name: 'Theme' })).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    const html = page.locator('html');
+    await expect(html).not.toHaveAttribute('data-motion', 'reduced');
+    await section.getByLabel('Reduce motion').click();
+    await expect(html).toHaveAttribute('data-motion', 'reduced');
+    await section.getByLabel('Sound effects').click();
+    await section.getByLabel('Vibration').click();
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('ed-sound'))).toBe('1');
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('ed-haptics'))).toBe('0');
+
+    const sql = e2eSql();
+    const [row] = await sql`SELECT prefs FROM users WHERE id = ${user.id}`;
+    await sql.end();
+    expect(row!.prefs).toEqual({ reducedMotion: true, sound: true, haptics: false });
+
+    // It sticks across a reload, and a second device picks it up from the account.
+    await page.reload();
+    await expect(html).toHaveAttribute('data-motion', 'reduced');
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/today');
+    await expect(html).toHaveAttribute('data-motion', 'reduced');
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('ed-sound'))).toBe('1');
+  });
+
+  test('refuses unknown preferences', async ({ page }) => {
+    await signInAs(page);
+    await page.goto('/settings');
+    const res = await apiSend(page, 'PATCH', '/api/me/profile', { prefs: { admin: true } });
+    expect(res.status()).toBe(400);
   });
 });

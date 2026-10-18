@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/toast';
 import { api, ApiError } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import { useDebounced } from '@/lib/use-debounced';
+import { feedback } from '@/lib/prefs';
 import { confettiBurst } from './confetti';
 
 export interface LoggableGame {
@@ -78,6 +79,7 @@ export function LogPanel({
   function done(s: Saved) {
     setSaved(s);
     onLogged?.(s);
+    feedback(s.solved ? 'win' : 'done');
     if (s.solved) confettiBurst(undefined, 60);
     router.refresh();
   }
