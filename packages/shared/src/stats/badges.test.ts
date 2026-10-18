@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays } from '../time/zoned';
-import { computeBadges, type BadgeResult } from './badges';
+import { computeBadges, levelsOf, newBadgeLevels, type BadgeResult } from './badges';
 
 const day = (i: number) => addDays('2026-01-01', i);
 const r = (gameId: string, i: number, extra: Partial<BadgeResult> = {}): BadgeResult => ({
@@ -54,5 +54,30 @@ describe('computeBadges', () => {
   it('has no next milestone once every level is earned', () => {
     const results = Array.from({ length: 25 }, (_, i) => r(`g${i}`, 0));
     expect(byId(computeBadges(results)).explorer).toMatchObject({ earned: 3, next: null });
+  });
+});
+
+describe('badge announcements', () => {
+  const results = Array.from({ length: 10 }, (_, i) => r('wordle', i));
+
+  it('announces only levels above what was seen, naming the highest milestone', () => {
+    const badges = computeBadges(results);
+    expect(levelsOf(badges)).toMatchObject({
+      logged: 2,
+      solved: 1,
+      'daily-streak': 2,
+      'game-streak': 1,
+    });
+    expect(
+      newBadgeLevels(badges, { logged: 1, solved: 1, 'daily-streak': 2, 'game-streak': 1 }),
+    ).toEqual([expect.objectContaining({ id: 'logged', milestone: 10 })]);
+    // Several passed at once: one announcement, for the highest.
+    const skipped = newBadgeLevels(badges, { logged: 0 }).find((n) => n.id === 'logged');
+    expect(skipped!.milestone).toBe(10);
+  });
+
+  it('has nothing to announce once everything is seen', () => {
+    const badges = computeBadges(results);
+    expect(newBadgeLevels(badges, levelsOf(badges))).toEqual([]);
   });
 });

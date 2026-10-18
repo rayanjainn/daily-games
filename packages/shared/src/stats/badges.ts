@@ -76,3 +76,28 @@ export function computeBadges(results: BadgeResult[]): Badge[] {
     return { ...f, value, earned, next: f.levels[earned] ?? null };
   });
 }
+
+/** Levels reached per badge, the shape stored as "already announced". */
+export function levelsOf(badges: Badge[]): Record<string, number> {
+  return Object.fromEntries(badges.map((b) => [b.id, b.earned]));
+}
+
+export interface BadgeNews {
+  id: BadgeId;
+  name: string;
+  measure: string;
+  /** The milestone just reached (the highest one, when several were passed at once). */
+  milestone: number;
+}
+
+/** Badges whose level went up since `seen`. */
+export function newBadgeLevels(badges: Badge[], seen: Record<string, number>): BadgeNews[] {
+  return badges
+    .filter((b) => b.earned > (seen[b.id] ?? 0))
+    .map((b) => ({
+      id: b.id,
+      name: b.name,
+      measure: b.measure,
+      milestone: b.levels[b.earned - 1]!,
+    }));
+}
