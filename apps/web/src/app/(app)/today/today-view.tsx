@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Award, Check, ImageIcon, ListOrdered, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Award, Check, ImageIcon, ListOrdered, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -442,6 +442,19 @@ const pickReason = (r: PickReason) =>
       : 'Popular with players';
 
 function Picks({ picks }: { picks: GamePick[] }) {
+  const router = useRouter();
+  const toast = useToast();
+  async function dismiss(g: CatalogGame) {
+    try {
+      await api(`/api/picks/${g.id}`, {});
+      router.refresh();
+    } catch (err) {
+      toast({
+        tone: 'error',
+        title: err instanceof ApiError ? err.message : 'Could not hide that pick. Try again.',
+      });
+    }
+  }
   return (
     <section aria-labelledby="for-you-heading" className="flex flex-col gap-3" data-testid="picks">
       <h2 id="for-you-heading" className="text-xl">
@@ -464,6 +477,15 @@ function Picks({ picks }: { picks: GamePick[] }) {
               <span className="block truncate text-sm text-ink-soft">{pickReason(reason)}</span>
             </span>
             <FollowButton gameId={g.id} gameName={g.name} following={false} compact />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="size-8 shrink-0 px-0"
+              aria-label={`Not interested in ${g.name}`}
+              onClick={() => dismiss(g)}
+            >
+              <X aria-hidden />
+            </Button>
           </li>
         ))}
       </ul>

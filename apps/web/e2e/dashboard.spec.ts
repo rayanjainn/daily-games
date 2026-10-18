@@ -41,6 +41,23 @@ test.describe('dashboard', () => {
     await expect(picks).not.toContainText('Murdle');
   });
 
+  test('a pick can be dismissed and stays gone', async ({ page }) => {
+    await signInAs(page);
+    await follow(page, ['wordle']);
+    await page.goto('/today');
+    const picks = page.getByTestId('picks').getByRole('listitem');
+    await expect(picks).toHaveCount(2);
+    const first = (await picks.first().getByRole('link').innerText()).trim();
+    await page.getByRole('button', { name: `Not interested in ${first}` }).click();
+    await expect(page.getByTestId('picks')).not.toContainText(first);
+    await expect(picks).toHaveCount(2);
+    await page.reload();
+    await expect(page.getByTestId('picks')).not.toContainText(first);
+
+    const exported = await (await page.request.get('/api/me/export')).json();
+    expect(exported.dismissedPicks).toHaveLength(1);
+  });
+
   test('starts empty with popular picks to follow', async ({ page }) => {
     await signInAs(page);
     await page.goto('/today');

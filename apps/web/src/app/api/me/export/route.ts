@@ -4,6 +4,7 @@ import {
   desc,
   eq,
   follows,
+  pickDismissals,
   gameNotes,
   games,
   passkeyCredentials,
@@ -30,6 +31,7 @@ export const GET = query(async () => {
     solutionRows,
     postRows,
     commentRows,
+    dismissedRows,
   ] = await Promise.all([
     db()
       .select({
@@ -109,6 +111,11 @@ export const GET = query(async () => {
       })
       .from(comments)
       .where(eq(comments.authorId, user.id)),
+    db()
+      .select({ game: games.slug, dismissedAt: pickDismissals.createdAt })
+      .from(pickDismissals)
+      .innerJoin(games, eq(games.id, pickDismissals.gameId))
+      .where(eq(pickDismissals.userId, user.id)),
   ]);
   const data = {
     exportedAt: new Date().toISOString(),
@@ -128,6 +135,7 @@ export const GET = query(async () => {
     solutions: solutionRows,
     posts: postRows,
     comments: commentRows,
+    dismissedPicks: dismissedRows,
   };
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {
