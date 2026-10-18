@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { badgesWithNews } from '@/server/badges';
 import { getDashboard, starterGames } from '@/server/dashboard';
 import { picksFor } from '@/server/recommendations';
 import { requireSession } from '@/server/session';
@@ -8,7 +9,7 @@ export const metadata: Metadata = { title: 'Today' };
 
 export default async function TodayPage() {
   const { user } = await requireSession();
-  const dashboard = await getDashboard(user);
+  const [dashboard, { news }] = await Promise.all([getDashboard(user), badgesWithNews(user)]);
   const [starters, picks] = dashboard.items.length
     ? [[], await picksFor(user, 2)]
     : [await starterGames(user.timezone), []];
@@ -18,6 +19,7 @@ export default async function TodayPage() {
       dashboard={dashboard}
       starters={starters}
       picks={picks}
+      badgeNews={news}
     />
   );
 }

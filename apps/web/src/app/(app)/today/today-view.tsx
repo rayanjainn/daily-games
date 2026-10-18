@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { PickReason } from '@everydaily/shared/catalog/recommend';
 import { CATEGORY_LABELS } from '@everydaily/shared/domain';
+import type { BadgeNews as BadgeNewsItem } from '@everydaily/shared/stats/badges';
+import { BadgeNews } from '@/components/game/badge-news';
 import { confettiBurst } from '@/components/game/confetti';
 import { FollowButton } from '@/components/game/follow-button';
 import { GameIcon } from '@/components/game/game-icon';
@@ -63,12 +65,14 @@ export function TodayView({
   dashboard,
   starters,
   picks,
+  badgeNews,
 }: {
   name: string;
   dashboard: Dashboard;
   starters: CatalogGame[];
   /** Suggestions once the player follows something. */
   picks: GamePick[];
+  badgeNews: BadgeNewsItem[];
 }) {
   const { items, done, combined, today } = dashboard;
   const total = items.length;
@@ -76,6 +80,7 @@ export function TodayView({
 
   return (
     <div className="flex flex-col gap-5">
+      <BadgeNews news={badgeNews} />
       <Card className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
         <div className="min-w-0">
           <p

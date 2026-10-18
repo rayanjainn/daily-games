@@ -87,6 +87,8 @@ export const users = pgTable(
     /** Also send reminders by email (only once the address is verified). */
     emailReminders: boolean('email_reminders').notNull().default(false),
     spoilerSafe: boolean('spoiler_safe').notNull().default(true),
+    /** Badge levels already announced, by badge id; null until the first visit to Today. */
+    badgesSeen: jsonb('badges_seen').$type<Record<string, number> | null>(),
     prefs: jsonb('prefs')
       .$type<{ sound?: boolean; haptics?: boolean; reducedMotion?: boolean }>()
       .notNull()

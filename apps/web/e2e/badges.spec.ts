@@ -37,3 +37,34 @@ test.describe('badges', () => {
     await expect(page.locator('[data-badge="logged"]')).toContainText('1 to go for 1');
   });
 });
+
+test.describe('badge announcements', () => {
+  test('a new level is announced once, and marked new on the badges page', async ({ page }) => {
+    const u = await signInAs(page);
+    // The first visit only records where you stand.
+    await page.goto('/today');
+    await expect(page.getByTestId('today-headline')).toBeVisible();
+    await played(u.id, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+
+    const ack = page.waitForResponse((r) => r.url().includes('/api/me/badges/seen'));
+    await page.goto('/today');
+    await expect(page.getByText('New badge level: Regular')).toBeVisible();
+    await expect(page.getByText('Puzzles logged: 1', { exact: true })).toBeVisible();
+
+    // Acknowledged: the next visit has no toast.
+    await ack;
+    await page.reload();
+    await expect(page.getByTestId('today-headline')).toBeVisible();
+    await expect(page.getByText('New badge level')).toHaveCount(0);
+
+    // New levels reached later show as new on the badges page, and viewing it clears them.
+    await played(u.id, 'wordle', [1, 2, 3, 4, 5, 6, 7, 8, 9], { attempts: 4, maxAttempts: 6 });
+    const ack2 = page.waitForResponse((r) => r.url().includes('/api/me/badges/seen'));
+    await page.goto('/badges');
+    await expect(page.locator('[data-new]').first()).toBeVisible();
+    await expect(page.locator('[data-badge="logged"] [data-new]')).toContainText('10');
+    await ack2;
+    await page.reload();
+    await expect(page.locator('[data-new]')).toHaveCount(0);
+  });
+});

@@ -11,7 +11,8 @@ import type { Metadata } from 'next';
 import type { BadgeId } from '@everydaily/shared/stats/badges';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
-import { getBadges } from '@/server/badges';
+import { BadgeNews } from '@/components/game/badge-news';
+import { badgesWithNews } from '@/server/badges';
 import { requireSession } from '@/server/session';
 
 export const metadata: Metadata = { title: 'Badges' };
@@ -29,11 +30,12 @@ const n = (v: number) => v.toLocaleString('en-US');
 
 export default async function BadgesPage() {
   const { user } = await requireSession();
-  const badges = await getBadges(user.id);
+  const { badges, seen, news } = await badgesWithNews(user);
   const total = badges.reduce((s, b) => s + b.earned, 0);
   const levels = badges.reduce((s, b) => s + b.levels.length, 0);
   return (
     <div className="flex flex-col gap-5">
+      <BadgeNews news={news} quiet />
       <div>
         <h1 className="text-3xl sm:text-4xl">Badges</h1>
         <p className="mt-1 text-ink-soft">
@@ -70,20 +72,28 @@ export default async function BadgesPage() {
                   </div>
                 </div>
                 <ol className="flex flex-wrap gap-1.5" aria-label={`${b.name} milestones`}>
-                  {b.levels.map((l, i) => (
-                    <li
-                      key={l}
-                      className={cn(
-                        'rounded-pill border-[length:var(--bw)] px-2 py-0.5 text-xs font-bold',
-                        i < b.earned
-                          ? 'border-line bg-ink text-paper'
-                          : 'border-line-soft text-ink-soft',
-                      )}
-                    >
-                      {n(l)}
-                      <span className="sr-only">{i < b.earned ? ' (reached)' : ''}</span>
-                    </li>
-                  ))}
+                  {b.levels.map((l, i) => {
+                    const fresh = i >= (seen[b.id] ?? 0) && i < b.earned;
+                    return (
+                      <li
+                        key={l}
+                        data-new={fresh || undefined}
+                        className={cn(
+                          'rounded-pill border-[length:var(--bw)] px-2 py-0.5 text-xs font-bold',
+                          i < b.earned
+                            ? 'border-line bg-ink text-paper'
+                            : 'border-line-soft text-ink-soft',
+                          fresh && 'ring-2 ring-pop ring-offset-1 ring-offset-surface',
+                        )}
+                      >
+                        {fresh ? <span aria-hidden>★ </span> : null}
+                        {n(l)}
+                        <span className="sr-only">
+                          {fresh ? ' (reached, new)' : i < b.earned ? ' (reached)' : ''}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ol>
                 <div className="mt-auto flex flex-col gap-1">
                   <div
