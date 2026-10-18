@@ -1,3 +1,4 @@
+import { NAME_ADJECTIVES, NAME_NOUNS } from './wordlists/names';
 import { PROFANITY } from './wordlists/profanity';
 
 export const USERNAME_MIN = 3;
@@ -108,112 +109,15 @@ export const USERNAME_MESSAGES: Record<UsernameProblem | 'taken', string> = {
   taken: 'Someone already has that one.',
 };
 
-const ADJECTIVES = [
-  'brave',
-  'calm',
-  'clever',
-  'cosmic',
-  'daring',
-  'dizzy',
-  'eager',
-  'fancy',
-  'fizzy',
-  'gentle',
-  'giddy',
-  'glad',
-  'golden',
-  'happy',
-  'jolly',
-  'keen',
-  'lucky',
-  'mellow',
-  'merry',
-  'mighty',
-  'nimble',
-  'noble',
-  'peppy',
-  'plucky',
-  'proud',
-  'quick',
-  'quiet',
-  'rapid',
-  'shiny',
-  'silly',
-  'snappy',
-  'sneaky',
-  'snug',
-  'sparky',
-  'speedy',
-  'spry',
-  'sunny',
-  'swift',
-  'tidy',
-  'witty',
-  'zany',
-  'zesty',
-  'bold',
-  'bright',
-  'chill',
-  'crisp',
-  'curious',
-  'dapper',
-];
-const NOUNS = [
-  'otter',
-  'fox',
-  'panda',
-  'koala',
-  'badger',
-  'beaver',
-  'falcon',
-  'gecko',
-  'heron',
-  'lemur',
-  'llama',
-  'lynx',
-  'moose',
-  'narwhal',
-  'owl',
-  'puffin',
-  'quokka',
-  'raccoon',
-  'robin',
-  'seal',
-  'sloth',
-  'squid',
-  'tiger',
-  'walrus',
-  'wombat',
-  'yak',
-  'zebra',
-  'comet',
-  'pickle',
-  'muffin',
-  'noodle',
-  'pebble',
-  'pixel',
-  'puzzle',
-  'rocket',
-  'tile',
-  'waffle',
-  'cactus',
-  'acorn',
-  'kiwi',
-  'mango',
-  'biscuit',
-  'meteor',
-  'marble',
-  'domino',
-  'sprout',
-  'button',
-  'clover',
-];
-
-/** adjective_noun_NN; always passes `checkUsername`. */
-export function suggestUsername(rand: () => number = Math.random): string {
+/**
+ * A friendly suggestion like `swift_otter`. Pass `withNumber` for the form with two digits
+ * (`swift_otter_42`), used when the plain name is taken. Always passes `checkUsername`.
+ */
+export function suggestUsername(rand: () => number = Math.random, withNumber = false): string {
   for (;;) {
     const pick = <T>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)]!;
-    const name = `${pick(ADJECTIVES)}_${pick(NOUNS)}_${10 + Math.floor(rand() * 90)}`;
+    const base = `${pick(NAME_ADJECTIVES)}_${pick(NAME_NOUNS)}`;
+    const name = withNumber ? `${base}_${10 + Math.floor(rand() * 90)}` : base;
     if (name.length <= USERNAME_MAX && !checkUsername(name)) return name;
   }
 }
