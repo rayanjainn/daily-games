@@ -39,4 +39,21 @@ export default tseslint.config(
       },
     },
   },
+  {
+    files: ['apps/extension/src/**/*.js'],
+    languageOptions: {
+      globals: {
+        chrome: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        location: 'readonly',
+        navigator: 'readonly',
+        Clipboard: 'readonly',
+        Navigator: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+  },
 );
