@@ -48,6 +48,12 @@ const groups = {
     /** VAPID public key (base64url); without it the Reminders section explains it is off. */
     NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(80).optional(),
   }),
+  observability: z.object({
+    /** Optional: unexpected errors are also posted here (a chat webhook or error tracker). */
+    ERROR_WEBHOOK_URL: z.string().url().optional(),
+    /** "1" logs every API request, not only failures and slow ones. */
+    LOG_REQUESTS: bool,
+  }),
   realtime: z.object({
     REALTIME_URL: z.string().url(),
     WORKER_INTERNAL_URL: z.string().url(),

@@ -36,6 +36,10 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
 
   const requestHeaders = new Headers(request.headers);
+  // One id per request, passed to the logs and back to the caller, to follow a problem through.
+  const incoming = request.headers.get('x-request-id') ?? '';
+  const requestId = /^[\w-]{8,64}$/.test(incoming) ? incoming : crypto.randomUUID();
+  requestHeaders.set('x-request-id', requestId);
   if (isPage) {
     requestHeaders.set('x-nonce', nonce);
     requestHeaders.set('x-pathname', request.nextUrl.pathname + request.nextUrl.search);
@@ -54,6 +58,7 @@ export function proxy(request: NextRequest) {
   if (isPage) {
     response.headers.set('Content-Security-Policy', csp(nonce, isDev));
   }
+  response.headers.set('X-Request-Id', requestId);
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set(

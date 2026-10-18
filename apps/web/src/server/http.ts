@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import type { z, ZodType } from 'zod';
 import { safeEqual } from './crypto';
 import { env } from './env';
+import { log, reportError } from './log';
 import { rateLimit, type LimitName } from './rate-limit';
 import { COOKIE } from './request';
 import { HttpError } from './session';
@@ -64,6 +65,8 @@ export function mutation<S extends ZodType>(
   fn: (input: z.infer<S>, req: Request) => Promise<unknown>,
 ) {
   return async (req: Request) => {
+    const startedAt = performance.now();
+    let res: Response;
     try {
       await assertCsrf();
       const raw = await req.text();
@@ -79,43 +82,65 @@ export function mutation<S extends ZodType>(
       }
       const parsed = schema.safeParse(json);
       if (!parsed.success) {
-        return errorResponse(400, 'invalid_input', 'Some fields are invalid.', {
+        res = errorResponse(400, 'invalid_input', 'Some fields are invalid.', {
           issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
         });
+      } else {
+        const out = await fn(parsed.data, req);
+        res =
+          out instanceof Response
+            ? out
+            : NextResponse.json(out ?? { ok: true }, { headers: { 'cache-control': 'no-store' } });
       }
-      const out = await fn(parsed.data, req);
-      return out instanceof Response
-        ? out
-        : NextResponse.json(out ?? { ok: true }, { headers: { 'cache-control': 'no-store' } });
     } catch (err) {
-      return handleError(err);
+      res = handleError(err, req);
     }
+    logRequest(req, res, startedAt);
+    return res;
   };
 }
 
 /** Wraps a GET route handler (no CSRF; must not change state). */
 export function query(fn: (req: Request) => Promise<unknown>) {
   return async (req: Request) => {
+    const startedAt = performance.now();
+    let res: Response;
     try {
       const out = await fn(req);
-      return out instanceof Response
-        ? out
-        : NextResponse.json(out, { headers: { 'cache-control': 'no-store' } });
+      res =
+        out instanceof Response
+          ? out
+          : NextResponse.json(out, { headers: { 'cache-control': 'no-store' } });
     } catch (err) {
-      return handleError(err);
+      res = handleError(err, req);
     }
+    logRequest(req, res, startedAt);
+    return res;
   };
 }
 
-export function handleError(err: unknown) {
+export function handleError(err: unknown, req?: Request) {
   if (err instanceof HttpError) return errorResponse(err.status, err.code, err.message, err.extra);
-  console.error(
-    JSON.stringify({
-      level: 'error',
-      msg: 'unhandled route error',
-      error: String(err),
-      stack: (err as Error)?.stack,
-    }),
-  );
+  reportError(err, {
+    requestId: req?.headers.get('x-request-id'),
+    path: req ? pathOf(req) : undefined,
+  });
   return errorResponse(500, 'internal', 'Something went wrong on our side.');
+}
+
+const pathOf = (req: Request) => new URL(req.url).pathname;
+const SLOW_MS = 1500;
+
+/** One log line per API request: failures and slow ones always, the rest when LOG_REQUESTS=1. */
+function logRequest(req: Request, res: Response, startedAt: number) {
+  const ms = Math.round(performance.now() - startedAt);
+  const failed = res.status >= 400;
+  if (!failed && ms < SLOW_MS && !env('observability').LOG_REQUESTS) return;
+  log(res.status >= 500 ? 'error' : failed || ms >= SLOW_MS ? 'warn' : 'info', 'request', {
+    requestId: req.headers.get('x-request-id'),
+    method: req.method,
+    path: pathOf(req),
+    status: res.status,
+    ms,
+  });
 }
