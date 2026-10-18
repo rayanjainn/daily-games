@@ -65,6 +65,47 @@ test.describe('communities', () => {
     await other.ctx.close();
   });
 
+  test('||inline spoilers|| stay hidden until tapped and never show in previews', async ({
+    page,
+  }) => {
+    await signInAs(page);
+    await page.goto('/c/everydaily');
+    const title = `Spoiler post ${tag()}`;
+    const { id } = await (
+      await apiPost(page, '/api/c/everydaily/posts', {
+        title,
+        body: 'Today it was ||MONGOLIA|| for me.',
+      })
+    ).json();
+
+    // The feed preview hides it.
+    await page.goto('/c/everydaily');
+    await expect(page.getByText(title)).toBeVisible();
+    await expect(page.locator('main')).not.toContainText('MONGOLIA');
+
+    await page.goto(`/c/everydaily/${id}`);
+    const spoiler = page.getByRole('button', { name: 'Spoiler, press to reveal' });
+    await expect(spoiler).toHaveCount(1);
+    await expect(spoiler.locator('span')).toBeHidden();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await spoiler.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('button', { name: 'Spoiler, press to reveal' })).toHaveCount(0);
+    await expect(page.locator('.spoiler[data-shown]')).toHaveText('MONGOLIA');
+
+    // Comments work the same way, with a tap.
+    await apiPost(page, `/api/posts/${id}/comments`, {
+      body: 'It starts with ||M||',
+      parentId: null,
+    });
+    await page.reload();
+    await page
+      .getByTestId('comments')
+      .getByRole('button', { name: /Spoiler, press/ })
+      .click();
+    await expect(page.getByTestId('comments').locator('.spoiler[data-shown]')).toHaveText('M');
+  });
+
   test('the daily thread hides comments until you log the puzzle', async ({ page, browser }) => {
     const me = await signInAs(page);
     await page.goto('/c/connections');
