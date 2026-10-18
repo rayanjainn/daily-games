@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "EveryDaily capture",
+  "version": "0.1.0",
+  "description": "Saves the result a daily game copies when you press its share button, to your EveryDaily account.",
+  "minimum_chrome_version": "111",
+  "icons": { "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
+  "action": { "default_popup": "popup.html", "default_title": "EveryDaily capture" },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["storage"],
+  "optional_host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],
+  "content_scripts": []
+}

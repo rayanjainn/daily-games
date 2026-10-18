@@ -23,6 +23,11 @@ const LIMITS = {
   'admin-edit': { tokens: 120, window: '10 m' },
   'result-preview': { tokens: 120, window: '10 m' },
   'result-log': { tokens: 60, window: '10 m' },
+  'capture-token-edit': { tokens: 20, window: '1 h' },
+  // The extension posts one capture per share; this is generous for a person and tight for a script.
+  'capture-post': { tokens: 60, window: '10 m' },
+  // Wrong tokens are counted per address so a token can't be guessed.
+  'capture-bad-token': { tokens: 20, window: '10 m' },
   // Notes autosave while typing; generous but bounded.
   'note-save': { tokens: 240, window: '10 m' },
   'solution-submit': { tokens: 10, window: '1 d' },

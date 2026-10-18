@@ -1,0 +1,10 @@
+{
+  "name": "@everydaily/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx ../../scripts/build-extension.ts",
+    "build:dev": "tsx ../../scripts/build-extension.ts --dev"
+  }
+}

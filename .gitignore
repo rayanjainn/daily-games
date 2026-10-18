@@ -21,3 +21,4 @@ next-env.d.ts
 
 # Local Redis snapshots
 dump.rdb
+apps/extension/*.zip

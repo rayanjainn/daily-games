@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EveryDaily capture options</title>
+    <link rel="stylesheet" href="ui.css" />
+  </head>
+  <body>
+    <main>
+      <h1>EveryDaily capture</h1>
+      <p>
+        When you press the share button on a supported game, this extension saves the result to your
+        EveryDaily account. It sends only what the game copies, and only on the game sites it lists
+        in its description.
+      </p>
+      <form id="form">
+        <label for="appUrl">App address</label>
+        <input id="appUrl" type="url" placeholder="https://your-everydaily.example" required />
+        <label for="token">Token</label>
+        <input id="token" type="password" autocomplete="off" placeholder="edx_…" required />
+        <p class="hint">Make a token in EveryDaily under Settings, then Browser extension.</p>
+        <button type="submit">Save and test</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
