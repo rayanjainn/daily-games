@@ -31,6 +31,7 @@ import { Field, Input, Select, Textarea } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast';
 import { api, ApiError } from '@/lib/api';
+import { ShareCheck } from './share-check';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING } from '@/lib/catalog-labels';
 
 export interface EditableGame {
@@ -359,6 +360,7 @@ export function GameEditor({
                 </Field>
               </div>
             </div>
+            {g.parserId ? <ShareCheck slug={slug} /> : null}
           </Group>
 
           <Group title="Play and status">

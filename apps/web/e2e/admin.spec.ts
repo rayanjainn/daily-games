@@ -269,4 +269,32 @@ test.describe('moderation', () => {
       expect(results.violations, path).toEqual([]);
     }
   });
+
+  test('a moderator can try a share text on a game’s parser without logging anything', async ({
+    page,
+  }) => {
+    const me = await signInAs(page, { role: 'mod' });
+    const sql = e2eSql();
+    const [r] = await sql`
+      SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
+      FROM games WHERE slug = 'wordle'`;
+    await sql.end();
+    const n = Number(r!.n).toLocaleString('en-US');
+    await page.goto('/admin/games/wordle');
+    const check = page.getByTestId('share-check');
+    await check.getByLabel('Try a share text').fill('this is not a share');
+    await check.getByRole('button', { name: 'Check' }).click();
+    await expect(check.getByTestId('share-check-result')).not.toContainText('Reads as');
+
+    await check
+      .getByLabel('Try a share text')
+      .fill(`Wordle ${n} 3/6\n\n⬛🟨⬛⬛🟩\n⬛🟨⬛⬛🟩\n🟩🟩🟩🟩🟩`);
+    await check.getByRole('button', { name: 'Check' }).click();
+    await expect(check.getByTestId('share-check-result')).toContainText('Reads as solved: 3/6');
+
+    const q = e2eSql();
+    const rows = await q`SELECT 1 FROM results WHERE user_id = ${me.id}`;
+    await q.end();
+    expect(rows).toHaveLength(0);
+  });
 });

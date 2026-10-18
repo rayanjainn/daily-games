@@ -25,6 +25,7 @@ const LIMITS = {
   submission: { tokens: 5, window: '1 d' },
   'admin-edit': { tokens: 120, window: '10 m' },
   'result-preview': { tokens: 120, window: '10 m' },
+  'notification-read': { tokens: 120, window: '10 m' },
   'result-log': { tokens: 60, window: '10 m' },
   'capture-token-edit': { tokens: 20, window: '1 h' },
   // The extension posts one capture per share; this is generous for a person and tight for a script.

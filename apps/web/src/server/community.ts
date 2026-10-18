@@ -37,6 +37,7 @@ import { uuidv7 } from '@everydaily/shared/util/uuidv7';
 import { excerpt, renderMarkdown } from '@/lib/markdown';
 import { recordModAction } from './catalog/moderation';
 import { db } from './db';
+import { notify, usernameOf } from './notifications';
 import { hasRole } from './roles';
 import { HttpError } from './session';
 
@@ -417,7 +418,7 @@ export async function addComment(
   postId: string,
   input: z.infer<typeof commentInputSchema>,
 ) {
-  return db().transaction(async (tx) => {
+  const out = await db().transaction(async (tx) => {
     const [post] = await tx
       .select({ id: posts.id, status: posts.status })
       .from(posts)
@@ -454,6 +455,33 @@ export async function addComment(
       .where(eq(posts.id, postId));
     return { id };
   });
+  await notifyReply(user.id, postId, input.parentId ?? null);
+  return out;
+}
+
+/** Tells the author of the post, or of the comment being answered, that someone replied. */
+async function notifyReply(actorId: string, postId: string, parentId: string | null) {
+  const [post] = await db()
+    .select({ title: posts.title, authorId: posts.authorId, board: communities.slug })
+    .from(posts)
+    .innerJoin(communities, eq(communities.id, posts.communityId))
+    .where(eq(posts.id, postId));
+  if (!post) return;
+  const url = `/c/${post.board}/${postId}`;
+  const who = await usernameOf(actorId);
+  let target = post.authorId;
+  if (parentId) {
+    const [c] = await db()
+      .select({ authorId: comments.authorId })
+      .from(comments)
+      .where(eq(comments.id, parentId));
+    target = c?.authorId ?? target;
+  }
+  await notify(
+    target,
+    { kind: 'reply', title: `${who} replied to you`, body: post.title, url },
+    actorId,
+  );
 }
 
 /** Sets the viewer's vote (-1, 0 to clear, 1) and keeps the target's score in step. */
@@ -533,13 +561,15 @@ export async function moderate(
     throw new HttpError(422, 'invalid', 'Only posts can be locked.');
   const next: ContentStatus =
     input.action === 'remove' ? 'removed' : input.action === 'lock' ? 'locked' : 'visible';
+  let removedAuthor: string | null = null;
   await db().transaction(async (tx) => {
     const [t] = await tx
-      .select({ status: table.status })
+      .select({ status: table.status, authorId: table.authorId })
       .from(table)
       .where(eq(table.id, targetId))
       .for('update');
     if (!t) throw NOT_FOUND();
+    if (input.action === 'remove' && t.status !== 'removed') removedAuthor = t.authorId;
     await tx.update(table).set({ status: next }).where(eq(table.id, targetId));
     if (input.action === 'remove') {
       await tx
@@ -563,6 +593,17 @@ export async function moderate(
       after: { status: next },
     });
   });
+  if (removedAuthor)
+    await notify(
+      removedAuthor,
+      {
+        kind: 'removed',
+        title: `A moderator removed your ${type}`,
+        body: input.reason,
+        url: '/c',
+      },
+      actorId,
+    );
 }
 
 export async function dismissReport(actorId: string, reportId: string) {

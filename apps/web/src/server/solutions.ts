@@ -6,6 +6,7 @@ import { clockFromGame } from '@everydaily/shared/registry';
 import { currentPuzzle, dateForPuzzleNumber } from '@everydaily/shared/time/puzzle';
 import { recordModAction } from './catalog/moderation';
 import { db } from './db';
+import { notify } from './notifications';
 import { HttpError } from './session';
 import { isPublicHttpsUrl } from './source-url';
 
@@ -135,25 +136,42 @@ export async function decideSolution(
   id: string,
   d: z.infer<typeof solutionDecisionSchema>,
 ) {
-  return db().transaction(async (tx) => {
-    const [s] = await tx.select().from(solutions).where(eq(solutions.id, id)).for('update');
-    if (!s) throw new HttpError(404, 'not_found', 'Solution not found.');
-    if (s.status !== 'pending') throw new HttpError(409, 'already_decided', 'Already handled.');
-    const status = d.decision === 'approve' ? 'approved' : 'rejected';
-    await tx
-      .update(solutions)
-      .set({ status, decidedBy: actorId, decidedAt: new Date() })
-      .where(eq(solutions.id, id));
-    await recordModAction(tx, {
-      actorId,
-      action: `solution.${d.decision}`,
-      targetType: 'solution',
-      targetId: id,
-      reason: d.reason,
-      before: { status: s.status },
-      after: { status },
+  return db()
+    .transaction(async (tx) => {
+      const [s] = await tx.select().from(solutions).where(eq(solutions.id, id)).for('update');
+      if (!s) throw new HttpError(404, 'not_found', 'Solution not found.');
+      if (s.status !== 'pending') throw new HttpError(409, 'already_decided', 'Already handled.');
+      const status = d.decision === 'approve' ? 'approved' : 'rejected';
+      await tx
+        .update(solutions)
+        .set({ status, decidedBy: actorId, decidedAt: new Date() })
+        .where(eq(solutions.id, id));
+      await recordModAction(tx, {
+        actorId,
+        action: `solution.${d.decision}`,
+        targetType: 'solution',
+        targetId: id,
+        reason: d.reason,
+        before: { status: s.status },
+        after: { status },
+      });
+      return s;
+    })
+    .then(async (s) => {
+      await notify(
+        s.authorId,
+        {
+          kind: 'solution',
+          title:
+            d.decision === 'approve'
+              ? 'Your solution was approved and is now visible'
+              : 'Your solution was not approved',
+          body: d.decision === 'reject' ? d.reason : undefined,
+          url: '/games',
+        },
+        actorId,
+      );
     });
-  });
 }
 
 /** Pending solutions for the moderation queue, oldest first. */

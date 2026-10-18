@@ -258,7 +258,10 @@ test.describe('native games', () => {
   test('native games show on Today as plain tiles that link to play', async ({ page }) => {
     await signInAs(page);
     await page.goto('/games/cipher');
-    await page.getByRole('button', { name: 'Follow' }).click();
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/api/follows') && r.ok()),
+      page.getByRole('button', { name: 'Follow' }).click(),
+    ]);
     await page.goto('/today');
     const row = page.getByTestId('checklist-item').filter({ hasText: 'Cipher' });
     await expect(row).toHaveCount(1);

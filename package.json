@@ -24,7 +24,8 @@
     "dev:redis-shim": "pnpm --filter @everydaily/scripts exec tsx dev/upstash-shim.ts",
     "seed:demo": "pnpm --filter @everydaily/scripts exec tsx seed-demo.ts",
     "probe:embeds": "NODE_USE_ENV_PROXY=1 pnpm --filter @everydaily/scripts exec tsx probe-embeds.ts",
-    "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts"
+    "catalog:summary": "pnpm --filter @everydaily/scripts exec tsx catalog-summary.ts",
+    "check:budgets": "tsx scripts/check-budgets.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

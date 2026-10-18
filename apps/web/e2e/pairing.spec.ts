@@ -50,6 +50,8 @@ test.describe('device pairing', () => {
     const laptop = await newDevice(browser);
     await page.goto(laptop.path);
     const wrong = (await page.getByRole('group').getByRole('button').allInnerTexts())
+      // The theme switch is a button group too; only the number buttons have digits.
+      .filter((t) => /^\d+$/.test(t))
       .map(Number)
       .find((n) => n !== laptop.number)!;
     await page.getByRole('button', { name: String(wrong), exact: true }).click();

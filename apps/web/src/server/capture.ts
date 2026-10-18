@@ -90,7 +90,7 @@ export function bearer<S extends ZodType>(
       const out = await fn(parsed.data, who);
       return NextResponse.json(out ?? { ok: true }, { headers: { 'cache-control': 'no-store' } });
     } catch (err) {
-      return handleError(err);
+      return handleError(err, req);
     }
   };
 }

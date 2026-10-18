@@ -159,6 +159,26 @@ reminders as push. Without it the app works and the Email section says it isn't 
 
 Never set `EMAIL_DEV_OUTBOX` in production; it only works when `APP_URL` is localhost anyway.
 
+With email set up, the sign-in page also offers "Email me a sign-in link" for accounts that have a
+confirmed address. Links work once and expire after 15 minutes.
+
+### Optional: error alerts and request logs
+
+The app writes one JSON log line per notable API request (server errors, rate limits, refusals and slow ones), with a request id that is also
+returned in the `X-Request-Id` header. Secrets are never written to the logs. To also get
+unexpected errors in a chat channel or an error tracker, set on Vercel:
+
+- `ERROR_WEBHOOK_URL`: a webhook that accepts a JSON `POST` (a Slack-style `text` field plus the
+  details). The same error is sent at most once a minute.
+- `LOG_REQUESTS=1`: log every API request, not only failures and slow ones.
+
+## Browser extension
+
+The extension (`apps/extension`) is optional and installed by players. Build it with
+`pnpm --filter @everydaily/extension build` (it lists the game sites from the catalog) and load
+`apps/extension/dist`, or upload the zip next to it to a browser store. Players make a token in
+Settings and paste it, with the app address, into the extension's options.
+
 ## 6. After the first deploy
 
 1. Open `https://everydaily.raycode.tech`, sign up, create your passkey and save the recovery

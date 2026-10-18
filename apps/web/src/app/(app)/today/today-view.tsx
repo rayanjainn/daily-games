@@ -9,6 +9,7 @@ import {
   ListOrdered,
   Plus,
   Snowflake,
+  Trophy,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -191,6 +192,18 @@ export function TodayView({
             <ImageIcon className="size-6 shrink-0 text-ink-soft" aria-hidden />
           </Link>
         ) : null}
+        <Link
+          href="/rankings"
+          className="flex items-center justify-between gap-3 rounded-lg border-[length:var(--bw)] border-line bg-surface-2 p-4 shadow-lift-sm hover:bg-surface-3"
+        >
+          <span>
+            <span className="block font-display text-lg font-semibold">Rankings</span>
+            <span className="text-sm text-ink-soft">
+              Combined points this week: played here, or all games.
+            </span>
+          </span>
+          <Trophy className="size-6 shrink-0 text-ink-soft" aria-hidden />
+        </Link>
         <Link
           href="/badges"
           className="flex items-center justify-between gap-3 rounded-lg border-[length:var(--bw)] border-line bg-surface-2 p-4 shadow-lift-sm hover:bg-surface-3"
