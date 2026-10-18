@@ -1,5 +1,5 @@
 import { followedAt, getGameBySlug } from '@/server/catalog';
-import { gameCard } from '@/server/cards';
+import { cardTheme, gameCard } from '@/server/cards';
 import { HttpError, query } from '@/server/http';
 import { requireSession } from '@/server/session';
 import { getGameStats } from '@/server/stats';
@@ -16,6 +16,7 @@ export async function GET(req: Request, ctx: Ctx) {
       throw new HttpError(404, 'not_found', 'Game not found.');
     const view = await getGameStats(user, game, await followedAt(user.id, game.id));
     return gameCard({
+      theme: cardTheme(new URL(req.url).searchParams.get('theme')),
       name: game.name,
       accentColor: game.accentColor,
       playerName: user.displayName ?? user.username,

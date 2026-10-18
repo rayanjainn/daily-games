@@ -94,4 +94,36 @@ test.describe('stat cards', () => {
     await expect(img).toHaveAttribute('src', /\/api\/cards\/month\?month=\d{4}-\d{2}/);
     await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(1080);
   });
+
+  test('every card also comes in a dark style', async ({ page }) => {
+    const u = await signInAs(page);
+    await follow(page, ['wordle']);
+    await played(u.id, 'wordle', [0, 1, 2], { attempts: 4, maxAttempts: 6 });
+    for (const [path, w, h, name] of [
+      ['/api/cards/week?theme=dark', 1080, 1350, 'week-poster-dark'],
+      ['/api/cards/month?theme=dark', 1080, 1350, 'month-poster-dark'],
+      ['/api/cards/game/wordle?theme=dark', 1200, 630, 'game-card-wordle-dark'],
+    ] as const) {
+      const res = await page.request.get(path);
+      expect(res.status()).toBe(200);
+      const png = await res.body();
+      expect(size(png)).toEqual([w, h]);
+      keep(name, png);
+    }
+    // Unknown styles fall back to light.
+    const light = await (await page.request.get('/api/cards/week')).body();
+    const odd = await (await page.request.get('/api/cards/week?theme=neon')).body();
+    expect(odd.equals(light)).toBe(true);
+
+    await page.goto('/recap');
+    const img = page.getByTestId('share-image');
+    await expect(img).not.toHaveAttribute('src', /theme=dark/);
+    await page.getByRole('button', { name: 'Dark card' }).click();
+    await expect(img).toHaveAttribute('src', '/api/cards/week?theme=dark');
+    await expect(page.getByRole('link', { name: 'Download' })).toHaveAttribute(
+      'download',
+      /-dark\.png$/,
+    );
+    await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(1080);
+  });
 });

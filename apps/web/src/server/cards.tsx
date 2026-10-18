@@ -11,7 +11,23 @@ import { BRAND } from '@everydaily/shared';
  * Shareable images (stat cards and the weekly poster). They show counts and streaks only,
  * never answers, so they are safe to post. Drawn with the app's light palette and fonts.
  */
-const C = {
+interface Palette {
+  paper: string;
+  surface: string;
+  ink: string;
+  soft: string;
+  line: string;
+  lineSoft: string;
+  pop: string;
+  mint: string;
+  danger: string;
+  missed: string;
+  onFill: string;
+  heat: string[];
+}
+export type CardTheme = 'light' | 'dark';
+
+const LIGHT: Palette = {
   paper: '#FDF2E1',
   surface: '#FFFCF6',
   ink: '#1D1A3A',
@@ -22,7 +38,28 @@ const C = {
   mint: '#1FC98E',
   danger: '#C01F2C',
   missed: '#EFDCBD',
+  onFill: '#1D1A3A',
+  heat: ['#EFDCBD', '#A7EBCF', '#5FDBAC', '#1FC98E'],
 };
+/** Dark cards use the app's dark theme colours. */
+const DARK: Palette = {
+  paper: '#0F0E1A',
+  surface: '#18172A',
+  ink: '#F4F2FF',
+  soft: '#B9B4D3',
+  line: '#8A85A8',
+  lineSoft: '#2C2946',
+  pop: '#FF7043',
+  mint: '#34E3A6',
+  danger: '#FF7580',
+  missed: '#2C2946',
+  /** Text on the green and red tiles and bars. */
+  onFill: '#0F0E1A',
+  heat: ['#2C2946', '#1E6B54', '#2BB887', '#34E3A6'],
+};
+
+const PALETTES: Record<CardTheme, Palette> = { light: LIGHT, dark: DARK };
+export const cardTheme = (v: string | null): CardTheme => (v === 'dark' ? 'dark' : 'light');
 
 let fonts: Promise<
   { name: string; data: Buffer; weight: 600 | 700 | 800; style: 'normal' }[]
@@ -57,7 +94,7 @@ const headers = {
   'content-disposition': 'inline',
 };
 
-function Brand() {
+function Brand({ c }: { c: Palette }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
       <div
@@ -66,19 +103,19 @@ function Brand() {
           width: 44,
           height: 44,
           borderRadius: 12,
-          background: C.pop,
-          border: `4px solid ${C.line}`,
-          boxShadow: `0 4px 0 ${C.line}`,
+          background: c.pop,
+          border: `4px solid ${c.line}`,
+          boxShadow: `0 4px 0 ${c.line}`,
         }}
       />
-      <div style={{ fontFamily: 'Fredoka', fontSize: 34, fontWeight: 700, color: C.ink }}>
+      <div style={{ fontFamily: 'Fredoka', fontSize: 34, fontWeight: 700, color: c.ink }}>
         {BRAND.name}
       </div>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ c, label, value }: { c: Palette; label: string; value: string }) {
   return (
     <div
       style={{
@@ -86,7 +123,7 @@ function Stat({ label, value }: { label: string; value: string }) {
         flexDirection: 'column',
         padding: '14px 18px',
         borderRadius: 20,
-        background: C.paper,
+        background: c.paper,
         minWidth: 138,
       }}
     >
@@ -94,7 +131,7 @@ function Stat({ label, value }: { label: string; value: string }) {
         style={{
           fontSize: 20,
           fontWeight: 800,
-          color: C.soft,
+          color: c.soft,
           textTransform: 'uppercase',
           letterSpacing: 1,
         }}
@@ -106,7 +143,7 @@ function Stat({ label, value }: { label: string; value: string }) {
           fontFamily: 'Fredoka',
           fontSize: 56,
           fontWeight: 700,
-          color: C.ink,
+          color: c.ink,
           lineHeight: 1.05,
         }}
       >
@@ -116,7 +153,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Bars({ bars }: { bars: DistributionBar[] }) {
+function Bars({ c, bars }: { c: Palette; bars: DistributionBar[] }) {
   const max = Math.max(1, ...bars.map((b) => b.count));
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 420 }}>
@@ -127,7 +164,7 @@ function Bars({ bars }: { bars: DistributionBar[] }) {
               width: 70,
               fontSize: 22,
               fontWeight: 800,
-              color: C.soft,
+              color: c.soft,
               display: 'flex',
               justifyContent: 'flex-end',
             }}
@@ -142,13 +179,13 @@ function Bars({ bars }: { bars: DistributionBar[] }) {
               height: 30,
               width: Math.max(36, Math.round((b.count / max) * 320)),
               borderRadius: 10,
-              border: `3px solid ${C.line}`,
+              border: `3px solid ${c.line}`,
               background:
-                b.count === 0 || b.label === 'Unsolved' || b.label === 'X' ? C.missed : C.mint,
+                b.count === 0 || b.label === 'Unsolved' || b.label === 'X' ? c.missed : c.mint,
               paddingRight: 8,
               fontSize: 18,
               fontWeight: 800,
-              color: C.ink,
+              color: b.count === 0 || b.label === 'Unsolved' || b.label === 'X' ? c.ink : c.onFill,
             }}
           >
             {b.count}
@@ -161,6 +198,7 @@ function Bars({ bars }: { bars: DistributionBar[] }) {
 
 /** 1200×630 card for one game: streaks, totals and the score spread. */
 export async function gameCard(input: {
+  theme?: CardTheme;
   name: string;
   accentColor: string;
   playerName: string;
@@ -168,13 +206,14 @@ export async function gameCard(input: {
   completion: boolean;
 }) {
   const s = input.stats;
+  const c = PALETTES[input.theme ?? 'light'];
   return new ImageResponse(
     <div
       style={{
         display: 'flex',
         width: '100%',
         height: '100%',
-        background: C.paper,
+        background: c.paper,
         padding: 40,
         fontFamily: 'Nunito',
       }}
@@ -185,10 +224,10 @@ export async function gameCard(input: {
           flexDirection: 'column',
           width: '100%',
           height: '100%',
-          background: C.surface,
+          background: c.surface,
           borderRadius: 32,
-          border: `5px solid ${C.line}`,
-          boxShadow: `0 10px 0 ${C.line}`,
+          border: `5px solid ${c.line}`,
+          boxShadow: `0 10px 0 ${c.line}`,
           overflow: 'hidden',
         }}
       >
@@ -197,7 +236,7 @@ export async function gameCard(input: {
             display: 'flex',
             height: 22,
             background: input.accentColor,
-            borderBottom: `5px solid ${C.line}`,
+            borderBottom: `5px solid ${c.line}`,
           }}
         />
         <div style={{ display: 'flex', flex: 1, padding: '28px 44px', gap: 40 }}>
@@ -208,24 +247,24 @@ export async function gameCard(input: {
                   fontFamily: 'Fredoka',
                   fontSize: 72,
                   fontWeight: 700,
-                  color: C.ink,
+                  color: c.ink,
                   lineHeight: 1,
                 }}
               >
                 {input.name}
               </div>
-              <div style={{ fontSize: 26, fontWeight: 600, color: C.soft, marginTop: 8 }}>
+              <div style={{ fontSize: 26, fontWeight: 600, color: c.soft, marginTop: 8 }}>
                 {`${input.playerName}'s stats`}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <Stat label="Streak" value={String(s.streak.current)} />
-              <Stat label="Best" value={String(s.streak.best)} />
-              <Stat label="Played" value={String(s.played)} />
-              {input.completion ? null : <Stat label="Solved" value={`${s.solveRate}%`} />}
+              <Stat c={c} label="Streak" value={String(s.streak.current)} />
+              <Stat c={c} label="Best" value={String(s.streak.best)} />
+              <Stat c={c} label="Played" value={String(s.played)} />
+              {input.completion ? null : <Stat c={c} label="Solved" value={`${s.solveRate}%`} />}
             </div>
           </div>
-          {!input.completion && s.distribution.length ? <Bars bars={s.distribution} /> : null}
+          {!input.completion && s.distribution.length ? <Bars c={c} bars={s.distribution} /> : null}
         </div>
         <div
           style={{
@@ -235,8 +274,8 @@ export async function gameCard(input: {
             padding: '0 44px 26px',
           }}
         >
-          <Brand />
-          <div style={{ fontSize: 22, fontWeight: 600, color: C.soft }}>
+          <Brand c={c} />
+          <div style={{ fontSize: 22, fontWeight: 600, color: c.soft }}>
             everydaily.raycode.tech
           </div>
         </div>
@@ -260,21 +299,23 @@ const rangeLabel = (days: string[]) => {
 
 /** 1080×1350 portrait poster of the week, laid out like a game board. */
 export async function weekPosterImage(input: {
+  theme?: CardTheme;
   playerName: string;
   poster: WeekPoster;
   streak: number;
 }) {
   const p = input.poster;
+  const c = PALETTES[input.theme ?? 'light'];
   // Name column 210 + 7 tiles and gaps of 8 must fit the 868px inside the card.
   const tile = p.rows.length <= 5 ? 84 : 76;
-  const fill = { solved: C.mint, failed: C.danger, missed: C.missed } as const;
+  const fill = { solved: c.mint, failed: c.danger, missed: c.missed } as const;
   return new ImageResponse(
     <div
       style={{
         display: 'flex',
         width: '100%',
         height: '100%',
-        background: C.paper,
+        background: c.paper,
         padding: 48,
         fontFamily: 'Nunito',
       }}
@@ -285,10 +326,10 @@ export async function weekPosterImage(input: {
           flexDirection: 'column',
           width: '100%',
           height: '100%',
-          background: C.surface,
+          background: c.surface,
           borderRadius: 40,
-          border: `6px solid ${C.line}`,
-          boxShadow: `0 12px 0 ${C.line}`,
+          border: `6px solid ${c.line}`,
+          boxShadow: `0 12px 0 ${c.line}`,
           padding: '44px 52px',
           gap: 30,
         }}
@@ -298,7 +339,7 @@ export async function weekPosterImage(input: {
             style={{
               fontSize: 28,
               fontWeight: 800,
-              color: C.pop,
+              color: c.pop,
               textTransform: 'uppercase',
               letterSpacing: 2,
             }}
@@ -310,13 +351,13 @@ export async function weekPosterImage(input: {
               fontFamily: 'Fredoka',
               fontSize: 76,
               fontWeight: 700,
-              color: C.ink,
+              color: c.ink,
               lineHeight: 1.05,
             }}
           >
             {input.playerName}
           </div>
-          <div style={{ fontSize: 30, fontWeight: 600, color: C.soft }}>{rangeLabel(p.days)}</div>
+          <div style={{ fontSize: 30, fontWeight: 600, color: c.soft }}>{rangeLabel(p.days)}</div>
         </div>
 
         <div
@@ -338,7 +379,7 @@ export async function weekPosterImage(input: {
                   justifyContent: 'center',
                   fontSize: 24,
                   fontWeight: 800,
-                  color: C.soft,
+                  color: c.soft,
                 }}
               >
                 {shortDay(d)}
@@ -355,7 +396,7 @@ export async function weekPosterImage(input: {
                     height: 18,
                     borderRadius: 9,
                     background: r.accentColor,
-                    border: `3px solid ${C.line}`,
+                    border: `3px solid ${c.line}`,
                   }}
                 />
                 <div
@@ -363,7 +404,7 @@ export async function weekPosterImage(input: {
                     fontFamily: 'Fredoka',
                     fontSize: 30,
                     fontWeight: 700,
-                    color: C.ink,
+                    color: c.ink,
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                   }}
@@ -380,15 +421,15 @@ export async function weekPosterImage(input: {
                     height: tile - 18,
                     borderRadius: 14,
                     background: fill[t],
-                    border: `4px solid ${t === 'missed' ? C.lineSoft : C.line}`,
-                    boxShadow: t === 'missed' ? 'none' : `0 4px 0 ${C.line}`,
+                    border: `4px solid ${t === 'missed' ? c.lineSoft : c.line}`,
+                    boxShadow: t === 'missed' ? 'none' : `0 4px 0 ${c.line}`,
                   }}
                 />
               ))}
             </div>
           ))}
           {p.rows.length === 0 ? (
-            <div style={{ fontSize: 32, color: C.soft }}>Follow some games to fill your board.</div>
+            <div style={{ fontSize: 32, color: c.soft }}>Follow some games to fill your board.</div>
           ) : (
             <div style={{ display: 'flex', gap: 28, paddingLeft: 218, marginTop: 12 }}>
               {(
@@ -406,7 +447,7 @@ export async function weekPosterImage(input: {
                     gap: 8,
                     fontSize: 22,
                     fontWeight: 800,
-                    color: C.soft,
+                    color: c.soft,
                   }}
                 >
                   <div
@@ -416,7 +457,7 @@ export async function weekPosterImage(input: {
                       height: 22,
                       borderRadius: 6,
                       background: fill[k],
-                      border: `3px solid ${k === 'missed' ? C.lineSoft : C.line}`,
+                      border: `3px solid ${k === 'missed' ? c.lineSoft : c.line}`,
                     }}
                   />
                   {label}
@@ -427,14 +468,14 @@ export async function weekPosterImage(input: {
         </div>
 
         <div style={{ display: 'flex', gap: 16 }}>
-          <Stat label="Played" value={String(p.played)} />
-          <Stat label="Solved" value={String(p.solved)} />
-          <Stat label="Days" value={`${p.activeDays}/7`} />
-          <Stat label="Streak" value={String(input.streak)} />
+          <Stat c={c} label="Played" value={String(p.played)} />
+          <Stat c={c} label="Solved" value={String(p.solved)} />
+          <Stat c={c} label="Days" value={`${p.activeDays}/7`} />
+          <Stat c={c} label="Streak" value={String(input.streak)} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Brand />
-          <div style={{ fontSize: 24, fontWeight: 600, color: C.soft }}>
+          <Brand c={c} />
+          <div style={{ fontSize: 24, fontWeight: 600, color: c.soft }}>
             everydaily.raycode.tech
           </div>
         </div>
@@ -453,8 +494,6 @@ const WEEKDAYS = [
   'Saturdays',
   'Sundays',
 ];
-/** Calendar tile colour by results that day: none, one, two, three or more. */
-const heat = ['#EFDCBD', '#A7EBCF', '#5FDBAC', C.mint];
 
 export const monthLabel = (month: string) =>
   new Date(`${month}-15T12:00:00Z`).toLocaleDateString('en-US', {
@@ -464,8 +503,13 @@ export const monthLabel = (month: string) =>
   });
 
 /** 1080×1350 portrait poster of a month: a calendar heatmap, totals and the top games. */
-export async function monthPosterImage(input: { playerName: string; recap: MonthRecap }) {
+export async function monthPosterImage(input: {
+  theme?: CardTheme;
+  playerName: string;
+  recap: MonthRecap;
+}) {
   const r = input.recap;
+  const c = PALETTES[input.theme ?? 'light'];
   const running = r.elapsed < r.days.length;
   // Monday-first calendar: blank cells before the 1st.
   const lead = (new Date(`${r.days[0]}T12:00:00Z`).getUTCDay() + 6) % 7;
@@ -480,7 +524,7 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
         display: 'flex',
         width: '100%',
         height: '100%',
-        background: C.paper,
+        background: c.paper,
         padding: 48,
         fontFamily: 'Nunito',
       }}
@@ -491,10 +535,10 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
           flexDirection: 'column',
           width: '100%',
           height: '100%',
-          background: C.surface,
+          background: c.surface,
           borderRadius: 40,
-          border: `6px solid ${C.line}`,
-          boxShadow: `0 12px 0 ${C.line}`,
+          border: `6px solid ${c.line}`,
+          boxShadow: `0 12px 0 ${c.line}`,
           padding: '44px 52px',
           gap: 26,
         }}
@@ -504,7 +548,7 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
             style={{
               fontSize: 28,
               fontWeight: 800,
-              color: C.pop,
+              color: c.pop,
               textTransform: 'uppercase',
               letterSpacing: 2,
             }}
@@ -516,13 +560,13 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
               fontFamily: 'Fredoka',
               fontSize: 72,
               fontWeight: 700,
-              color: C.ink,
+              color: c.ink,
               lineHeight: 1.05,
             }}
           >
             {input.playerName}
           </div>
-          <div style={{ fontSize: 30, fontWeight: 600, color: C.soft }}>
+          <div style={{ fontSize: 30, fontWeight: 600, color: c.soft }}>
             {`${monthLabel(r.month)}${running ? ' so far' : ''}`}
           </div>
         </div>
@@ -538,7 +582,7 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
                   justifyContent: 'center',
                   fontSize: 22,
                   fontWeight: 800,
-                  color: C.soft,
+                  color: c.soft,
                 }}
               >
                 {d}
@@ -547,10 +591,11 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
           </div>
           {weeks.map((w, wi) => (
             <div key={wi} style={{ display: 'flex', gap: 12 }}>
-              {w.map((c, i) => {
+              {w.map((cell, i) => {
                 const day = wi * 7 + i - lead + 1;
-                if (c === 'blank') return <div key={i} style={{ display: 'flex', width: tileW }} />;
-                const future = c === null;
+                if (cell === 'blank')
+                  return <div key={i} style={{ display: 'flex', width: tileW }} />;
+                const future = cell === null;
                 return (
                   <div
                     key={i}
@@ -560,11 +605,11 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
                       height: tileH,
                       borderRadius: 12,
                       padding: '4px 10px',
-                      background: future ? C.surface : heat[Math.min(c, 3)],
-                      border: `4px solid ${future || c === 0 ? C.lineSoft : C.line}`,
+                      background: future ? c.surface : c.heat[Math.min(cell, 3)],
+                      border: `4px solid ${future || cell === 0 ? c.lineSoft : c.line}`,
                       fontSize: 18,
                       fontWeight: 800,
-                      color: future ? C.lineSoft : C.ink,
+                      color: future ? c.lineSoft : cell > 0 ? c.onFill : c.ink,
                     }}
                   >
                     {String(day)}
@@ -576,10 +621,10 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
         </div>
 
         <div style={{ display: 'flex', gap: 16 }}>
-          <Stat label="Played" value={String(r.played)} />
-          <Stat label="Solved" value={String(r.solved)} />
-          <Stat label="Days" value={`${r.activeDays}/${r.elapsed}`} />
-          <Stat label="Streak" value={String(r.bestStreak)} />
+          <Stat c={c} label="Played" value={String(r.played)} />
+          <Stat c={c} label="Solved" value={String(r.solved)} />
+          <Stat c={c} label="Days" value={`${r.activeDays}/${r.elapsed}`} />
+          <Stat c={c} label="Streak" value={String(r.bestStreak)} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
@@ -593,7 +638,7 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
                     fontFamily: 'Fredoka',
                     fontSize: 30,
                     fontWeight: 700,
-                    color: C.soft,
+                    color: c.soft,
                   }}
                 >
                   {`${i + 1}.`}
@@ -605,7 +650,7 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
                     height: 20,
                     borderRadius: 10,
                     background: g.accentColor,
-                    border: `3px solid ${C.line}`,
+                    border: `3px solid ${c.line}`,
                   }}
                 />
                 <div
@@ -615,29 +660,29 @@ export async function monthPosterImage(input: { playerName: string; recap: Month
                     fontFamily: 'Fredoka',
                     fontSize: 32,
                     fontWeight: 700,
-                    color: C.ink,
+                    color: c.ink,
                   }}
                 >
                   {g.name.length > 24 ? `${g.name.slice(0, 23)}…` : g.name}
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: C.soft }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: c.soft }}>
                   {`${g.played} played · ${g.solved} solved`}
                 </div>
               </div>
             ))
           ) : (
-            <div style={{ fontSize: 30, color: C.soft }}>No puzzles logged this month yet.</div>
+            <div style={{ fontSize: 30, color: c.soft }}>No puzzles logged this month yet.</div>
           )}
           {r.busiestWeekday !== null ? (
-            <div style={{ fontSize: 24, fontWeight: 600, color: C.soft, marginTop: 6 }}>
+            <div style={{ fontSize: 24, fontWeight: 600, color: c.soft, marginTop: 6 }}>
               {`Most puzzles on ${WEEKDAYS[r.busiestWeekday]}`}
             </div>
           ) : null}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Brand />
-          <div style={{ fontSize: 24, fontWeight: 600, color: C.soft }}>
+          <Brand c={c} />
+          <div style={{ fontSize: 24, fontWeight: 600, color: c.soft }}>
             everydaily.raycode.tech
           </div>
         </div>
