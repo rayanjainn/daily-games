@@ -16,9 +16,9 @@ test.describe('sign-up', () => {
     expect(creds[0]!.isResidentCredential).toBe(true);
   });
 
-  test('suggests an available adjective_noun_number name', async ({ page }) => {
+  test('suggests an available adjective_noun name', async ({ page }) => {
     await page.goto('/start');
-    await expect(page.getByLabel('Player name')).toHaveValue(/^[a-z]+_[a-z]+_\d{2}$/);
+    await expect(page.getByLabel('Player name')).toHaveValue(/^[a-z]+_[a-z]+(_\d{2})?$/);
     await expect(page.getByLabel('Available')).toBeVisible();
     const before = await page.getByLabel('Player name').inputValue();
     await page.getByRole('button', { name: 'Shuffle' }).click();

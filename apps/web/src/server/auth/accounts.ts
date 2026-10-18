@@ -5,6 +5,7 @@ import { db } from '../db';
 import { HttpError } from '../session';
 import {
   checkUsername,
+  suggestUsername,
   normalizeUsername,
   USERNAME_MESSAGES,
   type UsernameProblem,
@@ -98,4 +99,13 @@ export function credentialColumns(c: NewCredential) {
     aaguid: c.aaguid,
     nickname: c.nickname,
   };
+}
+
+/** A suggestion that is free right now: a plain name first, then ones with a number. */
+export async function freshUsername(): Promise<string> {
+  for (let i = 0; i < 12; i++) {
+    const name = suggestUsername(Math.random, i >= 6);
+    if ((await usernameAvailability(name)).available) return name;
+  }
+  return suggestUsername(Math.random, true);
 }
