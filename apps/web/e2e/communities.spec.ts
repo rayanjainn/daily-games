@@ -167,6 +167,87 @@ test.describe('communities', () => {
     await mod.ctx.close();
   });
 
+  test('board moderators handle their own board only, appointed by site moderators', async ({
+    page,
+    browser,
+  }) => {
+    const author = await signInAs(page);
+    const title = `Board report ${tag()}`;
+    await page.goto('/c/everydaily');
+    const { id } = await (
+      await apiPost(page, '/api/c/everydaily/posts', { title, body: 'spam spam' })
+    ).json();
+    await page.goto('/c/wordle');
+    const { id: elsewhere } = await (
+      await apiPost(page, '/api/c/wordle/posts', { title: `Other board ${tag()}` })
+    ).json();
+
+    const reporter = await second(browser);
+    await reporter.page.goto(`/c/everydaily/${id}`);
+    await reporter.page.getByRole('button', { name: 'Report' }).first().click();
+    await reporter.page.getByRole('dialog').getByLabel("What's wrong?").fill('Spam');
+    await reporter.page.getByRole('dialog').getByRole('button', { name: 'Send report' }).click();
+    await expect(reporter.page.getByRole('dialog')).toHaveCount(0);
+
+    // Before being appointed, a player has no moderation page and no moderation actions.
+    const helper = await second(browser);
+    expect((await helper.page.goto('/c/everydaily/mod'))?.status()).toBe(404);
+    const denied = await apiPost(helper.page, `/api/admin/content/post/${id}`, {
+      action: 'remove',
+      reason: 'x',
+    });
+    expect(denied.status()).toBe(403);
+
+    const site = await second(browser, 'mod');
+    await site.page.goto('/c/everydaily/mod');
+    await site.page.getByLabel('Player name').fill(helper.user.username);
+    await site.page.getByRole('button', { name: 'Add moderator' }).click();
+    await expect(site.page.getByTestId('board-moderators')).toContainText(helper.user.username);
+
+    // Now they see this board's reports and can act on them...
+    await helper.page.goto('/c/everydaily');
+    await expect(helper.page.getByRole('link', { name: 'Moderation' })).toBeVisible();
+    await helper.page.goto('/c/everydaily/mod');
+    const row = helper.page.getByTestId('board-reports').getByRole('listitem').filter({
+      hasText: title,
+    });
+    await expect(row).toHaveCount(1);
+    expect((await new AxeBuilder({ page: helper.page }).analyze()).violations).toEqual([]);
+    await row.getByRole('button', { name: 'Remove' }).click();
+    await expect(row).toHaveCount(0);
+    expect((await reporter.page.goto(`/c/everydaily/${id}`))?.status()).toBe(404);
+    // ...but not in another board, and they cannot appoint anyone.
+    const other = await apiPost(helper.page, `/api/admin/content/post/${elsewhere}`, {
+      action: 'remove',
+      reason: 'x',
+    });
+    expect(other.status()).toBe(403);
+    const appoint = await apiPost(helper.page, '/api/admin/communities/everydaily/moderators', {
+      username: author.username,
+    });
+    expect(appoint.status()).toBe(403);
+    await expect(helper.page.getByRole('button', { name: 'Add moderator' })).toHaveCount(0);
+
+    const sql = e2eSql();
+    const audit = await sql`SELECT action, actor_id FROM mod_actions WHERE target_id = ${id}`;
+    expect(audit).toHaveLength(1);
+    expect(audit[0]).toMatchObject({ action: 'post.remove', actor_id: helper.user.id });
+
+    // Removing the appointment takes the access away again.
+    await site.page.reload();
+    await site.page
+      .getByRole('button', { name: `Remove ${helper.user.username} as moderator` })
+      .click();
+    await expect(site.page.getByTestId('board-moderators')).toHaveCount(0);
+    expect((await helper.page.goto('/c/everydaily/mod'))?.status()).toBe(404);
+    const trail = await sql`SELECT action FROM mod_actions
+      WHERE action LIKE 'community_moderator.%' AND after::text LIKE ${`%${helper.user.username}%`}
+         OR before::text LIKE ${`%${helper.user.id}%`}`;
+    await sql.end();
+    expect(trail.length).toBeGreaterThanOrEqual(2);
+    for (const c of [reporter, helper, site]) await c.ctx.close();
+  });
+
   test('locked posts take no comments; unknown boards are 404', async ({ page, browser }) => {
     await signInAs(page);
     await page.goto('/c/everydaily');

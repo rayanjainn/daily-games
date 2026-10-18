@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
+import { apiPost, fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
 import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 import { e2eSql } from './support/db';
 import { follow, played } from './support/play';
@@ -268,6 +268,81 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  gaps: [
+    {
+      name: 'badges-new',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle']);
+        await page.goto('/today');
+        await expect(page.getByTestId('today-headline')).toBeVisible();
+        await wordleHistory(u.id);
+        await page.goto('/badges');
+        await expect(page.locator('[data-new]').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'board-moderation',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page, { role: 'mod' });
+        const { postId } = await seedCommunity('wordle');
+        const sql = e2eSql();
+        const [ava] = await sql`SELECT id FROM users WHERE username = 'ava_plays'`;
+        const [ben] = await sql`SELECT id FROM users WHERE username = 'ben_words'`;
+        const [c] = await sql`SELECT id FROM communities WHERE slug = 'wordle'`;
+        await sql`DELETE FROM content_reports WHERE target_id = ${postId}`;
+        await sql`INSERT INTO content_reports (id, reporter_id, target_type, target_id, reason)
+          VALUES (gen_random_uuid(), ${ben!.id}, 'post', ${postId}, 'Advertising a different word game')`;
+        await sql`DELETE FROM community_moderators WHERE community_id = ${c!.id}`;
+        await sql`INSERT INTO community_moderators (community_id, user_id, added_by)
+          VALUES (${c!.id}, ${ava!.id}, ${u.id})`;
+        await sql.end();
+        await page.goto('/c/wordle/mod');
+        await expect(page.getByTestId('board-reports')).toBeVisible();
+      },
+    },
+    {
+      name: 'inline-spoiler',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/c/everydaily');
+        const { id } = await (
+          await apiPost(page, '/api/c/everydaily/posts', {
+            title: 'Yesterday was a tricky one',
+            body: 'I got it in 5. The answer was ||MONGOLIA||, and the clue about ||copper exports|| gave it away.',
+          })
+        ).json();
+        await apiPost(page, `/api/posts/${id}/comments`, {
+          body: 'Same here: the first letter was ||M||.',
+          parentId: null,
+        });
+        await page.goto(`/c/everydaily/${id}`);
+        await expect(page.locator('.spoiler').first()).toBeVisible();
+        // Reveal one, so the capture shows both states.
+        await page.locator('.spoiler').first().click();
+      },
+    },
+    {
+      name: 'recap-dark-card',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await follow(page, ['wordle', 'connections', 'tradle']);
+        await wordleHistory(u.id);
+        await played(u.id, 'connections', [0, 2, 3, 6, 9], { attempts: 4, maxAttempts: 4 });
+        await page.goto('/recap');
+        await page.getByRole('button', { name: 'Dark card' }).click();
+        const img = page.getByTestId('share-image');
+        await expect(img).toHaveAttribute('src', /theme=dark/);
+        await expect
+          .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+          .toBe(1080);
+      },
+    },
+  ],
   picks: [
     {
       name: 'today-picks',

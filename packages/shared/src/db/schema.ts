@@ -603,6 +603,25 @@ export const communities = pgTable(
   ],
 );
 
+/** Players who moderate one community (site moderators moderate all of them). */
+export const communityModerators = pgTable(
+  'community_moderators',
+  {
+    communityId: uuid('community_id')
+      .notNull()
+      .references(() => communities.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    addedBy: uuid('added_by').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.communityId, t.userId] }),
+    index('community_mods_user_idx').on(t.userId),
+  ],
+);
+
 export const flairs = pgTable(
   'flairs',
   {

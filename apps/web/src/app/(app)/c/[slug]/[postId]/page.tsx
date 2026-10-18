@@ -10,7 +10,7 @@ import { VoteButtons } from '@/components/community/vote-buttons';
 import { LiveThread } from '@/components/realtime/live-thread';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { isModerator, postView } from '@/server/community';
+import { postView } from '@/server/community';
 import { requireSession } from '@/server/session';
 
 type Params = Promise<{ slug: string; postId: string }>;
@@ -25,7 +25,7 @@ export default async function PostPage({ params }: { params: Params }) {
   const [{ slug, postId }, { user }] = await Promise.all([params, requireSession()]);
   const post = await postView(user, postId);
   if (!post || post.community.slug !== slug) notFound();
-  const mod = isModerator(user);
+  const mod = post.canModerate;
   const body = post.html ? <RichHtml className="prose-comment" html={post.html} /> : null;
 
   return (
