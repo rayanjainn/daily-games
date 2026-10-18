@@ -2,7 +2,14 @@ import 'server-only';
 import { and, asc, eq, follows, games, gte, inArray, ne, results } from '@everydaily/shared/db';
 import { clockFromGame } from '@everydaily/shared/registry';
 import { formatResult } from '@everydaily/shared/stats/format';
-import { computeStreak, dayIndex, type Streak } from '@everydaily/shared/stats/streak';
+import { resultPoints } from '@everydaily/shared/stats/points';
+import {
+  computeFrozenStreak,
+  computeStreak,
+  dayIndex,
+  type FrozenStreak,
+  type Streak,
+} from '@everydaily/shared/stats/streak';
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
 import { toCatalogGame, type CatalogGame } from './catalog';
@@ -23,7 +30,10 @@ export interface Dashboard {
   today: string;
   items: ChecklistItem[];
   done: number;
-  combined: Streak;
+  /** Days with any result in a row, with streak freezes. */
+  combined: FrozenStreak;
+  /** Combined score over every game played: today's puzzles, and the last seven days. */
+  points: { today: number; week: number };
 }
 
 /**
@@ -56,8 +66,10 @@ export async function getDashboard(
         timeSeconds: results.timeSeconds,
         score: results.score,
         fromArchive: results.fromArchive,
+        scoringType: games.scoringType,
       })
       .from(results)
+      .innerJoin(games, eq(games.id, results.gameId))
       .where(and(eq(results.userId, user.id), gte(results.puzzleDate, since))),
   ]);
 
@@ -90,12 +102,22 @@ export async function getDashboard(
   });
 
   // Combined: days (by puzzle date) on which the player logged any daily puzzle at all.
-  const combined = computeStreak(
+  const combined = computeFrozenStreak(
     recent.filter((r) => !r.fromArchive).map((r) => dayIndex(r.puzzleDate)),
     dayIndex(today),
   );
 
-  return { today, items, done: items.filter((i) => i.done).length, combined };
+  const pointsSince = (from: string) =>
+    recent
+      .filter((r) => r.puzzleDate >= from && r.puzzleDate <= today)
+      .reduce((sum, r) => sum + resultPoints(r, r.scoringType), 0);
+  return {
+    today,
+    items,
+    done: items.filter((i) => i.done).length,
+    combined,
+    points: { today: pointsSince(today), week: pointsSince(addDays(today, -6)) },
+  };
 }
 
 /** Games new players usually start with, for the empty dashboard. */

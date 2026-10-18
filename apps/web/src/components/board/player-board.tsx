@@ -115,7 +115,7 @@ export function PlayerBoard({
                 <span className="truncate font-semibold">{r.name}</span>
               </span>
               <span className="text-sm">
-                <strong>{r.solved}</strong> solved · {r.played} played
+                <strong>{r.points}</strong> pts · {r.solved} solved · {r.played} played
               </span>
             </li>
           ))}

@@ -1,6 +1,7 @@
 import 'server-only';
 import { and, games, gte, inArray, results, type Game } from '@everydaily/shared/db';
 import { clockFromGame } from '@everydaily/shared/registry';
+import { resultPoints } from '@everydaily/shared/stats/points';
 import {
   rankDay,
   rankWeek,
@@ -55,6 +56,7 @@ export async function playerBoard(
           maxAttempts: results.maxAttempts,
           timeSeconds: results.timeSeconds,
           score: results.score,
+          fromArchive: results.fromArchive,
         })
         .from(results)
         .where(and(inArray(results.userId, ids), gte(results.puzzleDate, since)))
@@ -67,6 +69,7 @@ export async function playerBoard(
         .from(games)
         .where(inArray(games.id, [...plays.keys()]))
     : [];
+  const scoringOf = new Map(gameRows.map((g) => [g.id, g.scoringType]));
   const gameList = gameRows
     .map((g) => ({ g, plays: plays.get(g.id) ?? 0 }))
     .sort((a, b) => b.plays - a.plays || a.g.name.localeCompare(b.g.name));
@@ -97,6 +100,10 @@ export async function playerBoard(
     return {
       userId: m.id,
       name: m.name,
+      points: mine.reduce(
+        (sum, r) => sum + resultPoints(r, scoringOf.get(r.gameId) ?? 'attempts'),
+        0,
+      ),
       played: mine.length,
       solved: mine.filter((r) => r.solved).length,
     };

@@ -96,7 +96,8 @@ test.describe('reminders', () => {
       remindAt: '09:00',
     });
     expect(notFollowing.status()).toBe(404);
-    // No worker in this environment: the test button reports it instead of failing silently.
-    expect((await apiPost(page, '/api/push/test', {})).status()).toBe(503);
+    // Without a worker (503) or with one that has no push keys (502), the test button reports the
+    // problem instead of failing silently.
+    expect([502, 503]).toContain((await apiPost(page, '/api/push/test', {})).status());
   });
 });

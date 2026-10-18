@@ -1,10 +1,14 @@
+import type { ScoringType } from '../domain';
 import { addDays, parseIsoDate, toIsoDate } from '../time/zoned';
+import { resultPoints } from './points';
 import { computeStreak, dayIndex } from './streak';
 
 export interface MonthResult {
   gameId: string;
   puzzleDate: string;
   solved: boolean;
+  attempts: number | null;
+  maxAttempts: number | null;
   fromArchive: boolean;
 }
 
@@ -12,6 +16,7 @@ export interface MonthGame {
   id: string;
   name: string;
   accentColor: string;
+  scoringType: ScoringType;
 }
 
 export interface MonthRecap {
@@ -25,6 +30,8 @@ export interface MonthRecap {
   perDay: (number | null)[];
   played: number;
   solved: number;
+  /** Combined score of the month's own puzzles (catch-ups don't score). */
+  points: number;
   activeDays: number;
   /** Longest run of days in a row with a result, inside the month (catch-ups don't count). */
   bestStreak: number;
@@ -75,6 +82,7 @@ export function monthRecap(
   for (let d = first; monthOf(d) === month; d = addDays(d, 1)) days.push(d);
   const inMonth = results.filter((r) => monthOf(r.puzzleDate) === month && r.puzzleDate <= today);
 
+  const scoringOf = new Map(games.map((g) => [g.id, g.scoringType]));
   const counts = new Map<string, number>();
   for (const r of inMonth) counts.set(r.puzzleDate, (counts.get(r.puzzleDate) ?? 0) + 1);
   const perDay = days.map((d) => (d > today ? null : (counts.get(d) ?? 0)));
@@ -106,6 +114,10 @@ export function monthRecap(
     perDay,
     played: inMonth.length,
     solved: inMonth.filter((r) => r.solved).length,
+    points: inMonth.reduce(
+      (sum, r) => sum + resultPoints(r, scoringOf.get(r.gameId) ?? 'attempts'),
+      0,
+    ),
     activeDays: counts.size,
     bestStreak,
     top,

@@ -86,17 +86,24 @@ export interface WeekRow {
   name: string;
   played: number;
   solved: number;
+  /** Combined score over the week (see `resultPoints`). */
+  points: number;
 }
 
-/** The week's board across all games: most solves first, then most played. */
+/** The week's board across all games: most points first, then most solves, then most played. */
 export function rankWeek(rows: WeekRow[]): (WeekRow & { rank: number })[] {
   const sorted = [...rows].sort(
-    (a, b) => b.solved - a.solved || b.played - a.played || a.name.localeCompare(b.name),
+    (a, b) =>
+      b.points - a.points ||
+      b.solved - a.solved ||
+      b.played - a.played ||
+      a.name.localeCompare(b.name),
   );
   let rank = 0;
   return sorted.map((r, i) => {
     const prev = sorted[i - 1];
-    if (!prev || prev.solved !== r.solved || prev.played !== r.played) rank = i + 1;
+    if (!prev || prev.points !== r.points || prev.solved !== r.solved || prev.played !== r.played)
+      rank = i + 1;
     return { ...r, rank };
   });
 }

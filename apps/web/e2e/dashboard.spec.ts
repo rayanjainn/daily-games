@@ -140,6 +140,64 @@ test.describe('dashboard', () => {
     );
   });
 
+  test('adds up a combined score across games', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'nyt-mini']);
+    await page.goto('/today');
+    await expect(page.getByTestId('points')).toHaveText('0 pts today · 0 this week');
+    // Wordle in 3 of 6 is 84, a timed Mini solve a flat 70; yesterday's Wordle in 4 is 76.
+    await played(user.id, 'wordle', [0], { attempts: 3, maxAttempts: 6 });
+    await played(user.id, 'nyt-mini', [0], { timeSeconds: 60 });
+    await played(user.id, 'wordle', [1], { attempts: 4, maxAttempts: 6 });
+    // A missed puzzle and a catch-up score nothing.
+    await played(user.id, 'wordle', [2], { solved: false, maxAttempts: 6 });
+    await played(user.id, 'wordle', [3], { attempts: 2, maxAttempts: 6, fromArchive: true });
+    await page.reload();
+    await expect(page.getByTestId('points')).toHaveText('154 pts today · 230 this week');
+  });
+
+  test('seven days in a row earn a streak freeze, shown on the streak', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'globle']);
+    await played(user.id, 'globle', [1, 2, 3, 4, 5, 6, 7]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freezes')).toHaveText('1 freeze');
+    await expect(page.getByTestId('combined-streak')).toContainText('7');
+    await expect(page.getByText('a freeze covers the day (1 banked)')).toBeVisible();
+    await expect(page.getByTestId('freeze-used')).toHaveCount(0);
+
+    // Playing today keeps it as it was; the freeze stays banked.
+    await played(user.id, 'globle', [0]);
+    await page.reload();
+    await expect(page.getByTestId('combined-streak')).toContainText('8');
+    await expect(page.getByTestId('freezes')).toHaveText('1 freeze');
+  });
+
+  test('a freeze covers a missed day and says so', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'globle']);
+    // Seven days in a row, then yesterday missed.
+    await played(user.id, 'globle', [2, 3, 4, 5, 6, 7, 8]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freeze-used')).toContainText(
+      'A streak freeze covered yesterday, so your 7-day streak is safe. None left.',
+    );
+    await expect(page.getByTestId('freezes')).toHaveText('0 freezes');
+    await expect(page.getByTestId('combined-streak').getByRole('img')).toHaveAccessibleName(
+      '7-day streak, play today to keep it',
+    );
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    // Without a freeze the same gap ends the streak.
+    const other = await signInAs(page);
+    await played(other.id, 'globle', [2, 3, 4, 5, 6]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freeze-used')).toHaveCount(0);
+    await expect(page.getByTestId('combined-streak').getByRole('img')).toHaveAccessibleName(
+      'No active streak',
+    );
+  });
+
   test('reorders the checklist', async ({ page }) => {
     await signInAs(page);
     await follow(page, ['wordle', 'connections', 'strands']);

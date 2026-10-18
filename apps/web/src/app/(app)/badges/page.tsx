@@ -40,7 +40,8 @@ export default async function BadgesPage() {
         <h1 className="text-3xl sm:text-4xl">Badges</h1>
         <p className="mt-1 text-ink-soft">
           {total} of {levels} milestones reached. Worked out from your own results; catch-ups count,
-          but never towards a streak.
+          but never towards a streak. The daily streak includes streak freezes: every 7 days in a
+          row earns one (up to 2), and a missed day uses it.
         </p>
       </div>
       <ul className="grid gap-4 sm:grid-cols-2" data-testid="badges">
