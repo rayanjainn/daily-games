@@ -1,21 +1,17 @@
 import { and, eq, games, gte, inArray, lt, results } from '@everydaily/shared/db';
-import { monthOf, monthRecap } from '@everydaily/shared/stats/month';
+import { isRecapMonth, monthOf, monthRecap } from '@everydaily/shared/stats/month';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
 import { cardTheme, monthPosterImage } from '@/server/cards';
 import { db } from '@/server/db';
 import { HttpError, query } from '@/server/http';
 import { requireSession } from '@/server/session';
 
-/** How far back a month poster can go. */
-const MAX_MONTHS_BACK = 24;
-
 /** The signed-in player's month as a poster (PNG). `?month=YYYY-MM`, default this month; `?theme=dark` for the dark card. */
 export const GET = query(async (req: Request) => {
   const { user } = await requireSession();
   const today = localDate(new Date(), user.timezone);
   const asked = new URL(req.url).searchParams.get('month') ?? monthOf(today);
-  const earliest = monthOf(addDays(today, -31 * MAX_MONTHS_BACK));
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(asked) || asked > monthOf(today) || asked < earliest)
+  if (!isRecapMonth(asked, today))
     throw new HttpError(404, 'not_found', 'No poster for that month.');
 
   const rows = await db()

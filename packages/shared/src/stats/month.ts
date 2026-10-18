@@ -43,6 +43,19 @@ export function previousMonth(month: string): string {
   return m === 1 ? `${year - 1}-12` : toIsoDate(year, m - 1, 1).slice(0, 7);
 }
 
+/** How far back a month recap can go. */
+export const RECAP_MONTHS_BACK = 24;
+
+/** The months a recap can be made for, newest first: this month back to two years ago. */
+export function recapMonths(today: string): string[] {
+  const out = [monthOf(today)];
+  while (out.length <= RECAP_MONTHS_BACK) out.push(previousMonth(out[out.length - 1]!));
+  return out;
+}
+
+/** Whether `month` (YYYY-MM) is one a recap can be made for. */
+export const isRecapMonth = (month: string, today: string) => recapMonths(today).includes(month);
+
 /** Monday-based weekday of an ISO date. */
 export const weekdayOf = (date: string) => (dayIndex(date) + 3) % 7;
 
