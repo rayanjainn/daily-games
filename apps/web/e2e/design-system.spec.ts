@@ -18,18 +18,57 @@ test.describe('design system', () => {
     });
   }
 
-  test('theme toggle cycles system → light → dark and persists', async ({ page }) => {
+  test('theme control: three visible choices that really change the page, and persist', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/styleguide');
-    const toggle = page.getByRole('button', { name: /^Theme:/ });
-    await expect(toggle).toHaveAccessibleName('Theme: match device');
-    await toggle.click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    await toggle.click();
+    const group = page.getByRole('group', { name: 'Theme' });
+    const choice = (name: string) => group.getByRole('button', { name: `Theme: ${name}` });
+    const background = () =>
+      page.locator('body').evaluate((b) => getComputedStyle(b).backgroundColor);
+
+    await expect(choice('Match device')).toHaveAttribute('aria-pressed', 'true');
+    expect(await background()).toBe('rgb(253, 242, 225)'); // the warm light paper
+
+    await choice('Dark').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
+    // Deep purple, not black: the blue and red channels clearly above the green one.
+    expect(await background()).toBe('rgb(23, 10, 44)');
+    await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute(
+      'content',
+      '#170A2C',
+    );
+
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await page.getByRole('button', { name: /^Theme:/ }).click();
+    await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
+    expect(await background()).toBe('rgb(23, 10, 44)');
+
+    await choice('Light').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    expect(await background()).toBe('rgb(253, 242, 225)');
+
+    await choice('Match device').click();
     await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
+    expect(await background()).toBe('rgb(253, 242, 225)');
+  });
+
+  test('match device follows the device: a dark device gets the purple theme', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/styleguide');
+    expect(await page.locator('body').evaluate((b) => getComputedStyle(b).backgroundColor)).toBe(
+      'rgb(23, 10, 44)',
+    );
+    // Picking Light overrides the device.
+    await page
+      .getByRole('group', { name: 'Theme' })
+      .getByRole('button', { name: 'Theme: Light' })
+      .click();
+    expect(await page.locator('body').evaluate((b) => getComputedStyle(b).backgroundColor)).toBe(
+      'rgb(253, 242, 225)',
+    );
   });
 
   test('dialog is keyboard operable and traps focus', async ({ page }) => {
