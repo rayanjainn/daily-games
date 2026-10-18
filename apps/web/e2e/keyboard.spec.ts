@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { e2eSql } from './support/db';
 import { expect, test } from './support/fixtures';
 import { follow } from './support/play';
 import { signInAs } from './support/session';
@@ -81,21 +82,19 @@ test.describe('keyboard only', () => {
     await page.goto('/games/wordle');
     const box = page.locator('#log-panel').getByLabel('Your Wordle share text');
     await box.focus();
-    const n = Number(
-      (
-        await page
-          .getByTestId('puzzle-number')
-          .first()
-          .innerText()
-          .catch(() => '0')
-      ).replace(/\D/g, ''),
-    );
+    const sql = e2eSql();
+    const [r] = await sql`
+      SELECT epoch_number + ((now() AT TIME ZONE 'UTC')::date - puzzle_epoch) AS n
+      FROM games WHERE slug = 'wordle'`;
+    await sql.end();
+    const n = Number(r!.n);
     await page.keyboard.insertText(
       `Wordle ${n.toLocaleString('en-US')} 3/6\n\n⬛🟨⬛⬛🟩\n⬛🟨⬛⬛🟩\n🟩🟩🟩🟩🟩`,
     );
     const stops = await tabThrough(page, 3);
     expect(stops.every((s) => s.ring)).toBe(true);
-    await expect(page.locator('#log-panel')).toBeVisible();
+    // The pasted text is read back without touching the mouse.
+    await expect(page.locator('#log-panel')).toContainText('3/6');
   });
 
   test('a dialog traps focus while open and gives it back on Escape', async ({ page }) => {
