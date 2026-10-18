@@ -23,8 +23,12 @@ function Stat({
   return (
     <div className="rounded-lg border-2 border-line-soft bg-surface-2/60 p-3" data-testid={id}>
       <dt className="text-sm text-ink-soft">{label}</dt>
-      <dd className="font-display text-2xl font-bold tabular-nums">{value}</dd>
-      {hint ? <p className="text-xs text-ink-soft">{hint}</p> : null}
+      <dd className="font-display text-2xl font-bold tabular-nums">
+        {value}
+        {hint ? (
+          <span className="block font-body text-xs font-normal text-ink-soft">{hint}</span>
+        ) : null}
+      </dd>
     </div>
   );
 }
@@ -210,6 +214,13 @@ export default async function PlatformStatsPage() {
               </tr>
             </thead>
             <tbody>
+              {s.boards.length === 0 ? (
+                <tr className="border-t border-line-soft">
+                  <td colSpan={4} className="py-2 text-ink-soft">
+                    No boards yet.
+                  </td>
+                </tr>
+              ) : null}
               {s.boards.map((b) => (
                 <tr key={b.slug} className="border-t border-line-soft">
                   <th scope="row" className="py-1 pr-3 text-left font-normal">

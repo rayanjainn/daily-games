@@ -269,6 +269,65 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  phase6: [
+    {
+      name: 'platform-stats',
+      path: '/',
+      setup: async (page) => {
+        const admin = await signInAs(page, { role: 'admin' });
+        await follow(page, ['wordle', 'connections']);
+        await played(admin.id, 'wordle', [0, 1, 2], { attempts: 3, maxAttempts: 6 });
+        await played(admin.id, 'connections', [0], { attempts: 4, maxAttempts: 4 });
+        await page.goto('/admin/stats');
+        await expect(page.getByRole('heading', { name: 'Platform stats' })).toBeVisible();
+      },
+    },
+    {
+      name: 'rankings',
+      path: '/',
+      setup: async (page) => {
+        const me = await signInAs(page);
+        await follow(page, ['wordle', 'cipher']);
+        await played(me.id, 'wordle', [0, 1], { attempts: 3, maxAttempts: 6 });
+        await played(me.id, 'cipher', [0], { attempts: 2, maxAttempts: 8, source: 'native' });
+        await page.goto('/rankings');
+        await expect(page.getByTestId('ranking-row').first()).toBeVisible();
+      },
+    },
+    {
+      name: 'notifications',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        const db = e2eSql();
+        await db`INSERT INTO notifications (id, user_id, kind, title, body, url)
+          SELECT gen_random_uuid(), u.id, 'reply', 'cleo replied to you', 'Today’s Wordle was rough', '/c'
+          FROM users u ORDER BY u.created_at DESC LIMIT 1`;
+        await db`INSERT INTO notifications (id, user_id, kind, title, url, read_at)
+          SELECT gen_random_uuid(), u.id, 'friend_accepted', 'dax accepted your friend request', '/friends', now()
+          FROM users u ORDER BY u.created_at DESC LIMIT 1`;
+        await db.end();
+        await page.goto('/notifications');
+        await expect(page.getByRole('list', { name: 'Notifications' })).toBeVisible();
+      },
+    },
+    {
+      name: 'look-and-feel',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/settings');
+        const section = page.getByRole('region', { name: 'Look and feel' });
+        await section.scrollIntoViewIfNeeded();
+        await expect(section.getByRole('group', { name: 'Theme' })).toBeVisible();
+      },
+      viewportOnly: false,
+    },
+    {
+      name: 'email-sign-in',
+      path: '/login/email',
+    },
+  ],
   native: [
     {
       name: 'cipher-play',

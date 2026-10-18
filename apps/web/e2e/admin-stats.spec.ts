@@ -4,8 +4,10 @@ import { expect, test, type Page } from './support/fixtures';
 import { follow, played } from './support/play';
 import { signInAs } from './support/session';
 
-const num = async (page: Page, id: string) =>
-  Number((await page.getByTestId(id).locator('dd').innerText()).replace(/,/g, ''));
+const num = async (page: Page, id: string) => {
+  const text = await page.getByTestId(id).locator('dd').innerText();
+  return Number(text.split('\n')[0]!.replace(/,/g, ''));
+};
 
 test.describe('platform stats', () => {
   test('are for the admin only', async ({ page, browser }) => {
