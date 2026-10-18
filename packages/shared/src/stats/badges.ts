@@ -1,4 +1,4 @@
-import { computeStreak, dayIndex } from './streak';
+import { computeFrozenStreak, computeStreak, dayIndex } from './streak';
 
 /** Everything badges are worked out from: the player's own results, nothing stored. */
 export interface BadgeResult {
@@ -62,7 +62,7 @@ export function computeBadges(results: BadgeResult[]): Badge[] {
     logged: results.length,
     solved: results.filter((r) => r.solved).length,
     // `best` doesn't depend on "today", so the latest day stands in for it.
-    'daily-streak': days.length ? computeStreak(days, Math.max(...days)).best : 0,
+    'daily-streak': days.length ? computeFrozenStreak(days, Math.max(...days)).best : 0,
     'game-streak': Math.max(
       0,
       ...[...byGame.values()].map((n) => computeStreak(n, Math.max(...n)).best),

@@ -1,12 +1,23 @@
 'use client';
 
-import { ArrowDown, ArrowUp, Award, Check, ImageIcon, ListOrdered, Plus, X } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  Award,
+  Check,
+  ImageIcon,
+  ListOrdered,
+  Plus,
+  Snowflake,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { PickReason } from '@everydaily/shared/catalog/recommend';
 import { CATEGORY_LABELS } from '@everydaily/shared/domain';
 import type { BadgeNews as BadgeNewsItem } from '@everydaily/shared/stats/badges';
+import { dayIndex } from '@everydaily/shared/stats/streak';
 import { BadgeNews } from '@/components/game/badge-news';
 import { confettiBurst } from '@/components/game/confetti';
 import { FollowButton } from '@/components/game/follow-button';
@@ -119,13 +130,40 @@ export function TodayView({
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
               day streak
             </p>
+            {combined.freezes > 0 || combined.current > 0 ? (
+              <p
+                className="flex items-center gap-1 text-xs font-semibold text-info"
+                data-testid="freezes"
+                title={
+                  combined.nextFreezeIn === null
+                    ? 'Your freeze bank is full.'
+                    : `${combined.nextFreezeIn} more days in a row earn another freeze.`
+                }
+              >
+                <Snowflake className="size-3.5" aria-hidden />
+                {combined.freezes} {combined.freezes === 1 ? 'freeze' : 'freezes'}
+              </p>
+            ) : null}
           </div>
         </div>
       </Card>
 
+      {combined.frozenDays.includes(dayIndex(today) - 1) ? (
+        <p
+          className="flex items-center gap-2 rounded-lg border-2 border-info/30 bg-info-soft p-3.5 text-sm font-semibold text-info"
+          data-testid="freeze-used"
+        >
+          <Snowflake className="size-4 shrink-0" aria-hidden />A streak freeze covered yesterday, so
+          your {combined.current}-day streak is safe.{' '}
+          {combined.freezes === 0 ? 'None left.' : `${combined.freezes} left.`}
+        </p>
+      ) : null}
       {combined.state === 'at-risk' && done === 0 && total > 0 ? (
         <p className="rounded-lg border-2 border-warn/30 bg-warn-soft p-3.5 text-sm font-semibold text-warn">
           Play any one puzzle today to keep your {combined.current}-day streak.
+          {combined.freezes > 0
+            ? ` If you miss it, a freeze covers the day (${combined.freezes} banked).`
+            : ''}
         </p>
       ) : null}
 

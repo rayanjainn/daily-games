@@ -42,6 +42,15 @@ describe('computeBadges', () => {
     expect(byId(computeBadges(results))['daily-streak']!.value).toBe(4);
   });
 
+  it('the daily streak is carried over a missed day by a streak freeze', () => {
+    // Seven days earn a freeze, day 7 is missed and covered, then three more days.
+    const results = [0, 1, 2, 3, 4, 5, 6, 8, 9, 10].map((i) => r('wordle', i));
+    const b = byId(computeBadges(results));
+    expect(b['daily-streak']!.value).toBe(10);
+    // A single game's streak has no freezes.
+    expect(b['game-streak']!.value).toBe(7);
+  });
+
   it('catch-ups count as logged but never towards streaks', () => {
     const results = [r('wordle', 0), r('wordle', 1, { fromArchive: true }), r('wordle', 2)];
     const b = byId(computeBadges(results));

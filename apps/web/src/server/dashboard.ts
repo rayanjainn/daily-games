@@ -2,7 +2,13 @@ import 'server-only';
 import { and, asc, eq, follows, games, gte, inArray, ne, results } from '@everydaily/shared/db';
 import { clockFromGame } from '@everydaily/shared/registry';
 import { formatResult } from '@everydaily/shared/stats/format';
-import { computeStreak, dayIndex, type Streak } from '@everydaily/shared/stats/streak';
+import {
+  computeFrozenStreak,
+  computeStreak,
+  dayIndex,
+  type FrozenStreak,
+  type Streak,
+} from '@everydaily/shared/stats/streak';
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
 import { toCatalogGame, type CatalogGame } from './catalog';
@@ -23,7 +29,8 @@ export interface Dashboard {
   today: string;
   items: ChecklistItem[];
   done: number;
-  combined: Streak;
+  /** Days with any result in a row, with streak freezes. */
+  combined: FrozenStreak;
 }
 
 /**
@@ -90,7 +97,7 @@ export async function getDashboard(
   });
 
   // Combined: days (by puzzle date) on which the player logged any daily puzzle at all.
-  const combined = computeStreak(
+  const combined = computeFrozenStreak(
     recent.filter((r) => !r.fromArchive).map((r) => dayIndex(r.puzzleDate)),
     dayIndex(today),
   );

@@ -140,6 +140,48 @@ test.describe('dashboard', () => {
     );
   });
 
+  test('seven days in a row earn a streak freeze, shown on the streak', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'globle']);
+    await played(user.id, 'globle', [1, 2, 3, 4, 5, 6, 7]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freezes')).toHaveText('1 freeze');
+    await expect(page.getByTestId('combined-streak')).toContainText('7');
+    await expect(page.getByText('a freeze covers the day (1 banked)')).toBeVisible();
+    await expect(page.getByTestId('freeze-used')).toHaveCount(0);
+
+    // Playing today keeps it as it was; the freeze stays banked.
+    await played(user.id, 'globle', [0]);
+    await page.reload();
+    await expect(page.getByTestId('combined-streak')).toContainText('8');
+    await expect(page.getByTestId('freezes')).toHaveText('1 freeze');
+  });
+
+  test('a freeze covers a missed day and says so', async ({ page }) => {
+    const user = await signInAs(page);
+    await follow(page, ['wordle', 'globle']);
+    // Seven days in a row, then yesterday missed.
+    await played(user.id, 'globle', [2, 3, 4, 5, 6, 7, 8]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freeze-used')).toContainText(
+      'A streak freeze covered yesterday, so your 7-day streak is safe. None left.',
+    );
+    await expect(page.getByTestId('freezes')).toHaveText('0 freezes');
+    await expect(page.getByTestId('combined-streak').getByRole('img')).toHaveAccessibleName(
+      '7-day streak, play today to keep it',
+    );
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    // Without a freeze the same gap ends the streak.
+    const other = await signInAs(page);
+    await played(other.id, 'globle', [2, 3, 4, 5, 6]);
+    await page.goto('/today');
+    await expect(page.getByTestId('freeze-used')).toHaveCount(0);
+    await expect(page.getByTestId('combined-streak').getByRole('img')).toHaveAccessibleName(
+      'No active streak',
+    );
+  });
+
   test('reorders the checklist', async ({ page }) => {
     await signInAs(page);
     await follow(page, ['wordle', 'connections', 'strands']);
