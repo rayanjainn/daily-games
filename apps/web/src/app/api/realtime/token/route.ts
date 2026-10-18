@@ -8,8 +8,8 @@ import { mintRealtimeToken } from '@/server/realtime';
 import { requireSession } from '@/server/session';
 
 /**
- * A 60-second token for one room, only for players allowed in it: group members, and anyone
- * who can see the post or community.
+ * A 60-second token for one room, only for players allowed in it: group members, anyone who
+ * can see the post or community, and a player's own friends room.
  */
 export const POST = mutation(z.object({ room: z.string().max(80) }).strict(), async ({ room }) => {
   const { user } = await requireSession();
@@ -27,7 +27,9 @@ export const POST = mutation(z.object({ room: z.string().max(80) }).strict(), as
       ? Boolean(await membership(user.id, r.id))
       : r.type === 'thread'
         ? Boolean(await postView(user, r.id))
-        : Boolean(await ensureCommunity(r.id));
+        : r.type === 'friends'
+          ? r.id === user.id
+          : Boolean(await ensureCommunity(r.id));
   if (!allowed) throw new HttpError(403, 'forbidden', 'You are not in this room.');
 
   const { token } = await mintRealtimeToken({

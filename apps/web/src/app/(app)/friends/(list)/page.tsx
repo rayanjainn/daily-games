@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PlayerBoard } from '@/components/board/player-board';
+import { LiveBoard } from '@/components/realtime/live-board';
 import { playerBoard } from '@/server/boards';
 import { friendLists } from '@/server/friends';
 import { requireSession } from '@/server/session';
@@ -25,6 +26,7 @@ export default async function FriendsPage({ searchParams }: Props) {
     : null;
   return (
     <FriendsView me={user.username} lists={lists}>
+      {board ? <LiveBoard room={`friends:${user.id}`} /> : null}
       {board ? (
         <PlayerBoard
           board={board}

@@ -50,7 +50,7 @@ export default async function GroupPage({ params, searchParams }: Props) {
             <p className="mt-1 text-ink-soft">
               {board.members.length} {board.members.length === 1 ? 'player' : 'players'}
             </p>
-            <LiveBoard groupId={id} />
+            <LiveBoard room={`group:${id}`} />
           </div>
           <GroupManage groupId={id} name={m.group.name} role={m.role} />
         </div>

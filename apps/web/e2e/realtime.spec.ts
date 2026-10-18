@@ -66,4 +66,27 @@ test.describe('realtime', () => {
     await a.ctx.close();
     await b.ctx.close();
   });
+
+  test('the friends board updates when a friend logs a result, and stays private', async ({
+    browser,
+  }) => {
+    const a = await player(browser);
+    const b = await player(browser);
+    await a.page.goto('/friends');
+    await apiPost(a.page, '/api/friends', { username: b.user.username });
+    await b.page.goto('/friends');
+    await b.page.getByRole('button', { name: `Accept ${a.user.username}` }).click();
+    await expect(b.page.getByTestId('friends')).toContainText(a.user.username);
+
+    await a.page.reload();
+    await expect(a.page.getByTestId('live-bar')).toContainText('Live');
+    await apiPost(b.page, '/api/results', { source: 'checkbox', slug: 'tradle' });
+    await expect(a.page.getByTestId('today-board')).toContainText(b.user.username);
+
+    // Only you can join your own friends room.
+    const res = await apiPost(a.page, '/api/realtime/token', { room: `friends:${b.user.id}` });
+    expect(res.status()).toBe(403);
+    await a.ctx.close();
+    await b.ctx.close();
+  });
 });

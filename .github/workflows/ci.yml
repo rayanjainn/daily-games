@@ -71,8 +71,11 @@ jobs:
       - name: Install Playwright Chromium
         working-directory: apps/web
         run: pnpm exec playwright install --with-deps chromium
-      - name: Playwright (functional + accessibility)
+      # E2E_REALTIME also starts the worker (wrangler dev) so the live-update specs run.
+      - name: Playwright (functional + accessibility + realtime)
         working-directory: apps/web
+        env:
+          E2E_REALTIME: '1'
         run: pnpm exec playwright test --project e2e
       - uses: actions/upload-artifact@v4
         if: failure()
