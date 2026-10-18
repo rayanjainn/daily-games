@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ContentMenu } from '@/components/community/content-menu';
 import { FlairBadge } from '@/components/community/flair-badge';
+import { RichHtml } from '@/components/community/rich-html';
 import { Spoiler } from '@/components/community/spoiler';
 import { VoteButtons } from '@/components/community/vote-buttons';
 import { LiveThread } from '@/components/realtime/live-thread';
@@ -25,13 +26,7 @@ export default async function PostPage({ params }: { params: Params }) {
   const post = await postView(user, postId);
   if (!post || post.community.slug !== slug) notFound();
   const mod = isModerator(user);
-  const body = post.html ? (
-    <div
-      className="prose-comment"
-      // Rendered server-side from Markdown and passed through an allowlist sanitizer.
-      dangerouslySetInnerHTML={{ __html: post.html }}
-    />
-  ) : null;
+  const body = post.html ? <RichHtml className="prose-comment" html={post.html} /> : null;
 
   return (
     <div className="flex flex-col gap-5">

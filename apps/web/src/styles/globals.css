@@ -251,6 +251,17 @@
     padding-left: 0.75rem;
     color: var(--ink-soft);
   }
+  /* ||inline spoilers||: a solid bar the size of the text until tapped. */
+  .prose-comment .spoiler:not([data-shown]) {
+    cursor: pointer;
+    border-radius: var(--r-sm);
+    background: var(--ink-soft);
+    user-select: none;
+    outline-offset: 2px;
+  }
+  .prose-comment .spoiler:not([data-shown]) > span {
+    visibility: hidden;
+  }
   .prose-comment code {
     border-radius: var(--r-sm);
     background: var(--surface-2);

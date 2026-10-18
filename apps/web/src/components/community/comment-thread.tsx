@@ -12,6 +12,7 @@ import { api, ApiError } from '@/lib/api';
 import { cn } from '@/lib/cn';
 import type { CommentView } from '@/server/community';
 import { ContentMenu } from './content-menu';
+import { RichHtml } from './rich-html';
 import { Spoiler } from './spoiler';
 import { VoteButtons } from './vote-buttons';
 
@@ -89,11 +90,7 @@ function Comment({
   const [replying, setReplying] = useState(false);
   const removed = node.status === 'removed';
   const body = node.html ? (
-    <div
-      className={cn('prose-comment text-sm', removed && 'opacity-60')}
-      // Rendered server-side from Markdown and passed through an allowlist sanitizer.
-      dangerouslySetInnerHTML={{ __html: node.html }}
-    />
+    <RichHtml className={cn('prose-comment text-sm', removed && 'opacity-60')} html={node.html} />
   ) : (
     <p className="text-sm italic text-ink-soft">[removed]</p>
   );
@@ -226,6 +223,7 @@ function CommentForm({
           {error}
         </p>
       ) : null}
+      <p className="text-xs text-ink-soft">Hide part of a comment with ||double bars||.</p>
       <div className="flex items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-xs font-semibold">
           <Switch

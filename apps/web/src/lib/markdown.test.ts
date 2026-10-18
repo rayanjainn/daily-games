@@ -34,6 +34,43 @@ describe('renderMarkdown', () => {
   });
 });
 
+describe('inline spoilers', () => {
+  const open =
+    '<span class="spoiler" role="button" tabindex="0" aria-label="Spoiler, press to reveal"><span>';
+  const close = '</span></span>';
+
+  it('hides ||text|| behind a spoiler span', () => {
+    expect(renderMarkdown('The answer is ||CRANE|| today')).toBe(
+      `<p>The answer is ${open}CRANE${close} today</p>`,
+    );
+    expect(renderMarkdown('||a|| and ||b||')).toBe(`<p>${open}a${close} and ${open}b${close}</p>`);
+  });
+
+  it('works around formatting and in lists', () => {
+    expect(renderMarkdown('||**bold** answer||')).toBe(
+      `<p>${open}<strong>bold</strong> answer${close}</p>`,
+    );
+    expect(renderMarkdown('- one ||two||')).toContain(`<li>one ${open}two${close}</li>`);
+  });
+
+  it('leaves a lone marker, code and links as typed', () => {
+    expect(renderMarkdown('just || here')).toBe('<p>just || here</p>');
+    expect(renderMarkdown('`a || b || c`')).toBe('<p><code>a || b || c</code></p>');
+    expect(renderMarkdown('||one\n\ntwo||')).toBe('<p>||one</p>\n<p>two||</p>');
+    expect(renderMarkdown('[x||y||z](https://example.org)')).not.toContain('spoiler');
+  });
+
+  it('cannot be forged with raw HTML', () => {
+    const out = renderMarkdown('<span class="spoiler" onclick="x()">hi</span>');
+    expect(out).not.toContain('<span');
+    expect(out).toContain('&lt;span');
+  });
+
+  it('never shows in previews', () => {
+    expect(excerpt('It was ||Mongolia|| of course')).toBe('It was [spoiler] of course');
+  });
+});
+
 describe('excerpt', () => {
   it('strips markup and shortens', () => {
     expect(excerpt('**Hello** _world_ & friends')).toBe('Hello world & friends');

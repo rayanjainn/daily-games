@@ -55,7 +55,7 @@ export function PostComposer({
       </DialogTrigger>
       <DialogContent
         title={`Post in ${communityName}`}
-        description="Markdown works: **bold**, _italics_, lists, links and `code`."
+        description="Markdown works: **bold**, _italics_, lists, links and `code`. Hide part of a line with ||double bars||."
       >
         <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
           <Field label="Title">
