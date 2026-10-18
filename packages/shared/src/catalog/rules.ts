@@ -46,7 +46,10 @@ export function gameRuleIssues(g: RuleSubject, knownParsers?: ReadonlySet<string
   if (g.embedMode === 'iframe' && !g.verifiedEmbeddableAt)
     add('embedMode', 'iframe requires a passing embed probe (verifiedEmbeddableAt)');
   if (g.embedMode === 'native' && g.tier !== 1) add('embedMode', 'native games are tier 1');
-  if (g.tier === 1 && (!g.parserId || g.parserId === 'generic'))
+  // Native games record results from play itself, so a pasted share would only be a way to forge one.
+  if (g.embedMode === 'native' && g.parserId)
+    add('parserId', 'native games take results from play, not from pasted text');
+  if (g.tier === 1 && g.embedMode !== 'native' && (!g.parserId || g.parserId === 'generic'))
     add('parserId', 'tier 1 needs a dedicated parser');
   if (g.tier === 2 && !g.parserId) add('parserId', 'tier 2 needs a parser (use "generic")');
   if (g.tier === 3 && g.parserId) add('parserId', 'tier 3 games are link-only (no parser)');

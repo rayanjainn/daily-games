@@ -101,7 +101,7 @@ export const gameSpecSchema = z
     })) {
       issue(SPEC_PATHS[i.path] ?? [i.path], i.message);
     }
-    if (g.tier !== 3 && g.shareTextSamples.length === 0) {
+    if (g.tier !== 3 && g.embedMode !== 'native' && g.shareTextSamples.length === 0) {
       issue(['shareTextSamples'], 'tiers 1 and 2 need at least one share text sample');
     }
   });

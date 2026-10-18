@@ -1,0 +1,30 @@
+slug: 'cipher'
+name: 'Cipher'
+publisher: 'EveryDaily'
+description: 'Crack the hidden four-symbol code in eight guesses. Each guess tells you what is right and where.'
+url: 'https://everydaily.raycode.tech/games/cipher/play'
+category: 'logic'
+difficulty: 'medium'
+tier: 1
+embedMode: 'native'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2026-10-01'
+  epochNumber: 1
+  public: true
+parserId: null
+scoring:
+  type: 'attempts'
+  maxAttempts: 8
+shareTextSamples: []
+accentColor: '#7C5CFF'
+icon: 'dots'
+attribution: 'An original EveryDaily game, played right here.'
+verifiedLiveAt: '2026-10-18T00:00:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'original'
+  - 'code'

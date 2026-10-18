@@ -15,6 +15,8 @@ const body = z.object({
   timezone: z.string().max(64).refine(isValidTimeZone, 'Unknown timezone').optional(),
   /** Hide friends' and groups' results for a puzzle until you've logged yours. */
   spoilerSafe: z.boolean().optional(),
+  /** Appear by name on the global daily boards of the native games. */
+  showOnRankings: z.boolean().optional(),
 });
 
 export const PATCH = mutation(body, async (input) => {

@@ -87,6 +87,8 @@ export const users = pgTable(
     /** Also send reminders by email (only once the address is verified). */
     emailReminders: boolean('email_reminders').notNull().default(false),
     spoilerSafe: boolean('spoiler_safe').notNull().default(true),
+    /** Appear by name on the global daily boards of the native games. */
+    showOnRankings: boolean('show_on_rankings').notNull().default(true),
     /** Badge levels already announced, by badge id; null until the first visit to Today. */
     badgesSeen: jsonb('badges_seen').$type<Record<string, number> | null>(),
     prefs: jsonb('prefs')
@@ -392,6 +394,32 @@ export const pickDismissals = pgTable(
     createdAt: createdAt(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.gameId] })],
+);
+
+/**
+ * A player's session in one native game's puzzle: when they opened it (the clock for timed games)
+ * and what they have done so far. The finished result goes to `results` like any other.
+ */
+export const nativePlays = pgTable(
+  'native_plays',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    puzzleNumber: integer('puzzle_number').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp('finished_at', { withTimezone: true }),
+    /** Per game: Cipher's guesses, Scramble's solved words, Make It's tries. */
+    state: jsonb('state').$type<Record<string, unknown>>().notNull().default({}),
+  },
+  (t) => [
+    uniqueIndex('native_plays_once_key').on(t.userId, t.gameId, t.puzzleNumber),
+    index('native_plays_game_idx').on(t.gameId, t.puzzleNumber),
+  ],
 );
 
 export type ResultDetails = {
@@ -837,6 +865,7 @@ export const modActions = pgTable(
 
 export type User = typeof users.$inferSelect;
 export type Game = typeof games.$inferSelect;
+export type NativePlay = typeof nativePlays.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
 export type Result = typeof results.$inferSelect;
 export type Solution = typeof solutions.$inferSelect;

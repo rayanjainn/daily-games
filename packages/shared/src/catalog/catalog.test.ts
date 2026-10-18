@@ -130,6 +130,22 @@ describe('gameRuleIssues', () => {
     ).toEqual([]);
   });
 
+  it('native games are tier 1 with no parser: results come from play, not pasted text', () => {
+    const native = {
+      ...base,
+      tier: 1 as const,
+      embedMode: 'native' as const,
+      scoringType: 'time' as const,
+    };
+    expect(gameRuleIssues({ ...native, parserId: null }, known)).toEqual([]);
+    expect(gameRuleIssues({ ...native, parserId: 'wordle' }, known).map((i) => i.path)).toEqual([
+      'parserId',
+    ]);
+    expect(
+      gameRuleIssues({ ...native, tier: 2, parserId: null }, known).map((i) => i.path),
+    ).toContain('embedMode');
+  });
+
   it('promotes 2 → 1 only with a dedicated, existing parser', () => {
     const t2 = { ...base, tier: 2 as const, scoringType: 'points' as const };
     expect(gameRuleIssues({ ...t2, tier: 1, parserId: 'generic' }, known)[0]?.path).toBe(

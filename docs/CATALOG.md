@@ -23,24 +23,30 @@ regenerates the client-side summary after edits.
 
 | Tier | What it means                                              | Games  |
 | ---- | ---------------------------------------------------------- | ------ |
-| 1    | Dedicated parser, full stats                               | 13     |
+| 1    | Dedicated parser, full stats (or an EveryDaily original)   | 16     |
 | 2    | Generic parser (number, N/M, emoji grid) plus manual score | 7      |
 | 3    | Link only: follow, reminders, done-today checkbox, streaks | 57     |
-|      | **Total**                                                  | **77** |
+|      | **Total**                                                  | **80** |
 
 ### Tier 1
 
+Three of these are EveryDaily originals (below). They are played in the app and record their own
+results, so they have no parser and no pasted share text.
+
 | Game           | Publisher          | Category  |
 | -------------- | ------------------ | --------- |
+| Cipher         | EveryDaily         | logic     |
 | Clues by Sam   | Clues by Sam       | logic     |
 | Connections    | The New York Times | word      |
 | Globle         | Globle Game        | geography |
 | Krillion       | Krillion           | trivia    |
+| Make It        | EveryDaily         | math      |
 | Minute Cryptic | Minute Cryptic     | crossword |
 | Murdle         | G. T. Karber       | logic     |
 | Nerdle         | Nerdle             | math      |
 | Octordle       | Merriam-Webster    | word      |
 | Quordle        | Merriam-Webster    | word      |
+| Scramble       | EveryDaily         | word      |
 | Strands        | The New York Times | word      |
 | The Mini       | The New York Times | crossword |
 | Wordle         | The New York Times | word      |
