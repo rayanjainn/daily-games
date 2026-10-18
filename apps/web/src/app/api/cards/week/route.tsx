@@ -1,14 +1,14 @@
 import { and, eq, gte, inArray, results } from '@everydaily/shared/db';
 import { weekPoster } from '@everydaily/shared/stats/week';
 import { addDays } from '@everydaily/shared/time/zoned';
-import { weekPosterImage } from '@/server/cards';
+import { cardTheme, weekPosterImage } from '@/server/cards';
 import { getDashboard } from '@/server/dashboard';
 import { db } from '@/server/db';
 import { query } from '@/server/http';
 import { requireSession } from '@/server/session';
 
-/** The signed-in player's week as a poster: followed games × the last seven days (PNG). */
-export const GET = query(async () => {
+/** The signed-in player's week as a poster: followed games × the last seven days (PNG). `?theme=dark` for the dark card. */
+export const GET = query(async (req: Request) => {
   const { user } = await requireSession();
   const dash = await getDashboard(user);
   const gameIds = dash.items.map((i) => i.game.id);
@@ -33,6 +33,7 @@ export const GET = query(async () => {
     })),
   );
   return weekPosterImage({
+    theme: cardTheme(new URL(req.url).searchParams.get('theme')),
     playerName: user.displayName ?? user.username,
     poster,
     streak: dash.combined.current,

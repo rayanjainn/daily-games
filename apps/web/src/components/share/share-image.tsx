@@ -3,6 +3,7 @@
 import { Download, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
 import { useToast } from '@/components/ui/toast';
 
 /**
@@ -10,8 +11,8 @@ import { useToast } from '@/components/ui/toast';
  * Download. The image is private to the player until they choose to share the file.
  */
 export function ShareImage({
-  src,
-  filename,
+  src: baseSrc,
+  filename: baseName,
   alt,
   width,
   height,
@@ -24,9 +25,15 @@ export function ShareImage({
 }) {
   const toast = useToast();
   const [canShare, setCanShare] = useState(false);
+  const [dark, setDark] = useState(false);
   useEffect(() => {
     setCanShare(typeof navigator !== 'undefined' && typeof navigator.canShare === 'function');
+    // Start with the card that matches how the app looks right now.
+    const root = document.documentElement.dataset.theme;
+    setDark(root ? root === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches);
   }, []);
+  const src = dark ? `${baseSrc}${baseSrc.includes('?') ? '&' : '?'}theme=dark` : baseSrc;
+  const filename = dark ? baseName.replace(/\.png$/, '-dark.png') : baseName;
 
   async function file() {
     const res = await fetch(src, { credentials: 'same-origin' });
@@ -36,6 +43,14 @@ export function ShareImage({
 
   return (
     <div className="flex flex-col gap-3">
+      <div role="group" aria-label="Card style" className="flex gap-2">
+        <Chip selected={!dark} onClick={() => setDark(false)}>
+          Light card
+        </Chip>
+        <Chip selected={dark} onClick={() => setDark(true)}>
+          Dark card
+        </Chip>
+      </div>
       {/* A generated PNG from our own route, so a plain img (not next/image). */}
       <img
         src={src}

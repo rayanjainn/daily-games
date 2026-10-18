@@ -1,7 +1,7 @@
 import { and, eq, games, gte, inArray, lt, results } from '@everydaily/shared/db';
 import { monthOf, monthRecap } from '@everydaily/shared/stats/month';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
-import { monthPosterImage } from '@/server/cards';
+import { cardTheme, monthPosterImage } from '@/server/cards';
 import { db } from '@/server/db';
 import { HttpError, query } from '@/server/http';
 import { requireSession } from '@/server/session';
@@ -9,7 +9,7 @@ import { requireSession } from '@/server/session';
 /** How far back a month poster can go. */
 const MAX_MONTHS_BACK = 24;
 
-/** The signed-in player's month as a poster (PNG). `?month=YYYY-MM`, default this month. */
+/** The signed-in player's month as a poster (PNG). `?month=YYYY-MM`, default this month; `?theme=dark` for the dark card. */
 export const GET = query(async (req: Request) => {
   const { user } = await requireSession();
   const today = localDate(new Date(), user.timezone);
@@ -42,6 +42,7 @@ export const GET = query(async (req: Request) => {
         .where(inArray(games.id, ids))
     : [];
   return monthPosterImage({
+    theme: cardTheme(new URL(req.url).searchParams.get('theme')),
     playerName: user.displayName ?? user.username,
     recap: monthRecap(asked, today, rows, gameRows),
   });
