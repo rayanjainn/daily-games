@@ -77,6 +77,9 @@ jobs:
         env:
           E2E_REALTIME: '1'
         run: pnpm exec playwright test --project e2e
+      # The e2e run leaves a production build behind; check how heavy it is.
+      - name: Size budgets
+        run: pnpm check:budgets
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

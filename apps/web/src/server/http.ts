@@ -131,12 +131,15 @@ export function handleError(err: unknown, req?: Request) {
 const pathOf = (req: Request) => new URL(req.url).pathname;
 const SLOW_MS = 1500;
 
-/** One log line per API request: failures and slow ones always, the rest when LOG_REQUESTS=1. */
+/**
+ * One log line per API request worth a look: server errors, rate limits, refusals and slow ones.
+ * Routine client mistakes (a bad form, a missing item) are only logged when LOG_REQUESTS=1.
+ */
 function logRequest(req: Request, res: Response, startedAt: number) {
   const ms = Math.round(performance.now() - startedAt);
-  const failed = res.status >= 400;
-  if (!failed && ms < SLOW_MS && !env('observability').LOG_REQUESTS) return;
-  log(res.status >= 500 ? 'error' : failed || ms >= SLOW_MS ? 'warn' : 'info', 'request', {
+  const notable = res.status >= 500 || res.status === 429 || res.status === 403;
+  if (!notable && ms < SLOW_MS && !env('observability').LOG_REQUESTS) return;
+  log(res.status >= 500 ? 'error' : notable || ms >= SLOW_MS ? 'warn' : 'info', 'request', {
     requestId: req.headers.get('x-request-id'),
     method: req.method,
     path: pathOf(req),

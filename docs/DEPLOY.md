@@ -164,7 +164,7 @@ confirmed address. Links work once and expire after 15 minutes.
 
 ### Optional: error alerts and request logs
 
-The app writes one JSON log line per failed or slow API request, with a request id that is also
+The app writes one JSON log line per notable API request (server errors, rate limits, refusals and slow ones), with a request id that is also
 returned in the `X-Request-Id` header. Secrets are never written to the logs. To also get
 unexpected errors in a chat channel or an error tracker, set on Vercel:
 

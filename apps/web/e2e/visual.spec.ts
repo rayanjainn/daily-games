@@ -54,5 +54,43 @@ test.describe('visual regression', () => {
         mask: [page.locator('section[aria-labelledby="today-heading"]')],
       });
     });
+
+    test(`sign in (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.goto('/login');
+      await settle(page);
+      await expect(page).toHaveScreenshot(`login-${theme}.png`, { fullPage: true });
+    });
+
+    test(`community boards (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await signInAs(page);
+      await page.goto('/c');
+      await settle(page);
+      // Post counts and the latest activity depend on what the other tests have posted.
+      await expect(page).toHaveScreenshot(`community-${theme}.png`, {
+        mask: [page.locator('main')],
+      });
+    });
+
+    test(`notifications (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await signInAs(page);
+      await page.goto('/notifications');
+      await settle(page);
+      await expect(page).toHaveScreenshot(`notifications-${theme}.png`);
+    });
+
+    test(`settings (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await signInAs(page);
+      await page.goto('/settings');
+      await settle(page);
+      // The signed-in name is random per run.
+      await expect(page).toHaveScreenshot(`settings-${theme}.png`, {
+        fullPage: true,
+        mask: [page.getByRole('heading', { level: 1 }).locator('xpath=following-sibling::p')],
+      });
+    });
   }
 });
