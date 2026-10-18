@@ -192,6 +192,35 @@ export const captureTokens = pgTable(
   ],
 );
 
+export const NOTIFICATION_KINDS = [
+  'friend_request',
+  'friend_accepted',
+  'reply',
+  'solution',
+  'removed',
+] as const;
+
+/** The in-app inbox: things that happened to you while you were away. */
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: id(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    kind: text('kind').$type<(typeof NOTIFICATION_KINDS)[number]>().notNull(),
+    title: text('title').notNull(),
+    body: text('body'),
+    url: text('url').notNull(),
+    createdAt: createdAt(),
+    readAt: timestamp('read_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('notifications_user_idx').on(t.userId, t.createdAt),
+    check('notifications_kind_check', oneOf('kind', NOTIFICATION_KINDS)),
+  ],
+);
+
 export const devicePairings = pgTable(
   'device_pairings',
   {

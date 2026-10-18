@@ -19,6 +19,7 @@ import { headToHead, type HeadToHead } from '@everydaily/shared/stats/head-to-he
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { addDays, localDate } from '@everydaily/shared/time/zoned';
 import { db } from './db';
+import { notify, usernameOf } from './notifications';
 import { HttpError } from './session';
 
 export const usernameInputSchema = z
@@ -66,6 +67,11 @@ export async function requestFriend(me: { id: string; username: string }, userna
     .insert(friendships)
     .values({ userA: a, userB: b, status: 'pending', requestedBy: me.id })
     .onConflictDoNothing();
+  await notify(other.id, {
+    kind: 'friend_request',
+    title: `${me.username} sent you a friend request`,
+    url: '/friends',
+  });
   return { status: 'pending' as const, username: other.username };
 }
 
@@ -77,6 +83,11 @@ export async function accept(me: string, other: string) {
     .update(friendships)
     .set({ status: 'accepted', acceptedAt: new Date() })
     .where(and(eq(friendships.userA, r.userA), eq(friendships.userB, r.userB)));
+  await notify(other, {
+    kind: 'friend_accepted',
+    title: `${await usernameOf(me)} accepted your friend request`,
+    url: '/friends',
+  });
 }
 
 /** Declines, cancels, unfriends or unblocks. Can't undo a block someone else placed. */

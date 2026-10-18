@@ -9,6 +9,7 @@ import {
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/brand/logo';
+import { NotificationBell } from '@/components/notifications/bell';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { NavLink } from './nav-link';
 
@@ -24,7 +25,15 @@ const ADMIN = { href: '/admin', label: 'Admin', icon: ShieldCheck } as const;
 /**
  * Signed-in frame: top bar with nav on larger screens; a thumb-reachable tab bar on phones.
  */
-export function AppShell({ children, isMod = false }: { children: ReactNode; isMod?: boolean }) {
+export function AppShell({
+  children,
+  isMod = false,
+  unread = 0,
+}: {
+  children: ReactNode;
+  isMod?: boolean;
+  unread?: number;
+}) {
   const nav = isMod ? [...NAV, ADMIN] : NAV;
   return (
     <div className="flex min-h-dvh flex-col">
@@ -47,7 +56,10 @@ export function AppShell({ children, isMod = false }: { children: ReactNode; isM
               </NavLink>
             ))}
           </nav>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <NotificationBell unread={unread} />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
