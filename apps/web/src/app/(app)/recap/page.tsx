@@ -1,13 +1,14 @@
 import { ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { monthOf, previousMonth } from '@everydaily/shared/stats/month';
+import { isRecapMonth, monthOf, previousMonth, recapMonths } from '@everydaily/shared/stats/month';
 import { localDate } from '@everydaily/shared/time/zoned';
 import { ShareImage } from '@/components/share/share-image';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/cn';
 import { monthLabel } from '@/server/cards';
 import { requireSession } from '@/server/session';
+import { MonthPicker } from './month-picker';
 
 export const metadata: Metadata = { title: 'Your recap' };
 
@@ -15,10 +16,11 @@ type Props = { searchParams: Promise<{ month?: string }> };
 
 export default async function RecapPage({ searchParams }: Props) {
   const [{ user }, { month: asked }] = await Promise.all([requireSession(), searchParams]);
-  const thisMonth = monthOf(localDate(new Date(), user.timezone));
+  const today = localDate(new Date(), user.timezone);
+  const thisMonth = monthOf(today);
   const lastMonth = previousMonth(thisMonth);
-  // Only this month and last month are offered here; anything else shows the week.
-  const month = asked === thisMonth || asked === lastMonth ? asked : null;
+  // Any month the recap covers; anything else shows the week.
+  const month = asked && isRecapMonth(asked, today) ? asked : null;
   const name = user.displayName ?? user.username;
   const views = [
     { href: '/recap', label: 'This week', current: month === null },
@@ -58,6 +60,10 @@ export default async function RecapPage({ searchParams }: Props) {
           </Link>
         ))}
       </nav>
+      <MonthPicker
+        months={recapMonths(today).map((m) => ({ value: m, label: monthLabel(m) }))}
+        current={month && month !== thisMonth && month !== lastMonth ? month : null}
+      />
       <Card className="p-4">
         <ShareImage
           key={month ?? 'week'}

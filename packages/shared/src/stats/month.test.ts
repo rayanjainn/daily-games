@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { monthRecap, previousMonth, weekdayOf, type MonthResult } from './month';
+import {
+  isRecapMonth,
+  monthRecap,
+  previousMonth,
+  recapMonths,
+  weekdayOf,
+  type MonthResult,
+} from './month';
 
 const games = [
   { id: 'w', name: 'Wordle', accentColor: '#6aaa64' },
@@ -88,5 +95,16 @@ describe('month helpers', () => {
   it('weekdays start on Monday', () => {
     expect(weekdayOf('2026-10-12')).toBe(0);
     expect(weekdayOf('2026-10-18')).toBe(6);
+  });
+
+  it('offers this month back two years, and nothing else', () => {
+    const months = recapMonths('2026-10-17');
+    expect(months[0]).toBe('2026-10');
+    expect(months).toHaveLength(25);
+    expect(months[24]).toBe('2024-10');
+    expect(isRecapMonth('2026-10', '2026-10-17')).toBe(true);
+    expect(isRecapMonth('2024-10', '2026-10-17')).toBe(true);
+    for (const bad of ['2026-11', '2024-09', '2026-13', 'october'])
+      expect(isRecapMonth(bad, '2026-10-17')).toBe(false);
   });
 });

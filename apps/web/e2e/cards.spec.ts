@@ -85,6 +85,15 @@ test.describe('stat cards', () => {
       expect((await page.request.get(`/api/cards/month?month=${bad}`)).status()).toBe(404);
 
     await page.goto('/recap');
+    // Any month in the last two years can be picked, not only this and last month.
+    const old = new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), 15));
+    await page.getByLabel('Other month').selectOption(ym(old));
+    await expect(page).toHaveURL(new RegExp(`month=${ym(old)}`));
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      String(old.getUTCFullYear()),
+    );
+    await expect(page.getByTestId('share-image')).toHaveAttribute('src', /month=/);
+    await page.goto('/recap');
     await page.getByRole('link', { name: 'This month' }).click();
     await expect(page.getByRole('link', { name: 'This month' })).toHaveAttribute(
       'aria-current',
