@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   asc,
+  captureTokens,
   desc,
   eq,
   follows,
@@ -34,6 +35,7 @@ export const GET = query(async () => {
     commentRows,
     dismissedRows,
     nativeRows,
+    tokenRows,
   ] = await Promise.all([
     db()
       .select({
@@ -129,6 +131,15 @@ export const GET = query(async () => {
       .from(nativePlays)
       .innerJoin(games, eq(games.id, nativePlays.gameId))
       .where(eq(nativePlays.userId, user.id)),
+    db()
+      .select({
+        label: captureTokens.label,
+        createdAt: captureTokens.createdAt,
+        lastUsedAt: captureTokens.lastUsedAt,
+        revokedAt: captureTokens.revokedAt,
+      })
+      .from(captureTokens)
+      .where(eq(captureTokens.userId, user.id)),
   ]);
   const data = {
     exportedAt: new Date().toISOString(),
@@ -150,6 +161,7 @@ export const GET = query(async () => {
     comments: commentRows,
     dismissedPicks: dismissedRows,
     nativePlays: nativeRows,
+    extensionTokens: tokenRows,
   };
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {
