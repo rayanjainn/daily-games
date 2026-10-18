@@ -161,7 +161,7 @@ export const GET = query(async () => {
     comments: commentRows,
     dismissedPicks: dismissedRows,
     nativePlays: nativeRows,
-    extensionTokens: tokenRows,
+    extensionAccess: tokenRows,
   };
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {

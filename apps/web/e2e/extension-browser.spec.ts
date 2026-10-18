@@ -56,12 +56,30 @@ test.describe('browser extension in Chromium', () => {
       args: [`--disable-extensions-except=${extPath}`, `--load-extension=${extPath}`],
     });
     try {
-      let [worker] = ctx.serviceWorkers();
-      worker ??= await ctx.waitForEvent('serviceworker');
-      await worker.evaluate(([appUrl, t]) => chrome.storage.local.set({ appUrl, token: t }), [
-        baseURL!,
-        token,
-      ] as const);
+      const isExt = (w: { url(): string }) => w.url().startsWith('chrome-extension://');
+      let worker = ctx.serviceWorkers().find(isExt);
+      while (!worker)
+        worker = (await ctx.waitForEvent('serviceworker')) && ctx.serviceWorkers().find(isExt);
+      // The worker can be up a moment before the extension APIs are, so retry until they are.
+      await expect
+        .poll(
+          async () => {
+            const w = ctx.serviceWorkers().find(isExt);
+            if (!w) return false;
+            try {
+              await w.evaluate(([appUrl, t]) => chrome.storage.local.set({ appUrl, token: t }), [
+                baseURL!,
+                token,
+              ] as const);
+              worker = w;
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { timeout: 15000 },
+        )
+        .toBe(true);
 
       // A page on a "game site" (localhost is watched in dev builds) copies a share text.
       await ctx.route('http://localhost:9/**', (r) =>
@@ -83,7 +101,7 @@ test.describe('browser extension in Chromium', () => {
         )
         .toEqual(['extension']);
 
-      const last = await worker.evaluate(() => chrome.storage.local.get('last'));
+      const last = await worker!.evaluate(() => chrome.storage.local.get('last'));
       expect(last.last.kind).toBe('saved');
 
       // Copying something that isn't a result sends nothing.
