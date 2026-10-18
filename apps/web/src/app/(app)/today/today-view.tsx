@@ -323,7 +323,7 @@ function ChecklistRow({
         done ? 'bg-success-soft' : 'bg-surface',
       )}
     >
-      {done || editing ? (
+      {done || editing || game.embedMode === 'native' ? (
         <span
           className={cn(
             'grid size-9 shrink-0 place-items-center rounded-full border-[length:var(--bw)] border-line',

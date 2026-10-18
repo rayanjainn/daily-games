@@ -45,6 +45,15 @@
     "accentColor": "#A68A64"
   },
   {
+    "slug": "cipher",
+    "name": "Cipher",
+    "publisher": "EveryDaily",
+    "category": "logic",
+    "tier": 1,
+    "icon": "dots",
+    "accentColor": "#7357F5"
+  },
+  {
     "slug": "clues-by-sam",
     "name": "Clues by Sam",
     "publisher": "Clues by Sam",
@@ -279,6 +288,15 @@
     "accentColor": "#8338EC"
   },
   {
+    "slug": "make-it",
+    "name": "Make It",
+    "publisher": "EveryDaily",
+    "category": "math",
+    "tier": 1,
+    "icon": "calculator",
+    "accentColor": "#0EA5A4"
+  },
+  {
     "slug": "maptap",
     "name": "MapTap",
     "publisher": "MapTap",
@@ -493,6 +511,15 @@
     "tier": 3,
     "icon": "magnify",
     "accentColor": "#495057"
+  },
+  {
+    "slug": "scramble",
+    "name": "Scramble",
+    "publisher": "EveryDaily",
+    "category": "word",
+    "tier": 1,
+    "icon": "tiles",
+    "accentColor": "#F59E0B"
   },
   {
     "slug": "scrandle",

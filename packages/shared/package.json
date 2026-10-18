@@ -8,6 +8,7 @@
     "./db": "./src/db/index.ts",
     "./parsers": "./src/parsers/index.ts",
     "./realtime": "./src/realtime/index.ts",
+    "./native": "./src/native/index.ts",
     "./registry": "./src/registry/index.ts",
     "./*": "./src/*.ts"
   },

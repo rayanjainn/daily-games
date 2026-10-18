@@ -1,0 +1,30 @@
+slug: 'scramble'
+name: 'Scramble'
+publisher: 'EveryDaily'
+description: 'Unscramble five words as fast as you can. The clock starts when you open it.'
+url: 'https://everydaily.raycode.tech/games/scramble/play'
+category: 'word'
+difficulty: 'easy'
+tier: 1
+embedMode: 'native'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2026-10-01'
+  epochNumber: 1
+  public: true
+parserId: null
+scoring:
+  type: 'time'
+  unit: 'seconds'
+shareTextSamples: []
+accentColor: '#F59E0B'
+icon: 'tiles'
+attribution: 'An original EveryDaily game, played right here.'
+verifiedLiveAt: '2026-10-18T00:00:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'original'
+  - 'speed'

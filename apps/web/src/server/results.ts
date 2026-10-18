@@ -69,6 +69,10 @@ export function interpret(game: Game, input: LogInput, userTz: string, now = new
 }
 
 function interpretOnce(game: Game, input: LogInput, userTz: string, now: Date) {
+  // Native games record their own results as they are played; logging one by hand would only
+  // be a way to fake a score.
+  if (game.embedMode === 'native')
+    throw new HttpError(422, 'play_here', `Play ${game.name} here: your result is saved for you.`);
   const eg = entryGame(game);
   if (input.source === 'paste' || input.source === 'extension') {
     if (!game.parserId)

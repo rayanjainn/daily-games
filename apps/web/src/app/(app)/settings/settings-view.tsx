@@ -56,6 +56,7 @@ interface Props {
     timezone: string;
     email: string | null;
     spoilerSafe: boolean;
+    showOnRankings: boolean;
   };
   passkeys: Passkey[];
   sessions: SessionRow[];
@@ -223,6 +224,7 @@ function ProfileSection({ user }: { user: Props['user'] }) {
         </div>
       </form>
       <SpoilerSafe initial={user.spoilerSafe} />
+      <ShowOnRankings initial={user.showOnRankings} />
     </Section>
   );
 }
@@ -245,6 +247,35 @@ function SpoilerSafe({ initial }: { initial: boolean }) {
         onCheckedChange={async (v) => {
           try {
             await api('/api/me/profile', { spoilerSafe: v }, 'PATCH');
+            setOn(v);
+          } catch (err) {
+            toast({ tone: 'error', title: "Couldn't save", body: errorText(err) });
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+/** Saved straight away, like the spoiler switch. */
+function ShowOnRankings({ initial }: { initial: boolean }) {
+  const toast = useToast();
+  const [on, setOn] = useState(initial);
+  return (
+    <div className="flex items-center justify-between gap-3 border-t-2 border-line-soft pt-4">
+      <label htmlFor="show-on-rankings" className="font-display text-sm font-semibold">
+        Show me on global boards
+        <span className="block font-body text-xs font-normal text-ink-soft">
+          Your name appears on the daily boards of EveryDaily&apos;s own games. You always see your
+          own result.
+        </span>
+      </label>
+      <Switch
+        id="show-on-rankings"
+        checked={on}
+        onCheckedChange={async (v) => {
+          try {
+            await api('/api/me/profile', { showOnRankings: v }, 'PATCH');
             setOn(v);
           } catch (err) {
             toast({ tone: 'error', title: "Couldn't save", body: errorText(err) });

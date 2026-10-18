@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { apiPost, fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
 import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 import { e2eSql } from './support/db';
+import { cipherAnswer, makeItAnswer, scrambleAnswer } from './support/native';
 import { follow, played } from './support/play';
 import { signInAs } from './support/session';
 import { THEMES, VIEWPORTS, capture, shotsDir } from './support/shots';
@@ -268,6 +269,139 @@ async function cardsWeek(page: Page) {
 }
 
 const SETS: Record<string, Screen[]> = {
+  native: [
+    {
+      name: 'cipher-play',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/cipher/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        const code = cipherAnswer(n);
+        // A few guesses that are never the code itself: one off in one place, one shuffled, one
+        // mostly wrong.
+        const wrongly = (g: number[]) =>
+          g.every((v, i) => v === code[i]) ? g.map((v, i) => (i === 0 ? (v + 1) % 6 : v)) : g;
+        const tries = [
+          code.map((s, i) => (i === 3 ? (s + 1) % 6 : s)),
+          [code[3]!, code[2]!, (code[1]! + 1) % 6, code[0]!],
+          code.map((s) => (s + 2) % 6),
+        ].map(wrongly);
+        for (const guess of tries)
+          await apiPost(page, '/api/native/cipher', { action: 'guess', guess });
+        await page.reload();
+        // A half-built guess in the next row.
+        await page.getByRole('button', { name: 'Add Orange circle' }).click();
+        await page.getByRole('button', { name: 'Add Green triangle' }).click();
+        await expect(page.getByTestId('cipher-rows')).toBeVisible();
+      },
+    },
+    {
+      name: 'cipher-result',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/cipher/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        const code = cipherAnswer(n);
+        await apiPost(page, '/api/native/cipher', {
+          action: 'guess',
+          guess: code.map((s, i) => (i === 0 ? (s + 3) % 6 : s)),
+        });
+        await apiPost(page, '/api/native/cipher', { action: 'guess', guess: code });
+        await page.reload();
+        await expect(page.getByTestId('native-result')).toBeVisible();
+      },
+    },
+    {
+      name: 'scramble-play',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/scramble/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        const { answers } = scrambleAnswer(n);
+        for (const [i, word] of answers.slice(0, 2).entries())
+          await apiPost(page, '/api/native/scramble', { action: 'word', index: i, guess: word });
+        await page.reload();
+        await page
+          .getByLabel(/^Word \d/)
+          .first()
+          .fill(answers[2]!.slice(0, 3));
+        await expect(page.getByTestId('scramble')).toBeVisible();
+      },
+    },
+    {
+      name: 'make-it-play',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await page.goto('/games/make-it/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        const { numbers } = makeItAnswer(n);
+        await page
+          .getByRole('button', { name: new RegExp(`^Add ${numbers[0]}`) })
+          .first()
+          .click();
+        await page.getByRole('button', { name: 'Add ×' }).click();
+        await page.getByRole('button', { name: 'Add (' }).click();
+        await page
+          .getByRole('button', { name: new RegExp(`^Add ${numbers[1]}`) })
+          .first()
+          .click();
+        await expect(page.getByTestId('make-it')).toBeVisible();
+      },
+    },
+    {
+      name: 'native-game-page',
+      path: '/',
+      setup: async (page) => {
+        const u = await signInAs(page);
+        await page.goto('/games/cipher/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        const code = cipherAnswer(n);
+        await apiPost(page, '/api/native/cipher', {
+          action: 'guess',
+          guess: code.map((s, i) => (i < 2 ? (s + 1) % 6 : s)),
+        });
+        await apiPost(page, '/api/native/cipher', { action: 'guess', guess: code });
+        // Other players' verified results on the same puzzle.
+        const sql = e2eSql();
+        const [g] = await sql`SELECT id FROM games WHERE slug = 'cipher'`;
+        for (const [name, attempts, solved] of [
+          ['ava_plays', 3, true],
+          ['ben_words', 4, true],
+          ['cai_maps', 8, false],
+          ['dee_logic', 1, true],
+        ] as const) {
+          await sql`INSERT INTO users (id, username, timezone) VALUES (gen_random_uuid(), ${name}, 'UTC')
+            ON CONFLICT DO NOTHING`;
+          const [p] = await sql`SELECT id FROM users WHERE username = ${name}`;
+          await sql`DELETE FROM results WHERE user_id = ${p!.id} AND game_id = ${g!.id} AND puzzle_number = ${n}`;
+          await sql`INSERT INTO results (id, user_id, game_id, puzzle_number, puzzle_date, solved, attempts,
+              max_attempts, source) VALUES (gen_random_uuid(), ${p!.id}, ${g!.id}, ${n}, current_date, ${solved},
+              ${attempts}, 8, 'native')`;
+        }
+        await sql.end();
+        await page.goto('/games/cipher');
+        await expect(page.getByTestId('global-board')).toBeVisible();
+        void u;
+      },
+    },
+    {
+      name: 'today-with-natives',
+      path: '/',
+      setup: async (page) => {
+        await signInAs(page);
+        await follow(page, ['cipher', 'scramble', 'make-it', 'wordle']);
+        await page.goto('/games/cipher/play');
+        const n = Number((await page.getByTestId('native-puzzle').innerText()).replace(/\D/g, ''));
+        await apiPost(page, '/api/native/cipher', { action: 'guess', guess: cipherAnswer(n) });
+        await page.goto('/today');
+        await expect(page.getByTestId('checklist-item')).toHaveCount(4);
+      },
+    },
+  ],
   'daily-score': [
     {
       name: 'today-freeze',

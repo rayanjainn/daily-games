@@ -1,0 +1,30 @@
+slug: 'make-it'
+name: 'Make It'
+publisher: 'EveryDaily'
+description: 'Reach the target using all four numbers once each, with plus, minus, times, divide and brackets.'
+url: 'https://everydaily.raycode.tech/games/make-it/play'
+category: 'math'
+difficulty: 'hard'
+tier: 1
+embedMode: 'native'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2026-10-01'
+  epochNumber: 1
+  public: true
+parserId: null
+scoring:
+  type: 'time'
+  unit: 'seconds'
+shareTextSamples: []
+accentColor: '#0EA5A4'
+icon: 'calculator'
+attribution: 'An original EveryDaily game, played right here.'
+verifiedLiveAt: '2026-10-18T00:00:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'original'
+  - 'numbers'

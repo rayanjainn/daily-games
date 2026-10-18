@@ -5,6 +5,7 @@ import {
   Info,
   KeyRound,
   NotebookPen,
+  Trophy,
   TriangleAlert,
 } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -20,6 +21,7 @@ import { GameIcon } from '@/components/game/game-icon';
 import { GameNotes } from '@/components/game/game-notes';
 import { YesterdaySolution } from '@/components/game/yesterday-solution';
 import { TodayLog } from '@/components/game/today-log';
+import { GlobalBoard } from '@/components/native/global-board';
 import { Distribution, Heatmap, History, StatTiles } from '@/components/stats/game-stats';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -27,6 +29,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { DIFFICULTY_LABELS, EMBED_LABELS, TRACKING, siteOf } from '@/lib/catalog-labels';
 import { describeReset } from '@/lib/reset-copy';
 import { attributionLine, followedAt, getGameBySlug, toCatalogGame } from '@/server/catalog';
+import { globalBoard } from '@/server/native';
 import { getNote } from '@/server/notes';
 import { existingResult } from '@/server/results';
 import { getGameStats } from '@/server/stats';
@@ -60,16 +63,15 @@ export default async function GamePage({ params }: { params: Params }) {
   const site = siteOf(game.url);
   // The tracker needs the follow date, so stats wait for it; today's result doesn't.
   const followed = followedAt(user.id, row.id);
-  const [following, view, todays, note, solution] = await Promise.all([
+  const native = row.embedMode === 'native';
+  const puzzleNumber = currentPuzzle(clockFromGame(row), new Date(), user.timezone).number;
+  const [following, view, todays, note, solution, board] = await Promise.all([
     followed.then(Boolean),
     followed.then((f) => getGameStats(user, row, f)),
-    existingResult(
-      user.id,
-      row.id,
-      currentPuzzle(clockFromGame(row), new Date(), user.timezone).number,
-    ),
+    existingResult(user.id, row.id, puzzleNumber),
     getNote(user.id, row.id),
-    yesterdaysSolutions(user, row),
+    native ? null : yesterdaysSolutions(user, row),
+    native ? globalBoard(user.id, row, puzzleNumber) : null,
   ]);
   const loggable = {
     slug: row.slug,
@@ -128,7 +130,7 @@ export default async function GamePage({ params }: { params: Params }) {
           gameId={game.id}
           following={following}
           loggedToday={Boolean(todays)}
-          playLabel={`Play on ${site}`}
+          playLabel={native ? 'Play now' : `Play on ${site}`}
         />
       </Card>
 
@@ -157,32 +159,68 @@ export default async function GamePage({ params }: { params: Params }) {
             {reset.headline}.{reset.detail ? ` ${reset.detail}` : ''}
           </p>
         </Card>
-        <Card
-          asSection
-          id="log-panel"
-          tabIndex={-1}
-          className="p-5 outline-none focus-visible:ring-4 focus-visible:ring-focus/40 md:col-span-2"
-          aria-labelledby="log-heading"
-        >
-          <h2 id="log-heading" className="mb-3 text-xl">
-            {game.tier === 3 ? 'Done today?' : "Log today's result"}
-          </h2>
-          <TodayLog
-            game={loggable}
-            logged={
-              todays
-                ? {
-                    id: todays.id,
-                    summary: formatResult(todays, {
-                      type: row.scoringType,
-                      unit: row.scoringUnit,
-                    }),
-                  }
-                : null
-            }
-          />
-        </Card>
+        {native ? (
+          <Card
+            asSection
+            id="log-panel"
+            className="flex flex-col gap-3 p-5 md:col-span-2"
+            aria-labelledby="log-heading"
+          >
+            <h2 id="log-heading" className="text-xl">
+              Today&apos;s puzzle
+            </h2>
+            {todays ? (
+              <p className="font-display text-2xl font-bold" data-testid="logged-today">
+                Done: {formatResult(todays, { type: row.scoringType, unit: row.scoringUnit })}
+              </p>
+            ) : (
+              <p>You haven&apos;t played today&apos;s puzzle yet.</p>
+            )}
+            <p className="text-sm text-ink-soft">
+              Your result is saved when you finish, so there is nothing to log.
+            </p>
+          </Card>
+        ) : (
+          <Card
+            asSection
+            id="log-panel"
+            tabIndex={-1}
+            className="p-5 outline-none focus-visible:ring-4 focus-visible:ring-focus/40 md:col-span-2"
+            aria-labelledby="log-heading"
+          >
+            <h2 id="log-heading" className="mb-3 text-xl">
+              {game.tier === 3 ? 'Done today?' : "Log today's result"}
+            </h2>
+            <TodayLog
+              game={loggable}
+              logged={
+                todays
+                  ? {
+                      id: todays.id,
+                      summary: formatResult(todays, {
+                        type: row.scoringType,
+                        unit: row.scoringUnit,
+                      }),
+                    }
+                  : null
+              }
+            />
+          </Card>
+        )}
       </div>
+
+      {board ? (
+        <Card asSection className="flex flex-col gap-3 p-5 sm:p-6" aria-labelledby="global-heading">
+          <h2 id="global-heading" className="flex items-center gap-2 text-xl">
+            <Trophy className="size-5 text-ink-soft" aria-hidden />
+            Today&apos;s best
+            <span className="font-body text-base font-normal text-ink-soft">
+              · everyone playing {row.name}
+            </span>
+          </h2>
+          <GlobalBoard rows={board.rows} players={board.players} />
+        </Card>
+      ) : null}
 
       <Card asSection className="flex flex-col gap-6 p-5 sm:p-6" aria-labelledby="stats-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -241,7 +279,7 @@ export default async function GamePage({ params }: { params: Params }) {
         <GameNotes gameId={row.id} gameName={row.name} initial={note?.body ?? ''} />
       </Card>
 
-      {view.archive.length ? (
+      {view.archive.length && !native ? (
         <Card
           asSection
           className="flex flex-col gap-3 p-5 sm:p-6"
@@ -267,18 +305,24 @@ export default async function GamePage({ params }: { params: Params }) {
             About this game
           </h2>
           <p className="text-sm" data-testid="attribution">
-            {attributionLine(game.publisher)}
+            {native
+              ? 'An original EveryDaily game, played right here.'
+              : attributionLine(game.publisher)}
           </p>
           {row.resetNote ? <p className="text-sm text-ink-soft">{row.resetNote}</p> : null}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <a
-              href={game.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-semibold underline decoration-2 underline-offset-4"
-            >
-              {site}
-            </a>
+            {native ? (
+              <span />
+            ) : (
+              <a
+                href={game.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold underline decoration-2 underline-offset-4"
+              >
+                {site}
+              </a>
+            )}
             <ReportDialog slug={game.slug} gameName={game.name} />
           </div>
         </Card>

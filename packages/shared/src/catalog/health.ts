@@ -165,7 +165,8 @@ export function createHealthStore(db: Database): HealthStore {
           embedMode: games.embedMode,
         })
         .from(games)
-        .where(ne(games.status, 'archived'));
+        // Our own games are part of this app: there is no other site to check.
+        .where(and(ne(games.status, 'archived'), ne(games.embedMode, 'native')));
       if (!rows.length) return [];
       const last = await db
         .selectDistinctOn([gameHealthChecks.gameId], {

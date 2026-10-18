@@ -7,6 +7,10 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { getGameBySlug } from '@/server/catalog';
 import { requireSession } from '@/server/session';
+import { CipherGame } from '@/components/native/cipher-game';
+import { MakeItGame } from '@/components/native/make-it-game';
+import { ScrambleGame } from '@/components/native/scramble-game';
+import { nativeView } from '@/server/native';
 import { IframeHost } from './iframe-host';
 
 type Params = Promise<{ slug: string }>;
@@ -21,13 +25,44 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
  * our own native games. Everything else opens on its own site from the game page.
  */
 export default async function PlayPage({ params }: { params: Params }) {
-  await requireSession();
+  const { user } = await requireSession();
   const { slug } = await params;
   const game = await getGameBySlug(slug);
   if (!game || game.status === 'archived') notFound();
   // Never frame a game without a passing probe, whatever the stored mode says.
   if (game.embedMode === 'popout' || (game.embedMode === 'iframe' && !game.verifiedEmbeddableAt))
     redirect(`/games/${slug}`);
+
+  // Our own games: the puzzle, played right here. Opening it starts the clock.
+  if (game.embedMode === 'native') {
+    const view = await nativeView(user, game);
+    return (
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        <Link
+          href={`/games/${slug}`}
+          className="inline-flex w-fit items-center gap-1.5 rounded-md font-display text-sm font-semibold text-ink-soft hover:text-ink"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
+          {game.name}
+        </Link>
+        <div>
+          <h1 className="text-3xl sm:text-4xl">{game.name}</h1>
+          <p className="text-ink-soft" data-testid="native-puzzle">
+            Puzzle #{view.puzzleNumber.toLocaleString('en-US')}
+          </p>
+        </div>
+        <Card className="p-5 sm:p-6">
+          {view.kind === 'cipher' ? (
+            <CipherGame initial={view} />
+          ) : view.kind === 'scramble' ? (
+            <ScrambleGame initial={view} />
+          ) : (
+            <MakeItGame initial={view} />
+          )}
+        </Card>
+      </div>
+    );
+  }
 
   const loggable = {
     slug: game.slug,

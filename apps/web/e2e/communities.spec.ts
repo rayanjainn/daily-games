@@ -46,11 +46,16 @@ test.describe('communities', () => {
     await expect(other.page.getByTestId('comment').first().getByTestId('comment')).toContainText(
       'Try ADIEU',
     );
+    // The vote is optimistic on screen; wait for the server to have it before the other tab reloads.
+    const saved = other.page.waitForResponse(
+      (r) => r.url().includes('/api/votes/') && r.request().method() === 'POST',
+    );
     await other.page.getByRole('button', { name: 'Upvote this post' }).click();
     await expect(other.page.getByRole('button', { name: 'Upvote this post' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
+    expect((await saved).ok()).toBe(true);
     await page.reload();
     await expect(
       page
