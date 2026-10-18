@@ -379,6 +379,21 @@ export const follows = pgTable(
   ],
 );
 
+/** Games a player doesn't want suggested ("Picked for you"). */
+export const pickDismissals = pgTable(
+  'pick_dismissals',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.gameId] })],
+);
+
 export type ResultDetails = {
   grid?: string;
   boards?: (number | null)[];
