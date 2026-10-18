@@ -4,6 +4,7 @@ import {
   and,
   asc,
   communities,
+  communityModerators,
   comments,
   contentReports,
   desc,
@@ -41,6 +42,32 @@ import { HttpError } from './session';
 
 type Viewer = { id: string; timezone: string; role: 'user' | 'mod' | 'admin' };
 export const isModerator = (v: Pick<Viewer, 'role'>) => hasRole(v, 'mod');
+
+/** Whether the player moderates this community: a site moderator, or appointed to it. */
+export async function canModerateBoard(viewer: Pick<Viewer, 'id' | 'role'>, communityId: string) {
+  if (isModerator(viewer)) return true;
+  const [m] = await db()
+    .select({ userId: communityModerators.userId })
+    .from(communityModerators)
+    .where(
+      and(
+        eq(communityModerators.communityId, communityId),
+        eq(communityModerators.userId, viewer.id),
+      ),
+    )
+    .limit(1);
+  return Boolean(m);
+}
+
+/** 404 when there's no such community, 403 unless the player moderates it. */
+export async function assertCanModerate(
+  viewer: Pick<Viewer, 'id' | 'role'>,
+  communityId: string | null,
+) {
+  if (!communityId) throw new HttpError(404, 'not_found', 'Not found.');
+  if (!(await canModerateBoard(viewer, communityId)))
+    throw new HttpError(403, 'forbidden', 'You do not have access to this.');
+}
 
 export const postInputSchema = z
   .object({
@@ -178,11 +205,11 @@ export interface FeedPost {
 export async function feed(
   viewer: Viewer,
   communityId: string,
-  opts: { sort: 'hot' | 'new'; flairId?: string | null },
+  opts: { sort: 'hot' | 'new'; flairId?: string | null; showRemoved?: boolean },
   now = new Date(),
 ): Promise<FeedPost[]> {
   const conditions = [eq(posts.communityId, communityId), eq(posts.isDailyThread, false)];
-  if (!isModerator(viewer)) conditions.push(ne(posts.status, 'removed'));
+  if (!opts.showRemoved) conditions.push(ne(posts.status, 'removed'));
   if (opts.flairId) conditions.push(eq(posts.flairId, opts.flairId));
   const rows = await db()
     .select({
@@ -278,7 +305,9 @@ export interface CommentView {
 
 export interface PostView {
   id: string;
-  community: { slug: string; name: string };
+  community: { id: string; slug: string; name: string };
+  /** The viewer may moderate this post's community. */
+  canModerate: boolean;
   title: string;
   html: string;
   author: string | null;
@@ -313,7 +342,7 @@ export async function postView(viewer: Viewer, postId: string): Promise<PostView
     .leftJoin(flairs, eq(flairs.id, posts.flairId))
     .where(eq(posts.id, postId));
   if (!row) return null;
-  const mod = isModerator(viewer);
+  const mod = await canModerateBoard(viewer, row.community.id);
   if (row.post.status === 'removed' && !mod && row.post.authorId !== viewer.id) return null;
 
   const commentRows = await db()
@@ -349,7 +378,8 @@ export async function postView(viewer: Viewer, postId: string): Promise<PostView
   ]);
   return {
     id: row.post.id,
-    community: { slug: row.community.slug, name: row.community.name },
+    community: { id: row.community.id, slug: row.community.slug, name: row.community.name },
+    canModerate: mod,
     title: row.post.title,
     html: renderMarkdown(row.post.bodyMd),
     author: row.author,
@@ -559,15 +589,18 @@ export async function dismissReport(actorId: string, reportId: string) {
   });
 }
 
-/** Open content reports with a preview of what was reported, for the moderation queue. */
-export async function openContentReports() {
+/**
+ * Open content reports with a preview of what was reported, for the moderation queue. With a
+ * community slug, only that board's reports (a board moderator's queue).
+ */
+export async function openContentReports(boardSlug?: string) {
   const rows = await db()
     .select({ report: contentReports, reporter: users.username })
     .from(contentReports)
     .leftJoin(users, eq(users.id, contentReports.reporterId))
     .where(eq(contentReports.status, 'open'))
     .orderBy(asc(contentReports.createdAt))
-    .limit(100);
+    .limit(boardSlug ? 500 : 100);
   const postIds = rows.filter((r) => r.report.targetType === 'post').map((r) => r.report.targetId);
   const commentIds = rows
     .filter((r) => r.report.targetType === 'comment')
@@ -613,6 +646,7 @@ export async function openContentReports() {
   return rows.flatMap(({ report: r, reporter }) => {
     const t = targets.get(r.targetId);
     if (!t) return [];
+    if (boardSlug && slugs.get(t.postId) !== boardSlug) return [];
     return [
       {
         id: r.id,
@@ -627,6 +661,95 @@ export async function openContentReports() {
         createdAt: r.createdAt.toISOString(),
       },
     ];
+  });
+}
+
+/** The community a post or comment belongs to, or null when it doesn't exist. */
+export async function communityOfTarget(type: VoteTarget, id: string): Promise<string | null> {
+  const [row] =
+    type === 'post'
+      ? await db()
+          .select({ communityId: posts.communityId })
+          .from(posts)
+          .where(eq(posts.id, id))
+          .limit(1)
+      : await db()
+          .select({ communityId: posts.communityId })
+          .from(comments)
+          .innerJoin(posts, eq(posts.id, comments.postId))
+          .where(eq(comments.id, id))
+          .limit(1);
+  return row?.communityId ?? null;
+}
+
+export async function communityOfReport(reportId: string): Promise<string | null> {
+  const [r] = await db()
+    .select({ type: contentReports.targetType, id: contentReports.targetId })
+    .from(contentReports)
+    .where(eq(contentReports.id, reportId))
+    .limit(1);
+  return r ? communityOfTarget(r.type as VoteTarget, r.id) : null;
+}
+
+export async function communityOfFlair(flairId: string): Promise<string | null> {
+  const [f] = await db()
+    .select({ communityId: flairs.communityId })
+    .from(flairs)
+    .where(eq(flairs.id, flairId))
+    .limit(1);
+  return f?.communityId ?? null;
+}
+
+export async function listBoardModerators(communityId: string) {
+  return db()
+    .select({ userId: users.id, username: users.username, since: communityModerators.createdAt })
+    .from(communityModerators)
+    .innerJoin(users, eq(users.id, communityModerators.userId))
+    .where(eq(communityModerators.communityId, communityId))
+    .orderBy(asc(communityModerators.createdAt));
+}
+
+export const moderatorInputSchema = z
+  .object({ username: z.string().trim().toLowerCase().min(3).max(20) })
+  .strict();
+
+/** Appoints a player as a community moderator (site moderators only; audit-logged). */
+export async function addBoardModerator(actorId: string, communityId: string, username: string) {
+  const [u] = await db()
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.username, username), sql`${users.deletedAt} IS NULL`))
+    .limit(1);
+  if (!u) throw new HttpError(404, 'not_found', 'No player with that name.');
+  const [added] = await db()
+    .insert(communityModerators)
+    .values({ communityId, userId: u.id, addedBy: actorId })
+    .onConflictDoNothing()
+    .returning({ userId: communityModerators.userId });
+  if (!added) throw new HttpError(409, 'exists', 'Already a moderator here.');
+  await recordModAction(db(), {
+    actorId,
+    action: 'community_moderator.add',
+    targetType: 'community',
+    targetId: communityId,
+    after: { userId: u.id, username },
+  });
+}
+
+export async function removeBoardModerator(actorId: string, communityId: string, userId: string) {
+  const [gone] = await db()
+    .delete(communityModerators)
+    .where(
+      and(eq(communityModerators.communityId, communityId), eq(communityModerators.userId, userId)),
+    )
+    .returning({ userId: communityModerators.userId });
+  if (!gone) throw NOT_FOUND();
+  await recordModAction(db(), {
+    actorId,
+    action: 'community_moderator.remove',
+    targetType: 'community',
+    targetId: communityId,
+    before: { userId },
   });
 }
 

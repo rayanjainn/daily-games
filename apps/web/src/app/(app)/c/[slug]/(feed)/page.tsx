@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Pin } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Pin, ShieldCheck } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -12,10 +12,10 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { cn } from '@/lib/cn';
 import {
+  canModerateBoard,
   ensureCommunity,
   ensureDailyThread,
   feed,
-  isModerator,
   listFlairs,
 } from '@/server/community';
 import { requireSession } from '@/server/session';
@@ -37,11 +37,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const sort = sp.sort === 'new' ? 'new' : 'hot';
   const flairList = await listFlairs(c.community.id);
   const flairId = flairList.find((f) => f.id === sp.flair)?.id ?? null;
+  const mod = await canModerateBoard(user, c.community.id);
   const [daily, posts] = await Promise.all([
     c.game ? ensureDailyThread(c.community, c.game, user.timezone) : null,
-    feed(user, c.community.id, { sort, flairId }),
+    feed(user, c.community.id, { sort, flairId, showRemoved: mod }),
   ]);
-  const mod = isModerator(user);
   const href = (q: Record<string, string | null>) => {
     const p = new URLSearchParams();
     const next = { sort, flair: flairId, ...q };
@@ -80,6 +80,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             flairs={flairList.map((f) => ({ id: f.id, name: f.name }))}
           />
         </div>
+        {mod ? (
+          <Link
+            href={`/c/${slug}/mod`}
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold underline underline-offset-4"
+          >
+            <ShieldCheck className="size-4" aria-hidden /> Moderation
+          </Link>
+        ) : null}
         {mod ? <FlairManager slug={slug} flairs={flairList} /> : null}
       </Card>
 
