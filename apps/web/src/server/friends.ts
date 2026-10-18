@@ -164,6 +164,20 @@ export async function friendLists(me: { id: string; timezone: string }): Promise
   return out;
 }
 
+/** Ids of the player's accepted friends. */
+export async function friendIds(userId: string): Promise<string[]> {
+  const rows = await db()
+    .select({ a: friendships.userA, b: friendships.userB })
+    .from(friendships)
+    .where(
+      and(
+        eq(friendships.status, 'accepted'),
+        or(eq(friendships.userA, userId), eq(friendships.userB, userId)),
+      ),
+    );
+  return rows.map((r) => (r.a === userId ? r.b : r.a));
+}
+
 /** A friend by username, or null when not friends (or blocked, or no such player). */
 export async function friendByUsername(meId: string, username: string) {
   const [other] = await db()

@@ -5,6 +5,7 @@ import { and, asc, count, eq, groupMembers, groups, inArray, users } from '@ever
 import { MAX_GROUP_MEMBERS, MAX_GROUPS_PER_USER, type GroupRole } from '@everydaily/shared/domain';
 import { playerBoard, type Board } from './boards';
 import { db } from './db';
+import { friendIds } from './friends';
 import { publishSafely } from './realtime';
 import { HttpError } from './session';
 
@@ -197,15 +198,20 @@ export async function groupBoard(
 }
 
 /**
- * Tells every group the player is in that their board changed (after a result is saved or
- * removed). Best effort: a missed message only means a board refreshes on the next load.
+ * Tells every group the player is in, and each friend's friends board, that their board changed
+ * (after a result is saved or removed). Best effort: a missed message only means a board
+ * refreshes on the next load.
  */
 export async function announceResultChange(userId: string) {
-  const rows = await db()
-    .select({ groupId: groupMembers.groupId })
-    .from(groupMembers)
-    .where(eq(groupMembers.userId, userId));
-  await Promise.all(
-    rows.map((r) => publishSafely(`group:${r.groupId}`, 'leaderboard.updated', { userId })),
-  );
+  const [rows, friends] = await Promise.all([
+    db()
+      .select({ groupId: groupMembers.groupId })
+      .from(groupMembers)
+      .where(eq(groupMembers.userId, userId)),
+    friendIds(userId),
+  ]);
+  await Promise.all([
+    ...rows.map((r) => publishSafely(`group:${r.groupId}`, 'leaderboard.updated', { userId })),
+    ...friends.map((f) => publishSafely(`friends:${f}`, 'leaderboard.updated', { userId })),
+  ]);
 }

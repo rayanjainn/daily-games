@@ -6,7 +6,8 @@ const BASE_URL = `http://localhost:${E2E_PORT}`;
 
 /**
  * E2E_REALTIME=1 also starts the worker (wrangler dev) with throwaway keys, so live comments,
- * presence and boards run end to end. Off by default: CI covers the worker in its own suite.
+ * presence and boards run end to end. CI turns it on for the e2e job; it is off by default so
+ * a plain local run needs no worker.
  */
 const REALTIME = process.env.E2E_REALTIME === '1';
 const WORKER_PORT = 8790;
