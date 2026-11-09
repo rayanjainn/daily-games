@@ -218,6 +218,25 @@ export const notifications = pgTable(
   ],
 );
 
+/**
+ * Answers fetched from the publisher, cached once per game and puzzle date. Only ever shown to a
+ * player who has logged that puzzle.
+ */
+export const officialAnswers = pgTable(
+  'official_answers',
+  {
+    id: id(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    puzzleDate: date('puzzle_date').notNull(),
+    answer: jsonb('answer').notNull(),
+    sourceUrl: text('source_url').notNull(),
+    fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('official_answers_game_date_key').on(t.gameId, t.puzzleDate)],
+);
+
 export const devicePairings = pgTable(
   'device_pairings',
   {

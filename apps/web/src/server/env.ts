@@ -36,6 +36,8 @@ const groups = {
   features: z.object({
     /** "off", "admin" (mods and admins only, the launch default) or "all" signed-in players */
     FEATURE_SUBMISSIONS: z.enum(['off', 'admin', 'all']).default('admin'),
+    /** "0" turns off answers fetched from publishers (shown only after a player logs a puzzle). */
+    FEATURE_OFFICIAL_ANSWERS: z.enum(['0', '1']).default('1'),
   }),
   email: z.object({
     /** Optional: email verification and email reminders are off without both. */
