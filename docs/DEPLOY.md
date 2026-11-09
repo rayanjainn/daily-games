@@ -11,7 +11,7 @@ Production layout:
 
 > **Pick the final domain before anyone signs up.** Passkeys are bound to the WebAuthn RP ID
 > (`everydaily.raycode.tech`). Moving to another host later makes every existing passkey stop
-> working there; people would have to recover with their phrase.
+> working there; people would have to sign in with a password or email link and add a new one.
 
 Every command below runs from the repository root unless it says otherwise.
 
@@ -184,8 +184,8 @@ Settings and paste it, with the app address, into the extension's options.
 
 ## 6. After the first deploy
 
-1. Open `https://everydaily.raycode.tech`, sign up, create your passkey and save the recovery
-   phrase.
+1. Open `https://everydaily.raycode.tech`, sign up and create your passkey. Add a password too
+   (Settings → Password) if you want to sign in on a device without the passkey.
 2. Make yourself an admin (the only way roles change; there is no web endpoint for it):
 
    ```sh
@@ -239,3 +239,15 @@ If the site feels slow, it is almost always distance, not code:
 4. Check the numbers: `pnpm --filter @everydaily/web lighthouse` audits the main pages on a local
    production build (it can't see network distance, so it only guards the page itself), and the
    deployed site can be tested with PageSpeed Insights.
+
+## Version 2 notes
+
+- **Migrations 0016 to 0018** remove the recovery phrase table and column, add the optional
+  password columns, and add `official_answers`. Existing players lose their recovery phrase;
+  they keep their passkeys and can add a password in Settings.
+- **Official answers** are on by default (`FEATURE_OFFICIAL_ANSWERS=1`). They are fetched from the
+  publishers' own public pages and endpoints, only after a player logs that puzzle, cached once
+  per day, and linked to the source. Set `FEATURE_OFFICIAL_ANSWERS=0` to switch them off.
+  `pnpm check:answers` checks every source against the live sites.
+- **New games:** Sixes and Glow (played here) and twelve more catalog games arrive with
+  `pnpm seed:games`.

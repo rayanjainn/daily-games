@@ -5,18 +5,18 @@ with tests. Items that can't be met, or were deliberately left, say why.
 
 ## Auth (section 3)
 
-| Item                                                                  | Status                                                                     |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Username suggestion, availability check, profanity and reserved names | Built                                                                      |
-| Puzzle gate plus rate limits, proof of work, optional Turnstile       | Built                                                                      |
-| Passkeys (WebAuthn), strict origin and RP ID, single-use challenges   | Built                                                                      |
-| Recovery phrase (6 words, argon2id, re-entry check, lockout backoff)  | Built                                                                      |
-| Device pairing by QR with number match                                | Built                                                                      |
-| Optional email: confirm, reminders                                    | Built                                                                      |
-| Optional email: magic-link sign-in                                    | Built in Phase 6 (one-time, 15 minutes, newest link only, a tap to finish) |
-| Multiple passkeys: add, rename, revoke; regenerate phrase             | Built                                                                      |
-| Sessions: httpOnly, rotated, revocable; CSRF on mutations             | Built                                                                      |
-| Warnings about losing every way in                                    | Built                                                                      |
+| Item                                                                  | Status                                                                                                                                                        |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Username suggestion, availability check, profanity and reserved names | Built                                                                                                                                                         |
+| Puzzle gate plus rate limits, proof of work, optional Turnstile       | **Changed in v2 at the owner's request:** the visible puzzle is gone; rate limits, proof of work and optional Turnstile stay                                  |
+| Passkeys (WebAuthn), strict origin and RP ID, single-use challenges   | Built                                                                                                                                                         |
+| Recovery phrase (6 words, argon2id, re-entry check, lockout backoff)  | **Replaced in v2 at the owner's request** by an optional password (argon2id, lockout backoff) that signs in on another device and then offers a passkey there |
+| Device pairing by QR with number match                                | Built                                                                                                                                                         |
+| Optional email: confirm, reminders                                    | Built                                                                                                                                                         |
+| Optional email: magic-link sign-in                                    | Built in Phase 6 (one-time, 15 minutes, newest link only, a tap to finish)                                                                                    |
+| Multiple passkeys: add, rename, revoke; regenerate phrase             | Built (add, rename, revoke; the phrase is gone in v2)                                                                                                         |
+| Sessions: httpOnly, rotated, revocable; CSRF on mutations             | Built                                                                                                                                                         |
+| Warnings about losing every way in                                    | Built                                                                                                                                                         |
 
 ## Features by phase (section 5)
 
@@ -36,7 +36,7 @@ with tests. Items that can't be met, or were deliberately left, say why.
 
 ## Catalog pipeline (5b)
 
-Built: YAML source of truth with schema checks, 80 games, submissions behind a flag, daily health
+Built: YAML source of truth with schema checks, 94 games (five played here), submissions behind a flag, daily health
 check, weekly embed re-probe (GitHub Actions), "Report a problem", admin editing and promotion.
 Phase 6 added a share-text checker in the game editor so a moderator can try a sample on a game's
 parser.
@@ -70,6 +70,9 @@ parser.
 | Health endpoints for web and worker                            | Built                                                                   |
 
 ## Beyond the brief
+
+- Answers fetched from the publishers' own sources for nine games, shown only after a player logs the puzzle.
+- Two more original games (Sixes, Glow), a Ctrl+K command palette and page transitions.
 
 - In-app notifications inbox (friend requests, replies, decisions, removals).
 - Platform stats page for the admin.
