@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Download,
-  KeyRound,
-  Laptop,
-  Pencil,
-  Plus,
-  ShieldAlert,
-  Trash2,
-  Usb,
-} from 'lucide-react';
+import { Download, KeyRound, Laptop, Pencil, Plus, ShieldAlert, Trash2, Usb } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Switch } from '@/components/ui/switch';
