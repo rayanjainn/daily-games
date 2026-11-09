@@ -56,7 +56,7 @@ execFileSync('ffmpeg', [
   '-i',
   resolve(outDir, 'work/music.wav'),
   '-filter_complex',
-  '[1:a]loudnorm=I=-14:TP=-1.5:LRA=9[a]',
+  '[1:a]loudnorm=I=-14.5:TP=-2:LRA=9,aresample=48000,alimiter=limit=0.7:level=false[a]',
   '-map',
   '0:v',
   '-map',
