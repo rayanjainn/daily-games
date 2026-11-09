@@ -65,7 +65,7 @@ export default async function RankingsPage({
                 <span className="min-w-0 flex-1 truncate font-display font-semibold">
                   {r.name} {r.me ? <Badge tone="mint">You</Badge> : null}
                 </span>
-                <span className="text-sm text-ink-soft">
+                <span className="hidden text-sm text-ink-soft sm:inline">
                   {r.solved} solved · {r.played} played
                 </span>
                 <span className="w-20 text-right font-display font-bold tabular-nums">

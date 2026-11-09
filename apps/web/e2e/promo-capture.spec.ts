@@ -13,6 +13,7 @@ import { settle } from './support/shots';
  */
 const OUT = process.env.PROMO_DIR;
 test.skip(!OUT, 'set PROMO_DIR to capture launch-video screens');
+test.describe.configure({ mode: 'serial' });
 
 const FRIENDS = ['Maya', 'Theo', 'Priya', 'Sam'];
 
@@ -29,10 +30,14 @@ async function player(
     reducedMotion: 'reduce',
   });
   const page = await ctx.newPage();
-  const user = await signInAs(page);
   const sql = e2eSql();
-  await sql`UPDATE users SET display_name = ${name} WHERE id = ${user.id}`;
+  // Fictional players only; a previous capture's copies are removed first.
+  await sql`DELETE FROM users WHERE username = ${name.toLowerCase()}`;
   await sql.end();
+  const user = await signInAs(page);
+  const upd = e2eSql();
+  await upd`UPDATE users SET display_name = ${name}, username = ${name.toLowerCase()} WHERE id = ${user.id}`;
+  await upd.end();
   return { ctx, page, user };
 }
 
