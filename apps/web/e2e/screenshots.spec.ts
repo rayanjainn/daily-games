@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { apiPost, fillConfirmation, signUpViaUi, solveGateInUi } from './support/auth';
+import { apiPost, signUpViaUi } from './support/auth';
 import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 import { e2eSql } from './support/db';
 import { cipherAnswer, makeItAnswer, scrambleAnswer } from './support/native';
@@ -23,15 +23,14 @@ interface Screen {
 async function toPasskeyStep(page: Page) {
   await expect(page.getByLabel('Available')).toBeVisible();
   await page.getByRole('button', { name: "That's me" }).click();
-  await solveGateInUi(page);
   await expect(page.getByRole('button', { name: 'Create passkey' })).toBeVisible();
 }
 
-async function toPhraseStep(page: Page) {
+async function toPasswordOffer(page: Page) {
   await addVirtualAuthenticator(page);
   await toPasskeyStep(page);
   await page.getByRole('button', { name: 'Create passkey' }).click();
-  await expect(page.getByTestId('recovery-phrase').locator('[data-word]')).toHaveCount(6);
+  await expect(page.getByRole('heading', { name: /Signing in elsewhere/ })).toBeVisible();
 }
 
 async function signedIn(page: Page) {
@@ -1509,16 +1508,16 @@ const SETS: Record<string, Screen[]> = {
         await expect(page.getByRole('alert').filter({ hasText: 'passkey prompt' })).toBeVisible();
       },
     },
-    { name: 'recover', path: '/login/recover' },
     {
-      name: 'recover-error',
-      path: '/login/recover',
+      name: 'password-sign-in',
+      path: '/login',
       setup: async (page) => {
+        await page.getByRole('button', { name: 'Sign in with a password' }).click();
         await page
-          .getByLabel('Player name')
+          .getByLabel('Player name for password sign-in')
           .fill(`someone_${Math.random().toString(36).slice(2, 7)}`);
-        await page.getByLabel('Recovery phrase').fill('abandon ability able about above absent');
-        await page.getByRole('button', { name: 'Sign in' }).click();
+        await page.getByLabel('Password', { exact: true }).fill('not the right one');
+        await page.getByRole('button', { name: 'Sign in', exact: true }).click();
         await expect(page.getByRole('alert').filter({ hasText: "don't match" })).toBeVisible({
           timeout: 20_000,
         });
@@ -1601,16 +1600,18 @@ const SETS: Record<string, Screen[]> = {
       },
     },
     {
-      name: 'settings-new-phrase',
+      name: 'settings-password',
       path: '/',
-      viewportOnly: true,
       setup: async (page) => {
         await signedIn(page);
         await page.goto('/settings');
-        await page.getByRole('button', { name: 'Make a new phrase' }).click();
-        await page.getByRole('dialog').getByRole('button', { name: 'Make a new phrase' }).click();
-        await expect(page.getByTestId('new-recovery-phrase').locator('[data-word]')).toHaveCount(6);
+        await page
+          .getByRole('region', { name: 'Password' })
+          .getByRole('button', { name: 'Add a password' })
+          .click();
+        await page.getByRole('region', { name: 'Password' }).scrollIntoViewIfNeeded();
       },
+      viewportOnly: true,
     },
     {
       name: 'settings-remove-last',
@@ -1663,21 +1664,9 @@ const SETS: Record<string, Screen[]> = {
         await expect(page.getByLabel(/Available|Not available/)).toBeVisible();
       },
     },
+    { name: 'start-2-sign-in', path: '/start', setup: toPasskeyStep },
     {
-      name: 'start-2-gate',
-      path: '/start',
-      setup: async (page) => {
-        await expect(page.getByLabel('Available')).toBeVisible();
-        await page.getByRole('button', { name: "That's me" }).click();
-        const tiles = page.getByTestId('puzzle-gate').getByRole('button', { name: /^Letter/ });
-        await expect(tiles.first()).toBeVisible();
-        await tiles.nth(0).click();
-        await tiles.nth(1).click();
-      },
-    },
-    { name: 'start-3-passkey', path: '/start', setup: toPasskeyStep },
-    {
-      name: 'start-3-passkey-error',
+      name: 'start-2-passkey-error',
       path: '/start',
       setup: async (page) => {
         await page.addInitScript(() => {
@@ -1690,19 +1679,16 @@ const SETS: Record<string, Screen[]> = {
         await expect(page.getByRole('alert').filter({ hasText: 'passkey prompt' })).toBeVisible();
       },
     },
-    { name: 'start-4-phrase', path: '/start', setup: toPhraseStep },
     {
-      name: 'start-5-confirm-error',
+      name: 'start-2-password',
       path: '/start',
       setup: async (page) => {
-        await toPhraseStep(page);
-        await page.getByLabel('I saved my recovery phrase somewhere safe').check();
-        await page.getByRole('button', { name: 'Continue' }).click();
-        await fillConfirmation(page, Array(6).fill('zebra'));
-        await page.getByRole('button', { name: 'Finish' }).click();
-        await expect(page.getByRole('alert').filter({ hasText: "don't match" })).toBeVisible();
+        await toPasskeyStep(page);
+        await page.getByRole('button', { name: 'Use a password instead' }).click();
+        await page.getByLabel('Password', { exact: true }).fill('short');
       },
     },
+    { name: 'start-3-password-offer', path: '/start', setup: toPasswordOffer },
   ],
 };
 

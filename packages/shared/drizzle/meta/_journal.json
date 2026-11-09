@@ -113,6 +113,20 @@
       "when": 1792302471484,
       "tag": "0015_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794198148267,
+      "tag": "0016_drop_recovery_phrase",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794198149380,
+      "tag": "0017_password_login",
+      "breakpoints": true
     }
   ]
 }

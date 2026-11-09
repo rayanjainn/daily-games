@@ -1,18 +1,12 @@
 import { z } from 'zod';
-import {
-  eq,
-  passkeyCredentials,
-  recoveryPhraseHashes,
-  sessions,
-  users,
-} from '@everydaily/shared/db';
+import { eq, passkeyCredentials, sessions, users } from '@everydaily/shared/db';
 import { db } from '@/server/db';
 import { HttpError, mutation } from '@/server/http';
 import { clearCookie, COOKIE } from '@/server/request';
 import { requireSession } from '@/server/session';
 
 /**
- * Deletes the account: sign-in methods and sessions are removed at once, the row is marked
+ * Deletes the account: passkeys, the password and sessions are removed at once, the row is marked
  * deleted, and a scheduled job purges it (and all results) after 7 days.
  */
 export const POST = mutation(
@@ -24,11 +18,10 @@ export const POST = mutation(
     }
     await db().transaction(async (tx) => {
       await tx.delete(passkeyCredentials).where(eq(passkeyCredentials.userId, user.id));
-      await tx.delete(recoveryPhraseHashes).where(eq(recoveryPhraseHashes.userId, user.id));
       await tx.update(sessions).set({ revokedAt: new Date() }).where(eq(sessions.userId, user.id));
       await tx
         .update(users)
-        .set({ deletedAt: new Date(), email: null })
+        .set({ deletedAt: new Date(), email: null, passwordHash: null, passwordSetAt: null })
         .where(eq(users.id, user.id));
     });
     await clearCookie(COOKIE.session);

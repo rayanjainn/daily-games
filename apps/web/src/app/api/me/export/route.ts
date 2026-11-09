@@ -149,7 +149,7 @@ export const GET = query(async () => {
       email: user.email,
       timezone: user.timezone,
       createdAt: user.createdAt,
-      recoveryPhraseConfirmed: Boolean(user.recoveryConfirmedAt),
+      hasPassword: Boolean(user.passwordHash),
     },
     passkeys,
     sessions: sessionRows,

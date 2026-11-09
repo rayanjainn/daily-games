@@ -12,7 +12,7 @@ const SESSION_DAYS = 30;
 // Also what "online now" is built on, so it is kept short.
 const TOUCH_INTERVAL_MS = 5 * 60 * 1000;
 
-export type SessionMethod = 'passkey' | 'recovery' | 'pairing' | 'email' | 'signup';
+export type SessionMethod = 'passkey' | 'password' | 'pairing' | 'email' | 'signup';
 
 export interface CurrentSession {
   sessionId: string;

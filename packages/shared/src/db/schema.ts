@@ -96,7 +96,12 @@ export const users = pgTable(
       .notNull()
       .default({}),
     role: text('role').$type<(typeof USER_ROLES)[number]>().notNull().default('user'),
-    recoveryConfirmedAt: timestamp('recovery_confirmed_at', { withTimezone: true }),
+    /**
+     * argon2id hash of an optional password, for signing in on a device without the passkey.
+     * Null when the player only uses passkeys (or email links).
+     */
+    passwordHash: text('password_hash'),
+    passwordSetAt: timestamp('password_set_at', { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -137,14 +142,6 @@ export const passkeyCredentials = pgTable(
   ],
 );
 
-export const recoveryPhraseHashes = pgTable('recovery_phrase_hashes', {
-  userId: uuid('user_id')
-    .primaryKey()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  hash: text('hash').notNull(),
-  createdAt: createdAt(),
-});
-
 export const sessions = pgTable(
   'sessions',
   {
@@ -160,7 +157,7 @@ export const sessions = pgTable(
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     userAgent: text('user_agent'),
     ipHash: text('ip_hash'),
-    /** how the session was created: passkey | recovery | pairing | email */
+    /** how the session was created: passkey | password | pairing | email | signup */
     method: text('method').notNull(),
   },
   (t) => [

@@ -19,8 +19,8 @@ export async function signInAs(
   try {
     const username = `t_${randomBytes(5).toString('hex')}`;
     const [user] = await sql<{ id: string }[]>`
-      INSERT INTO users (id, username, role, timezone, recovery_confirmed_at)
-      VALUES (gen_random_uuid(), ${username}, ${opts.role ?? 'user'}, ${opts.timezone ?? 'UTC'}, now())
+      INSERT INTO users (id, username, role, timezone)
+      VALUES (gen_random_uuid(), ${username}, ${opts.role ?? 'user'}, ${opts.timezone ?? 'UTC'})
       RETURNING id`;
     const token = randomBytes(32).toString('base64url');
     await sql`

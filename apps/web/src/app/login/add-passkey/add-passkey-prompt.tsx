@@ -15,7 +15,7 @@ export function AddPasskeyPrompt({ next }: { next: string }) {
   return (
     <section>
       <StepHeading title="You're in!">
-        Add a passkey on this device so next time is one tap, no phrase needed.
+        Add a passkey on this device so next time is one tap, no password needed.
       </StepHeading>
       <Card className="flex flex-col gap-4 p-5 sm:p-6">
         {error ? <Notice tone="danger">{error}</Notice> : null}

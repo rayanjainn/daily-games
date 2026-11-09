@@ -15,7 +15,7 @@ const groups = {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     APP_URL: z.string().url(),
     DATABASE_URL: z.string().min(1),
-    /** 32+ random bytes; signs gate tokens and the recovery confirmation. */
+    /** 32+ random bytes; signs short-lived tokens and derives the native-game keys. */
     AUTH_SECRET: z.string().min(32),
   }),
   redis: z.object({

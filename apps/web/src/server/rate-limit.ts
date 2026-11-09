@@ -5,7 +5,6 @@ import { redis } from './redis';
 /** Named limits. Keys are composed by callers (ip, device, username, user id). */
 const LIMITS = {
   'username-check': { tokens: 30, window: '1 m' },
-  'gate-start': { tokens: 20, window: '10 m' },
   'pow-challenge': { tokens: 20, window: '10 m' },
   'signup-ip': { tokens: 5, window: '1 h' },
   'signup-device': { tokens: 3, window: '1 h' },
@@ -14,12 +13,12 @@ const LIMITS = {
   'email-login-ip': { tokens: 10, window: '1 h' },
   'email-login-address': { tokens: 3, window: '1 h' },
   'email-login-confirm': { tokens: 20, window: '15 m' },
-  'recover-ip': { tokens: 10, window: '15 m' },
+  'password-login-ip': { tokens: 20, window: '15 m' },
+  'password-change': { tokens: 10, window: '1 h' },
   'pair-start': { tokens: 10, window: '10 m' },
   'pair-poll': { tokens: 120, window: '5 m' },
   'pair-approve': { tokens: 10, window: '10 m' },
   'passkey-add': { tokens: 10, window: '1 h' },
-  'recovery-regen': { tokens: 5, window: '1 d' },
   follow: { tokens: 120, window: '5 m' },
   'game-report': { tokens: 10, window: '1 h' },
   submission: { tokens: 5, window: '1 d' },

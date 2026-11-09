@@ -5,6 +5,7 @@ import { addVirtualAuthenticator, expect, randomIp, test, type Page } from './su
 import { signInAs } from './support/session';
 
 const name = () => `set_${Math.random().toString(36).slice(2, 8)}`;
+const PASSWORD = 'amber fjord compass tulip';
 
 async function account(page: Page) {
   const auth = await addVirtualAuthenticator(page);
@@ -51,7 +52,22 @@ test.describe('settings', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Remove', exact: true }).click();
     await expect(list.getByRole('listitem')).toHaveCount(1);
 
-    // The last one needs an explicit second confirmation.
+    // Without a password the last passkey can't go at all.
+    await page.getByRole('button', { name: /^Remove / }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Remove', exact: true }).click();
+    await expect(page.getByText(/This is your only way in/).first()).toBeVisible();
+    await page.keyboard.press('Escape');
+    expect(
+      (
+        await page.request.put('/api/me/password', {
+          data: { password: PASSWORD },
+          headers: await csrfHeaders(page),
+        })
+      ).status(),
+    ).toBe(200);
+    await page.reload();
+
+    // With one, the last passkey needs an explicit second confirmation.
     await page.getByRole('button', { name: /^Remove / }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Remove', exact: true }).click();
     await expect(page.getByRole('dialog').getByText('This is your last passkey.')).toBeVisible();
@@ -99,40 +115,62 @@ test.describe('settings', () => {
     await victim.close();
   });
 
-  test('a new recovery phrase replaces the old one', async ({ page, browser }) => {
-    const { username, phrase: oldPhrase } = await account(page);
+  test('adds, changes and removes a password', async ({ page, browser }) => {
+    const { username } = await account(page);
     await page.goto('/settings');
-    await page.getByRole('button', { name: 'Make a new phrase' }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Make a new phrase' }).click();
-    const words = page.getByTestId('new-recovery-phrase').locator('[data-word]');
-    await expect(words).toHaveCount(6);
-    const newPhrase = await words.allInnerTexts();
-    for (let n = 1; n <= 6; n++) {
-      const f = page.getByRole('dialog').getByLabel(`Word #${n}`, { exact: true });
-      if (await f.count()) await f.fill(newPhrase[n - 1]!);
-    }
-    await page.getByRole('button', { name: 'Check and save' }).click();
-    await expect(page.getByText('All set. Keep the new phrase safe.')).toBeVisible();
+    const section = page.getByRole('region', { name: 'Password' });
+    await section.getByRole('button', { name: 'Add a password' }).click();
+    await section.getByLabel('New password').fill(PASSWORD);
+    await section.getByLabel('Type it again').fill(PASSWORD);
+    await section.getByRole('button', { name: 'Save password' }).click();
+    await expect(page.getByText('Password saved')).toBeVisible();
+    await expect(section.getByText('On', { exact: true })).toBeVisible();
+
+    // Changing it needs the current one.
+    await section.getByRole('button', { name: 'Change password' }).click();
+    await section.getByLabel('Current password').fill('not-the-password');
+    await section.getByLabel('New password').fill('second river lantern maple');
+    await section.getByLabel('Type it again').fill('second river lantern maple');
+    await section.getByRole('button', { name: 'Save password' }).click();
+    await expect(section.getByText('Your current password is not right.')).toBeVisible();
+    await section.getByLabel('Current password').fill(PASSWORD);
+    await section.getByRole('button', { name: 'Save password' }).click();
+    await expect(page.getByText('Password changed')).toBeVisible();
 
     const other = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
     const op = await other.newPage();
-    await op.goto('/login/recover');
+    await op.goto('/login');
     expect(
-      (await apiPost(op, '/api/auth/recover', { username, phrase: oldPhrase.join(' ') })).status(),
+      (await apiPost(op, '/api/auth/login/password', { username, password: PASSWORD })).status(),
     ).toBe(401);
     expect(
-      (await apiPost(op, '/api/auth/recover', { username, phrase: newPhrase.join(' ') })).status(),
+      (
+        await apiPost(op, '/api/auth/login/password', {
+          username,
+          password: 'second river lantern maple',
+        })
+      ).status(),
     ).toBe(200);
     await other.close();
+
+    await section.getByRole('button', { name: 'Remove' }).click();
+    await section.getByLabel('Current password').fill('second river lantern maple');
+    await section.getByRole('button', { name: 'Remove password' }).click();
+    await expect(page.getByText('Password removed')).toBeVisible();
+    await expect(section.getByText('Off', { exact: true })).toBeVisible();
   });
 
   test('signs out other sessions', async ({ page, browser }) => {
-    const { username, phrase } = await account(page);
+    const { username } = await account(page);
+    await page.request.put('/api/me/password', {
+      data: { password: PASSWORD },
+      headers: await csrfHeaders(page),
+    });
     const other = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
     const op = await other.newPage();
-    await op.goto('/login/recover');
+    await op.goto('/login');
     expect(
-      (await apiPost(op, '/api/auth/recover', { username, phrase: phrase.join(' ') })).status(),
+      (await apiPost(op, '/api/auth/login/password', { username, password: PASSWORD })).status(),
     ).toBe(200);
     await op.goto('/today');
     await expect(op.getByRole('heading', { name: `Hi, ${username}` })).toBeVisible();
@@ -140,7 +178,7 @@ test.describe('settings', () => {
     await page.goto('/settings');
     const sessions = page.getByRole('list', { name: 'Active sessions' });
     await expect(sessions.getByRole('listitem')).toHaveCount(2);
-    await expect(sessions.getByText('Recovery phrase')).toBeVisible();
+    await expect(sessions.getByText('Password', { exact: false }).first()).toBeVisible();
     await page.getByRole('button', { name: 'Sign out everywhere else' }).click();
     await expect(sessions.getByRole('listitem')).toHaveCount(1);
 
@@ -186,7 +224,11 @@ test.describe('settings', () => {
   });
 
   test('deletes the account and every way back in', async ({ page, browser }) => {
-    const { username, phrase } = await account(page);
+    const { username } = await account(page);
+    await page.request.put('/api/me/password', {
+      data: { password: PASSWORD },
+      headers: await csrfHeaders(page),
+    });
     await page.goto('/settings');
     await page.getByRole('button', { name: 'Delete account' }).click();
     const dialog = page.getByRole('dialog');
@@ -197,9 +239,9 @@ test.describe('settings', () => {
 
     const other = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
     const op = await other.newPage();
-    await op.goto('/login/recover');
+    await op.goto('/login');
     expect(
-      (await apiPost(op, '/api/auth/recover', { username, phrase: phrase.join(' ') })).status(),
+      (await apiPost(op, '/api/auth/login/password', { username, password: PASSWORD })).status(),
     ).toBe(401);
     await other.close();
     expect(await passkeyIds(username)).toHaveLength(0);

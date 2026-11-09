@@ -18,7 +18,7 @@ export function safeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Short signed tokens: base64url(json).hmac. Used for the puzzle-gate pass, which only needs to
+ * Short signed tokens: base64url(json).hmac. Used where a short-lived proof is enough and nothing
  * prove "this device solved a gate recently".
  */
 export function signToken(

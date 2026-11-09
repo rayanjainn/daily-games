@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { and, count, eq, passkeyCredentials, recoveryPhraseHashes } from '@everydaily/shared/db';
+import { and, count, eq, passkeyCredentials } from '@everydaily/shared/db';
 import { db } from '@/server/db';
 import { HttpError, mutation } from '@/server/http';
 import { requireSession } from '@/server/session';
@@ -44,21 +44,17 @@ export async function DELETE(req: Request, ctx: Ctx) {
       .from(passkeyCredentials)
       .where(eq(passkeyCredentials.userId, user.id))) as [{ n: number }];
     if (n <= 1) {
-      const phrase = await db()
-        .select({ id: recoveryPhraseHashes.userId })
-        .from(recoveryPhraseHashes)
-        .where(eq(recoveryPhraseHashes.userId, user.id));
-      if (!phrase.length)
+      if (!user.passwordHash)
         throw new HttpError(
           409,
           'last_credential',
-          'This is your only way in. Add another passkey or a recovery phrase first.',
+          'This is your only way in. Add another passkey or a password first.',
         );
       if (!confirmLast) {
         throw new HttpError(
           409,
           'confirm_last',
-          'This is your last passkey. After removing it you can only sign in with your recovery phrase.',
+          'This is your last passkey. After removing it you can only sign in with your password.',
         );
       }
     }
