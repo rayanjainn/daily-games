@@ -35,16 +35,16 @@ test.describe('design system', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
     // Deep purple, not black: the blue and red channels clearly above the green one.
-    expect(await background()).toBe('rgb(23, 10, 44)');
+    expect(await background()).toBe('rgb(11, 11, 12)');
     await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute(
       'content',
-      '#170A2C',
+      '#0B0B0C',
     );
 
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
-    expect(await background()).toBe('rgb(23, 10, 44)');
+    expect(await background()).toBe('rgb(11, 11, 12)');
 
     await choice('Light').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -59,7 +59,7 @@ test.describe('design system', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/styleguide');
     expect(await page.locator('body').evaluate((b) => getComputedStyle(b).backgroundColor)).toBe(
-      'rgb(23, 10, 44)',
+      'rgb(11, 11, 12)',
     );
     // Picking Light overrides the device.
     await page

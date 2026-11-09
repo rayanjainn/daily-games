@@ -110,41 +110,41 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Dark theme ("midnight arcade"): deep purple, layered violet surfaces, accents that glow.
+/* Dark theme: near-black neutral surfaces in a few steps of grey, with accents that glow.
    Follows the system unless the user picked light explicitly. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --paper: #170a2c;
-    --paper-dot: #231240;
-    --surface: #21103c;
-    --surface-2: #2c1750;
-    --surface-3: #3a2068;
-    --ink: #f6f0ff;
-    --ink-soft: #cbbcf0;
-    --ink-faint: #9a88c8;
-    --line: #8a6fd1;
-    --line-soft: #3a2368;
-    --edge: #0b0417;
+    --paper: #0b0b0c;
+    --paper-dot: #18181a;
+    --surface: #141416;
+    --surface-2: #1d1d20;
+    --surface-3: #29292d;
+    --ink: #f4f4f5;
+    --ink-soft: #b4b4bb;
+    --ink-faint: #8b8b93;
+    --line: #6e6e76;
+    --line-soft: #27272a;
+    --edge: #000000;
     --pop: #ff7043;
-    --on-pop: #170a2c;
+    --on-pop: #0b0b0c;
     --grape: #a98dff;
-    --on-grape: #170a2c;
+    --on-grape: #0b0b0c;
     --mint: #34e3a6;
-    --on-mint: #170a2c;
+    --on-mint: #0b0b0c;
     --sun: #ffd352;
-    --on-sun: #170a2c;
+    --on-sun: #0b0b0c;
     --sky: #5cc0ff;
-    --on-sky: #170a2c;
+    --on-sky: #0b0b0c;
     --bubblegum: #ff94d4;
-    --on-bubblegum: #170a2c;
+    --on-bubblegum: #0b0b0c;
     --success: #3ddc9b;
     --success-soft: #0f3328;
     --warn: #f7bd4f;
     --warn-soft: #382a0e;
     --danger: #ff7580;
     --danger-soft: #45161d;
-    --on-danger: #170a2c;
+    --on-danger: #0b0b0c;
     --info: #84b0ff;
     --info-soft: #18284a;
     /* Category colours: text/marks and a soft background per game category. */
@@ -164,44 +164,44 @@
     --cat-music-soft: #382a0e;
     --cat-visual: #ff8c96;
     --cat-visual-soft: #45161d;
-    --focus: #c0adff;
-    --overlay: rgb(11 4 23 / 0.74);
+    --focus: #7cc4ff;
+    --overlay: rgb(0 0 0 / 0.78);
     --shadow-overlay: 0 24px 48px -12px rgb(0 0 0 / 0.6);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --paper: #170a2c;
-  --paper-dot: #231240;
-  --surface: #21103c;
-  --surface-2: #2c1750;
-  --surface-3: #3a2068;
-  --ink: #f6f0ff;
-  --ink-soft: #cbbcf0;
-  --ink-faint: #9a88c8;
-  --line: #8a6fd1;
-  --line-soft: #3a2368;
-  --edge: #0b0417;
+  --paper: #0b0b0c;
+  --paper-dot: #18181a;
+  --surface: #141416;
+  --surface-2: #1d1d20;
+  --surface-3: #29292d;
+  --ink: #f4f4f5;
+  --ink-soft: #b4b4bb;
+  --ink-faint: #8b8b93;
+  --line: #6e6e76;
+  --line-soft: #27272a;
+  --edge: #000000;
   --pop: #ff7043;
-  --on-pop: #170a2c;
+  --on-pop: #0b0b0c;
   --grape: #a98dff;
-  --on-grape: #170a2c;
+  --on-grape: #0b0b0c;
   --mint: #34e3a6;
-  --on-mint: #170a2c;
+  --on-mint: #0b0b0c;
   --sun: #ffd352;
-  --on-sun: #170a2c;
+  --on-sun: #0b0b0c;
   --sky: #5cc0ff;
-  --on-sky: #170a2c;
+  --on-sky: #0b0b0c;
   --bubblegum: #ff94d4;
-  --on-bubblegum: #170a2c;
+  --on-bubblegum: #0b0b0c;
   --success: #3ddc9b;
   --success-soft: #0f3328;
   --warn: #f7bd4f;
   --warn-soft: #382a0e;
   --danger: #ff7580;
   --danger-soft: #45161d;
-  --on-danger: #170a2c;
+  --on-danger: #0b0b0c;
   --info: #84b0ff;
   --info-soft: #18284a;
   /* Category colours: text/marks and a soft background per game category. */
@@ -221,7 +221,7 @@
   --cat-music-soft: #382a0e;
   --cat-visual: #ff8c96;
   --cat-visual-soft: #45161d;
-  --focus: #c0adff;
-  --overlay: rgb(11 4 23 / 0.74);
+  --focus: #7cc4ff;
+  --overlay: rgb(0 0 0 / 0.78);
   --shadow-overlay: 0 24px 48px -12px rgb(0 0 0 / 0.6);
 }

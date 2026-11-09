@@ -43,19 +43,19 @@ const LIGHT: Palette = {
 };
 /** Dark cards use the app's dark theme colours. */
 const DARK: Palette = {
-  paper: '#170A2C',
-  surface: '#21103C',
-  ink: '#F6F0FF',
-  soft: '#CBBCF0',
-  line: '#9A88C8',
-  lineSoft: '#3A2068',
+  paper: '#0b0b0c',
+  surface: '#141416',
+  ink: '#f4f4f5',
+  soft: '#b4b4bb',
+  line: '#8b8b93',
+  lineSoft: '#29292d',
   pop: '#FF7043',
   mint: '#34E3A6',
   danger: '#FF7580',
-  missed: '#3A2068',
+  missed: '#29292d',
   /** Text on the green and red tiles and bars. */
-  onFill: '#170A2C',
-  heat: ['#3A2068', '#1E6B54', '#2BB887', '#34E3A6'],
+  onFill: '#0b0b0c',
+  heat: ['#29292d', '#1E6B54', '#2BB887', '#34E3A6'],
 };
 
 const PALETTES: Record<CardTheme, Palette> = { light: LIGHT, dark: DARK };
