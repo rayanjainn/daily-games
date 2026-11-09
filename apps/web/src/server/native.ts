@@ -13,6 +13,14 @@ import {
 import {
   CIPHER_MAX_GUESSES,
   CIPHER_SYMBOLS,
+  GLOW_MAX_TAPS,
+  SIXES_CHECKS,
+  checkSixes,
+  glowPuzzle,
+  glowShare,
+  playGlow,
+  sixesPuzzle,
+  sixesShare,
   SCRAMBLE_WORDS,
   checkMakeIt,
   cipherCode,
@@ -38,7 +46,7 @@ import { env } from './env';
 import { HttpError } from './session';
 import { refreshStreak } from './results';
 
-export const NATIVE_SLUGS = ['cipher', 'scramble', 'make-it'] as const;
+export const NATIVE_SLUGS = ['cipher', 'scramble', 'make-it', 'sixes', 'glow'] as const;
 export type NativeSlug = (typeof NATIVE_SLUGS)[number];
 export const isNativeSlug = (s: string): s is NativeSlug =>
   (NATIVE_SLUGS as readonly string[]).includes(s);
@@ -87,6 +95,18 @@ export const moveSchema = z.discriminatedUnion('action', [
     })
     .strict(),
   z.object({ action: z.literal('expression'), expression: z.string().max(120) }).strict(),
+  z
+    .object({
+      action: z.literal('grid'),
+      cells: z.array(z.number().int().min(0).max(6)).length(36),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal('taps'),
+      taps: z.array(z.number().int().min(0).max(24)).min(1).max(GLOW_MAX_TAPS),
+    })
+    .strict(),
 ]);
 export type Move = z.infer<typeof moveSchema>;
 
@@ -120,7 +140,23 @@ export type MakeItView = Common & {
   tries: number;
   expression: string | null;
 };
-export type NativeView = CipherView | ScrambleView | MakeItView;
+export type SixesView = Common & {
+  kind: 'sixes';
+  givens: number[];
+  checksUsed: number;
+  maxChecks: number;
+  /** How many cells were wrong in the last check. */
+  lastWrong: number | null;
+  /** Revealed only when the checks ran out. */
+  solution: number[] | null;
+};
+export type GlowView = Common & {
+  kind: 'glow';
+  board: boolean[];
+  par: number;
+  maxTaps: number;
+};
+export type NativeView = CipherView | ScrambleView | MakeItView | SixesView | GlowView;
 
 interface CipherState {
   guesses?: number[][];
@@ -131,6 +167,10 @@ interface ScrambleState {
 interface MakeItState {
   tries?: number;
   expression?: string;
+}
+interface SixesState {
+  checks?: number;
+  lastWrong?: number;
 }
 
 async function playFor(userId: string, game: Game, puzzleNumber: number): Promise<NativePlay> {
@@ -215,6 +255,23 @@ function viewOf(
     const solvedWords =
       (play.state as ScrambleState).solved ?? Array<string | null>(SCRAMBLE_WORDS).fill(null);
     return { ...common, kind: 'scramble', scrambled: p.scrambled, solvedWords };
+  }
+  if (slug === 'sixes') {
+    const p = sixesPuzzle(rng);
+    const st = play.state as SixesState;
+    return {
+      ...common,
+      kind: 'sixes',
+      givens: p.givens,
+      checksUsed: st.checks ?? 0,
+      maxChecks: SIXES_CHECKS,
+      lastWrong: st.lastWrong ?? null,
+      solution: common.finished && !common.solved ? p.solution : null,
+    };
+  }
+  if (slug === 'glow') {
+    const p = glowPuzzle(rng);
+    return { ...common, kind: 'glow', board: p.board, par: p.par, maxTaps: GLOW_MAX_TAPS };
   }
   const p = makeItPuzzle(rng);
   const s = play.state as MakeItState;
@@ -366,6 +423,45 @@ export async function nativeMove(
           details: {},
         });
       }
+    } else if (slug === 'sixes') {
+      if (move.action !== 'grid') throw wrongMove();
+      const p = sixesPuzzle(rng);
+      const check = checkSixes(p, move.cells);
+      const st = play.state as SixesState;
+      if (!check.ok && check.reason !== 'wrong')
+        throw new HttpError(
+          422,
+          check.reason === 'givens' ? 'invalid_input' : 'incomplete',
+          check.reason === 'givens'
+            ? 'The starting numbers can’t change.'
+            : 'Fill every square before checking.',
+        );
+      const checks = (st.checks ?? 0) + 1;
+      if (check.ok || checks >= SIXES_CHECKS) {
+        await save({ checks, lastWrong: check.ok ? 0 : check.wrongCells });
+        finished = true;
+        const seconds = elapsedSeconds(play);
+        await finish(tx, user, game, play, {
+          solved: check.ok,
+          timeSeconds: check.ok ? seconds : undefined,
+          shareText: sixesShare(number, check.ok ? seconds : null, checks),
+          details: { checks },
+        });
+      } else {
+        await save({ checks, lastWrong: check.wrongCells });
+      }
+    } else if (slug === 'glow') {
+      if (move.action !== 'taps') throw wrongMove();
+      const p = glowPuzzle(rng);
+      if (!playGlow(p, move.taps))
+        throw new HttpError(422, 'not_dark', 'Some lights are still on.');
+      finished = true;
+      await finish(tx, user, game, play, {
+        solved: true,
+        attempts: move.taps.length,
+        shareText: glowShare(number, move.taps.length, p.par),
+        details: { taps: move.taps.length, par: p.par },
+      });
     } else {
       if (move.action !== 'expression') throw wrongMove();
       const p = makeItPuzzle(rng);

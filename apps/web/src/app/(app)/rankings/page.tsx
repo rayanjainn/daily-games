@@ -77,7 +77,7 @@ export default async function RankingsPage({
         ) : (
           <p className="p-6 text-center text-ink-soft" data-testid="rankings-empty">
             No results yet this week.
-            {scope === 'verified' ? ' Play Cipher, Scramble or Make It to get on the board.' : ''}
+            {scope === 'verified' ? ' Play one of EveryDaily's own games to get on the board.' : ''}
           </p>
         )}
       </Card>

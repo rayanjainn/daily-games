@@ -216,6 +216,15 @@
     "accentColor": "#3FA34D"
   },
   {
+    "slug": "glow",
+    "name": "Glow",
+    "publisher": "EveryDaily",
+    "category": "logic",
+    "tier": 1,
+    "icon": "dots",
+    "accentColor": "#B7791F"
+  },
+  {
     "slug": "guardian-quick",
     "name": "Quick Crossword",
     "publisher": "The Guardian",
@@ -547,6 +556,15 @@
     "tier": 3,
     "icon": "brain",
     "accentColor": "#5F0F40"
+  },
+  {
+    "slug": "sixes",
+    "name": "Sixes",
+    "publisher": "EveryDaily",
+    "category": "logic",
+    "tier": 1,
+    "icon": "sudoku",
+    "accentColor": "#0B7A75"
   },
   {
     "slug": "songless",
