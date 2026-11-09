@@ -1,0 +1,30 @@
+slug: 'sutom'
+name: 'SUTOM'
+publisher: 'SUTOM'
+description: 'A French word game: the first letter is given, find the rest of the word in six tries.'
+url: 'https://sutom.nocle.fr/'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#1E5AA8'
+icon: 'grid'
+attribution: 'Made and hosted by SUTOM.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'french'
+  - 'wordle-like'
