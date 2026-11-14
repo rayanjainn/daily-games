@@ -12,8 +12,9 @@ reset:
   hour: 0
   note: 'Assumed to change at local midnight; not confirmed by the publisher.'
 numbering:
-  epoch: '2025-01-01'
-  epochNumber: 1
+  # Checked against the game's own API: game 1513 was played on 2026-11-09.
+  epoch: '2022-09-18'
+  epochNumber: 0
   public: false
 parserId: null
 scoring:

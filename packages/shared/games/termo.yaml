@@ -1,0 +1,30 @@
+slug: 'termo'
+name: 'Termo'
+publisher: 'Termo'
+description: 'The five-letter word game in Portuguese: six tries to find the day’s word.'
+url: 'https://term.ooo/'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#1F7A5A'
+icon: 'grid'
+attribution: 'Made and hosted by Termo.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'portuguese'
+  - 'wordle-like'

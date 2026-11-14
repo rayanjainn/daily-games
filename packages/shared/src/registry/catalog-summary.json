@@ -27,6 +27,15 @@
     "accentColor": "#7A55D6"
   },
   {
+    "slug": "blossom",
+    "name": "Blossom",
+    "publisher": "Merriam-Webster",
+    "category": "word",
+    "tier": 3,
+    "icon": "hexagon",
+    "accentColor": "#B03A6F"
+  },
+  {
     "slug": "catfishing",
     "name": "Catfishing",
     "publisher": "catfishing.net",
@@ -36,6 +45,15 @@
     "accentColor": "#2F6FB0"
   },
   {
+    "slug": "chess-com-daily",
+    "name": "Chess.com Daily Puzzle",
+    "publisher": "Chess.com",
+    "category": "logic",
+    "tier": 3,
+    "icon": "crown",
+    "accentColor": "#4A7324"
+  },
+  {
     "slug": "chronophoto",
     "name": "Chronophoto",
     "publisher": "Chronophoto",
@@ -43,6 +61,15 @@
     "tier": 3,
     "icon": "clock",
     "accentColor": "#A68A64"
+  },
+  {
+    "slug": "cine2nerdle",
+    "name": "Cine2Nerdle",
+    "publisher": "Cine2Nerdle",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "film",
+    "accentColor": "#7A1F5C"
   },
   {
     "slug": "cipher",
@@ -135,6 +162,15 @@
     "accentColor": "#C46BAE"
   },
   {
+    "slug": "duotrigordle",
+    "name": "Duotrigordle",
+    "publisher": "Duotrigordle",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid-multi",
+    "accentColor": "#1F6F8B"
+  },
+  {
     "slug": "emovi",
     "name": "Emovi",
     "publisher": "Teuteuf",
@@ -216,6 +252,15 @@
     "accentColor": "#3FA34D"
   },
   {
+    "slug": "glow",
+    "name": "Glow",
+    "publisher": "EveryDaily",
+    "category": "logic",
+    "tier": 1,
+    "icon": "dots",
+    "accentColor": "#B7791F"
+  },
+  {
     "slug": "guardian-quick",
     "name": "Quick Crossword",
     "publisher": "The Guardian",
@@ -277,6 +322,15 @@
     "tier": 3,
     "icon": "square-box",
     "accentColor": "#FC716B"
+  },
+  {
+    "slug": "lichess-daily",
+    "name": "Lichess Daily Puzzle",
+    "publisher": "Lichess",
+    "category": "logic",
+    "tier": 3,
+    "icon": "crown",
+    "accentColor": "#4A4A4A"
   },
   {
     "slug": "lyricle",
@@ -432,6 +486,15 @@
     "accentColor": "#E8833A"
   },
   {
+    "slug": "phoodle",
+    "name": "Phoodle",
+    "publisher": "Phoodle",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid",
+    "accentColor": "#B5471B"
+  },
+  {
     "slug": "phrazle",
     "name": "Phrazle",
     "publisher": "Solitaired",
@@ -459,6 +522,15 @@
     "accentColor": "#A4589E"
   },
   {
+    "slug": "poeltl",
+    "name": "Poeltl",
+    "publisher": "Poeltl",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "ball",
+    "accentColor": "#C8102E"
+  },
+  {
     "slug": "pokedoku",
     "name": "PokeDoku",
     "publisher": "PokeDoku",
@@ -466,6 +538,15 @@
     "tier": 3,
     "icon": "sudoku",
     "accentColor": "#D62F3D"
+  },
+  {
+    "slug": "polygonle",
+    "name": "Polygonle",
+    "publisher": "Polygonle",
+    "category": "word",
+    "tier": 3,
+    "icon": "angle",
+    "accentColor": "#6B4FBF"
   },
   {
     "slug": "puzzmo",
@@ -549,6 +630,15 @@
     "accentColor": "#5F0F40"
   },
   {
+    "slug": "sixes",
+    "name": "Sixes",
+    "publisher": "EveryDaily",
+    "category": "logic",
+    "tier": 1,
+    "icon": "sudoku",
+    "accentColor": "#0B7A75"
+  },
+  {
     "slug": "songless",
     "name": "Songless",
     "publisher": "Less Games",
@@ -603,6 +693,15 @@
     "accentColor": "#5BC0BE"
   },
   {
+    "slug": "sutom",
+    "name": "SUTOM",
+    "publisher": "SUTOM",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid",
+    "accentColor": "#1E5AA8"
+  },
+  {
     "slug": "tango",
     "name": "Tango",
     "publisher": "LinkedIn",
@@ -610,6 +709,24 @@
     "tier": 3,
     "icon": "dots",
     "accentColor": "#F59E0B"
+  },
+  {
+    "slug": "termo",
+    "name": "Termo",
+    "publisher": "Termo",
+    "category": "word",
+    "tier": 3,
+    "icon": "grid",
+    "accentColor": "#1F7A5A"
+  },
+  {
+    "slug": "the-dozen",
+    "name": "The Dozen",
+    "publisher": "The Dozen: Trivia Competition",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "question",
+    "accentColor": "#B8860B"
   },
   {
     "slug": "thrice",
@@ -664,6 +781,15 @@
     "tier": 3,
     "icon": "path",
     "accentColor": "#06A77D"
+  },
+  {
+    "slug": "weddle",
+    "name": "Weddle",
+    "publisher": "Weddle",
+    "category": "trivia",
+    "tier": 3,
+    "icon": "ball",
+    "accentColor": "#0B4F8A"
   },
   {
     "slug": "whentaken",

@@ -20,7 +20,7 @@ function csrfToken(): string {
 export async function api<T>(
   path: string,
   body?: unknown,
-  method: 'POST' | 'PATCH' | 'DELETE' | 'GET' = body === undefined ? 'GET' : 'POST',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'GET' = body === undefined ? 'GET' : 'POST',
 ): Promise<T> {
   const res = await fetch(path, {
     method,

@@ -34,17 +34,17 @@ test.describe('design system', () => {
     await choice('Dark').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
-    // Deep purple, not black: the blue and red channels clearly above the green one.
-    expect(await background()).toBe('rgb(23, 10, 44)');
+    // Near-black and neutral: no colour tint.
+    expect(await background()).toBe('rgb(11, 11, 12)');
     await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute(
       'content',
-      '#170A2C',
+      /^#0b0b0c$/i,
     );
 
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expect(choice('Dark')).toHaveAttribute('aria-pressed', 'true');
-    expect(await background()).toBe('rgb(23, 10, 44)');
+    expect(await background()).toBe('rgb(11, 11, 12)');
 
     await choice('Light').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -55,11 +55,11 @@ test.describe('design system', () => {
     expect(await background()).toBe('rgb(253, 242, 225)');
   });
 
-  test('match device follows the device: a dark device gets the purple theme', async ({ page }) => {
+  test('match device follows the device: a dark device gets the dark theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/styleguide');
     expect(await page.locator('body').evaluate((b) => getComputedStyle(b).backgroundColor)).toBe(
-      'rgb(23, 10, 44)',
+      'rgb(11, 11, 12)',
     );
     // Picking Light overrides the device.
     await page

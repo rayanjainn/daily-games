@@ -1,6 +1,6 @@
 import 'server-only';
 import { eq } from '@everydaily/shared/db';
-import { passkeyCredentials, recoveryPhraseHashes, users } from '@everydaily/shared/db';
+import { passkeyCredentials, users } from '@everydaily/shared/db';
 import { db } from '../db';
 import { HttpError } from '../session';
 import {
@@ -50,29 +50,31 @@ function isUniqueViolation(err: unknown, constraint: string) {
   return code === '23505' && (!name || name === constraint);
 }
 
-/** Creates user + first passkey + recovery hash atomically. */
+/** Creates the user with its first way in (a passkey, a password, or both) atomically. */
 export async function createAccount(input: {
   userId: string;
   username: string;
   timezone: string;
-  credential: NewCredential;
-  recoveryHash: string;
+  credential?: NewCredential;
+  passwordHash?: string;
 }) {
   try {
     await db().transaction(async (tx) => {
-      await tx
-        .insert(users)
-        .values({ id: input.userId, username: input.username, timezone: input.timezone });
-      await tx.insert(passkeyCredentials).values({
-        userId: input.userId,
-        credentialId: input.credential.id,
-        // The sign-up ceremony is also its first sign-in.
-        lastUsedAt: new Date(),
-        ...credentialColumns(input.credential),
+      await tx.insert(users).values({
+        id: input.userId,
+        username: input.username,
+        timezone: input.timezone,
+        passwordHash: input.passwordHash ?? null,
+        passwordSetAt: input.passwordHash ? new Date() : null,
       });
-      await tx
-        .insert(recoveryPhraseHashes)
-        .values({ userId: input.userId, hash: input.recoveryHash });
+      if (input.credential)
+        await tx.insert(passkeyCredentials).values({
+          userId: input.userId,
+          credentialId: input.credential.id,
+          // The sign-up ceremony is also its first sign-in.
+          lastUsedAt: new Date(),
+          ...credentialColumns(input.credential),
+        });
     });
   } catch (err) {
     if (isUniqueViolation(err, 'users_username_key')) {

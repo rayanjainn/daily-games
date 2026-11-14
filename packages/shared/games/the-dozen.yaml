@@ -1,0 +1,29 @@
+slug: 'the-dozen'
+name: 'The Dozen'
+publisher: 'The Dozen: Trivia Competition'
+description: 'Twelve trivia questions every day, from the team behind The Dozen.'
+url: 'https://dailydozentrivia.com/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#B8860B'
+icon: 'question'
+attribution: 'Made by The Dozen: Trivia Competition.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'quiz'

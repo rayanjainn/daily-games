@@ -10,6 +10,8 @@ import { requireSession } from '@/server/session';
 import { CipherGame } from '@/components/native/cipher-game';
 import { MakeItGame } from '@/components/native/make-it-game';
 import { ScrambleGame } from '@/components/native/scramble-game';
+import { SixesGame } from '@/components/native/sixes-game';
+import { GlowGame } from '@/components/native/glow-game';
 import { nativeView } from '@/server/native';
 import { IframeHost } from './iframe-host';
 
@@ -56,6 +58,10 @@ export default async function PlayPage({ params }: { params: Params }) {
             <CipherGame initial={view} />
           ) : view.kind === 'scramble' ? (
             <ScrambleGame initial={view} />
+          ) : view.kind === 'sixes' ? (
+            <SixesGame initial={view} />
+          ) : view.kind === 'glow' ? (
+            <GlowGame initial={view} />
           ) : (
             <MakeItGame initial={view} />
           )}

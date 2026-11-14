@@ -8,7 +8,6 @@ import {
   gt,
   isNull,
   passkeyCredentials,
-  recoveryPhraseHashes,
   sessions,
 } from '@everydaily/shared/db';
 import { db } from '@/server/db';
@@ -23,7 +22,7 @@ export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const { user, sessionId } = await requireSession();
-  const [passkeys, sessionRows, phrase, reminders, pending, tokenRows] = await Promise.all([
+  const [passkeys, sessionRows, reminders, pending, tokenRows] = await Promise.all([
     db()
       .select({
         id: passkeyCredentials.id,
@@ -53,10 +52,6 @@ export default async function SettingsPage() {
         ),
       )
       .orderBy(desc(sessions.lastSeenAt)),
-    db()
-      .select({ createdAt: recoveryPhraseHashes.createdAt })
-      .from(recoveryPhraseHashes)
-      .where(eq(recoveryPhraseHashes.userId, user.id)),
     getReminderSettings(user),
     pendingVerification(user.id),
     db()
@@ -110,10 +105,9 @@ export default async function SettingsPage() {
         pending,
         enabled: emailEnabled(),
       }}
-      recovery={{
-        exists: phrase.length > 0,
-        confirmed: Boolean(user.recoveryConfirmedAt),
-        createdAt: phrase[0]?.createdAt.toISOString() ?? null,
+      password={{
+        set: Boolean(user.passwordHash),
+        setAt: user.passwordSetAt?.toISOString() ?? null,
       }}
     />
   );

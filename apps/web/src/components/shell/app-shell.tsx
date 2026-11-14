@@ -10,6 +10,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Logo } from '@/components/brand/logo';
 import { NotificationBell } from '@/components/notifications/bell';
+import { CommandPalette } from './command-palette';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { NavLink } from './nav-link';
 
@@ -49,6 +50,7 @@ export function AppShell({ children, isMod = false }: { children: ReactNode; isM
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            <CommandPalette />
             <NotificationBell />
             <ThemeToggle />
           </div>

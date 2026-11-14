@@ -115,3 +115,26 @@ test.describe('keyboard only', () => {
     await expect(page.getByRole('button', { name: 'Delete account' })).toBeFocused();
   });
 });
+
+test.describe('command palette', () => {
+  test('Ctrl+K finds a game or a page and goes there', async ({ page }) => {
+    await signInAs(page);
+    await page.goto('/today');
+    await page.keyboard.press('Control+k');
+    const box = page.getByPlaceholder('Find a game or a page…');
+    await expect(box).toBeFocused();
+    await box.fill('strands');
+    await expect(page.getByRole('option', { name: /Strands/ })).toBeVisible();
+    await page.keyboard.press('Enter');
+    await page.waitForURL(/\/games\/strands$/);
+
+    await page.keyboard.press('Control+k');
+    await page.getByPlaceholder('Find a game or a page…').fill('rankings');
+    await page.keyboard.press('Enter');
+    await page.waitForURL(/\/rankings$/);
+    // Escape closes it without going anywhere.
+    await page.keyboard.press('Control+k');
+    await page.keyboard.press('Escape');
+    await expect(page.getByPlaceholder('Find a game or a page…')).toHaveCount(0);
+  });
+});

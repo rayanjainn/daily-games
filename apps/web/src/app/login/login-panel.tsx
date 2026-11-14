@@ -5,7 +5,7 @@ import {
   startAuthentication,
   type PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/browser';
-import { KeyRound, Mail, ScrollText, Smartphone } from 'lucide-react';
+import { KeyRound, LockKeyhole, Mail, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -93,6 +93,8 @@ export function LoginPanel({ next, emailLogin = false }: { next: string; emailLo
         </Button>
       </Card>
 
+      <PasswordSignIn next={next} />
+
       <div className="mt-6 flex flex-col gap-2">
         <p className="text-center font-display text-sm font-semibold text-ink-soft">
           Other ways in
@@ -109,11 +111,6 @@ export function LoginPanel({ next, emailLogin = false }: { next: string; emailLo
             </Link>
           </Button>
         ) : null}
-        <Button asChild variant="secondary">
-          <Link href={`/login/recover?next=${encodeURIComponent(next)}`}>
-            <ScrollText aria-hidden /> Use my recovery phrase
-          </Link>
-        </Button>
       </div>
       <p className="mt-8 text-center text-ink-soft">
         New here?{' '}
@@ -125,5 +122,78 @@ export function LoginPanel({ next, emailLogin = false }: { next: string; emailLo
         </Link>
       </p>
     </section>
+  );
+}
+
+/**
+ * Name and password, for a device without the passkey. Afterwards the player is offered a
+ * passkey for this device, so the password is needed once per device at most.
+ */
+function PasswordSignIn({ next }: { next: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!open)
+    return (
+      <Button variant="secondary" block className="mt-4" onClick={() => setOpen(true)}>
+        <LockKeyhole aria-hidden /> Sign in with a password
+      </Button>
+    );
+
+  return (
+    <form
+      className="mt-4"
+      aria-label="Sign in with a password"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(null);
+        try {
+          await api('/api/auth/login/password', { username, password });
+          router.replace(`/login/add-passkey?next=${encodeURIComponent(next)}`);
+        } catch (err) {
+          setError(
+            err instanceof ApiError ? err.message : 'Something went wrong. Please try again.',
+          );
+          setBusy(false);
+        }
+      }}
+    >
+      <Card className="flex flex-col gap-4 p-5 sm:p-6">
+        <Field label="Player name for password sign-in">
+          {({ id }) => (
+            <Input
+              id={id}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+            />
+          )}
+        </Field>
+        <Field label="Password">
+          {({ id }) => (
+            <Input
+              id={id}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          )}
+        </Field>
+        {error ? <Notice tone="danger">{error}</Notice> : null}
+        <Button type="submit" size="lg" block loading={busy}>
+          Sign in
+        </Button>
+      </Card>
+    </form>
   );
 }

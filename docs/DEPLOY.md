@@ -11,7 +11,7 @@ Production layout:
 
 > **Pick the final domain before anyone signs up.** Passkeys are bound to the WebAuthn RP ID
 > (`everydaily.raycode.tech`). Moving to another host later makes every existing passkey stop
-> working there; people would have to recover with their phrase.
+> working there; people would have to sign in with a password or email link and add a new one.
 
 Every command below runs from the repository root unless it says otherwise.
 
@@ -184,8 +184,8 @@ Settings and paste it, with the app address, into the extension's options.
 
 ## 6. After the first deploy
 
-1. Open `https://everydaily.raycode.tech`, sign up, create your passkey and save the recovery
-   phrase.
+1. Open `https://everydaily.raycode.tech`, sign up and create your passkey. Add a password too
+   (Settings → Password) if you want to sign in on a device without the passkey.
 2. Make yourself an admin (the only way roles change; there is no web endpoint for it):
 
    ```sh
@@ -201,7 +201,8 @@ Settings and paste it, with the app address, into the extension's options.
 
 - Pushing to `main` deploys the web app on Vercel automatically.
 - Worker changes: `cd apps/worker && pnpm run deploy`.
-- New migrations: run `pnpm db:migrate` against the direct URL **before** the web deploy that
+- New migrations: the production build applies them itself (see Version 2 notes). To run them by
+  hand instead, use `pnpm db:migrate` against the direct URL **before** the web deploy that
   needs them. Catalog YAML changes: `pnpm seed:games`.
 - CI (`.github/workflows/ci.yml`) runs lint, types, unit, e2e and visual tests on every push.
   The weekly **Embed probe** workflow uploads a fresh `docs/embed-probe` report; read it before
@@ -239,3 +240,21 @@ If the site feels slow, it is almost always distance, not code:
 4. Check the numbers: `pnpm --filter @everydaily/web lighthouse` audits the main pages on a local
    production build (it can't see network distance, so it only guards the page itself), and the
    deployed site can be tested with PageSpeed Insights.
+
+## Version 2 notes
+
+- **Migrations now run on deploy.** The production build (`apps/web/vercel.json`) runs
+  `pnpm release:prepare` first: it applies pending migrations and loads the game catalog, using
+  `DATABASE_URL_UNPOOLED` (or `DIRECT_DATABASE_URL`, else `DATABASE_URL`). If that step fails, the
+  build fails and Vercel keeps the previous deployment live. Preview builds skip it. Migrations
+  must stay additive for this to be safe: the previous release keeps serving while the new one
+  builds, so a column or table is dropped only in a later release.
+- **Migration 0016** adds the optional password columns and `official_answers`. The recovery
+  phrase table and column stay (unused) until a later release drops them; players can no longer
+  use a phrase, but keep their passkeys and can add a password in Settings.
+- **Official answers** are on by default (`FEATURE_OFFICIAL_ANSWERS=1`). They are fetched from the
+  publishers' own public pages and endpoints, only after a player logs that puzzle, cached once
+  per day, and linked to the source. Set `FEATURE_OFFICIAL_ANSWERS=0` to switch them off.
+  `pnpm check:answers` checks every source against the live sites.
+- **New games:** Sixes and Glow (played here) and twelve more catalog games arrive with
+  `pnpm seed:games`.

@@ -1,4 +1,4 @@
-import { signUpViaUi, apiPost } from './support/auth';
+import { apiPost, csrfHeaders, signUpViaUi } from './support/auth';
 import { e2eSql } from './support/db';
 import { addVirtualAuthenticator, expect, test, type Page } from './support/fixtures';
 
@@ -148,68 +148,93 @@ test.describe('passkey sign-in', () => {
   });
 });
 
-test.describe('recovery phrase sign-in', () => {
-  test('signs in with the phrase and offers to add a passkey', async ({ page }) => {
-    test.slow(); // sign-up plus an argon2id verify under parallel load
-    const device = await addVirtualAuthenticator(page);
-    const { username, phrase } = await signUpViaUi(page, name());
+test.describe('password sign-in', () => {
+  const PASSWORD = 'quiet maple lantern river';
+
+  async function withPassword(page: Page) {
+    await addVirtualAuthenticator(page);
+    const { username } = await signUpViaUi(page, name());
+    const res = await page.request.put('/api/me/password', {
+      data: { password: PASSWORD },
+      headers: await csrfHeaders(page),
+    });
+    expect(res.status()).toBe(200);
     await signOut(page);
-    // The device with the passkey is gone; only the phrase is left.
-    await device.remove();
+    return username;
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      PublicKeyCredential.isConditionalMediationAvailable = async () => false;
+    });
+  });
+
+  test('signs in with name and password and offers a passkey for this device', async ({ page }) => {
+    test.slow(); // argon2id is deliberately slow under parallel load
+    const username = await withPassword(page);
     await page.goto('/login');
-    await page.getByRole('link', { name: 'Use my recovery phrase' }).click();
-    // Let the client-side navigation commit before typing, or the form can remount mid-fill.
-    await page.waitForURL((u) => u.pathname === '/login/recover');
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled();
-    await page.getByLabel('Player name').fill(username.toUpperCase());
-    // Four-letter prefixes and odd spacing are accepted.
-    await page
-      .getByLabel('Recovery phrase')
-      .fill(`  ${phrase.map((w) => w.slice(0, 4)).join('   ')}  `);
-    await page.getByRole('button', { name: 'Sign in' }).click();
-    // argon2id (64 MiB, 3 passes) is deliberately slow; under a parallel test load it can take a while.
+    await page.getByRole('button', { name: 'Sign in with a password' }).click();
+    // Names are case-insensitive.
+    await page.getByLabel('Player name for password sign-in').fill(username.toUpperCase());
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page.getByRole('heading', { name: "You're in!" })).toBeVisible({
       timeout: 45_000,
     });
     await page.getByRole('button', { name: 'Not now' }).click();
     await page.waitForURL(/\/today/);
+    const sql = e2eSql();
+    const [s] = await sql`SELECT method FROM sessions s JOIN users u ON u.id = s.user_id
+      WHERE u.username = ${username} ORDER BY s.created_at DESC LIMIT 1`;
+    await sql.end();
+    expect(s!.method).toBe('password');
   });
 
-  test('locks out after repeated wrong phrases, even for the right phrase', async ({ page }) => {
-    await addVirtualAuthenticator(page);
-    const { username, phrase } = await signUpViaUi(page, name());
-    await signOut(page);
-    await page.goto('/login/recover');
-    const wrong = 'abandon ability able about above absent';
+  test('locks out after repeated wrong passwords, even for the right one', async ({ page }) => {
+    const username = await withPassword(page);
+    await page.goto('/login');
     const codes: string[] = [];
     for (let i = 0; i < 5; i++)
       codes.push(
-        (await (await apiPost(page, '/api/auth/recover', { username, phrase: wrong })).json()).error
-          .code,
+        (
+          await (
+            await apiPost(page, '/api/auth/login/password', {
+              username,
+              password: 'wrong-guess-12',
+            })
+          ).json()
+        ).error.code,
       );
-    expect(codes).toEqual(Array(5).fill('recovery_failed'));
-    const locked = await apiPost(page, '/api/auth/recover', { username, phrase: phrase.join(' ') });
+    expect(codes).toEqual(Array(5).fill('login_failed'));
+    const locked = await apiPost(page, '/api/auth/login/password', {
+      username,
+      password: PASSWORD,
+    });
     expect(locked.status()).toBe(429);
     expect((await locked.json()).error.code).toBe('locked');
     expect(Number(locked.headers()['retry-after'])).toBeGreaterThan(30);
   });
 
-  test('gives the same answer for unknown names and wrong phrases', async ({ page }) => {
-    await page.goto('/login/recover');
-    const unknown = await apiPost(page, '/api/auth/recover', {
+  test('gives the same answer for unknown names and accounts without a password', async ({
+    page,
+  }) => {
+    await page.goto('/login');
+    const unknown = await apiPost(page, '/api/auth/login/password', {
       username: 'nobody_here_42',
-      phrase: 'abandon ability able about above absent',
+      password: PASSWORD,
     });
     expect(unknown.status()).toBe(401);
-    expect((await unknown.json()).error.code).toBe('recovery_failed');
-  });
+    expect((await unknown.json()).error.code).toBe('login_failed');
 
-  test('rejects malformed phrases without revealing anything', async ({ page }) => {
-    await page.goto('/login/recover');
-    const res = await apiPost(page, '/api/auth/recover', {
-      username: 'whoever',
-      phrase: 'not a real phrase at all here',
+    await addVirtualAuthenticator(page);
+    const { username } = await signUpViaUi(page, name());
+    await signOut(page);
+    await page.goto('/login');
+    const noPassword = await apiPost(page, '/api/auth/login/password', {
+      username,
+      password: PASSWORD,
     });
-    expect((await res.json()).error.code).toBe('recovery_failed');
+    expect(noPassword.status()).toBe(401);
+    expect((await noPassword.json()).error.code).toBe('login_failed');
   });
 });

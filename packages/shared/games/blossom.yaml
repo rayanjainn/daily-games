@@ -1,0 +1,29 @@
+slug: 'blossom'
+name: 'Blossom'
+publisher: 'Merriam-Webster'
+description: 'Make 12 words from seven letters, always using the centre one. Longer words and pangrams score more.'
+url: 'https://www.merriam-webster.com/games/blossom-word-game'
+category: 'word'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#B03A6F'
+icon: 'hexagon'
+attribution: 'Published by Merriam-Webster.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'spelling'

@@ -15,7 +15,7 @@ const groups = {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     APP_URL: z.string().url(),
     DATABASE_URL: z.string().min(1),
-    /** 32+ random bytes; signs gate tokens and the recovery confirmation. */
+    /** 32+ random bytes; signs short-lived tokens and derives the native-game keys. */
     AUTH_SECRET: z.string().min(32),
   }),
   redis: z.object({
@@ -36,6 +36,8 @@ const groups = {
   features: z.object({
     /** "off", "admin" (mods and admins only, the launch default) or "all" signed-in players */
     FEATURE_SUBMISSIONS: z.enum(['off', 'admin', 'all']).default('admin'),
+    /** "0" turns off answers fetched from publishers (shown only after a player logs a puzzle). */
+    FEATURE_OFFICIAL_ANSWERS: z.enum(['0', '1']).default('1'),
   }),
   email: z.object({
     /** Optional: email verification and email reminders are off without both. */

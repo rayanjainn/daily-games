@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { and, asc, eq, follows, games, ne, type Game } from '@everydaily/shared/db';
+import { hasAnswerSource } from '@everydaily/shared/answers';
 import { clockFromGame, type IconKey } from '@everydaily/shared/registry';
 import { currentPuzzle } from '@everydaily/shared/time/puzzle';
 import { db } from './db';
@@ -26,6 +27,8 @@ export interface CatalogGame {
   scoringUnit: string | null;
   /** today's puzzle for this player; the number only when the game shows one */
   today: { date: string; number: number | null };
+  /** The publisher's answer can be revealed here after playing. */
+  hasAnswers: boolean;
 }
 
 export function toCatalogGame(g: Game, userTz: string, now = new Date()): CatalogGame {
@@ -49,6 +52,7 @@ export function toCatalogGame(g: Game, userTz: string, now = new Date()): Catalo
     maxAttempts: g.maxAttempts,
     scoringUnit: g.scoringUnit,
     today: { date: p.date, number: g.numberingPublic ? p.number : null },
+    hasAnswers: hasAnswerSource(g.slug),
   };
 }
 

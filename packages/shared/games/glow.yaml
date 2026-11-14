@@ -1,0 +1,30 @@
+slug: 'glow'
+name: 'Glow'
+publisher: 'EveryDaily'
+description: 'Tap a light to flip it and its neighbours. Turn the whole board dark in as few taps as you can.'
+url: 'https://everydaily.raycode.tech/games/glow/play'
+category: 'logic'
+difficulty: 'medium'
+tier: 1
+embedMode: 'native'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2026-11-01'
+  epochNumber: 1
+  public: true
+parserId: null
+scoring:
+  type: 'attempts'
+  maxAttempts: 30
+shareTextSamples: []
+accentColor: '#B7791F'
+icon: 'dots'
+attribution: 'An original EveryDaily game, played right here.'
+verifiedLiveAt: '2026-11-09T00:00:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'original'
+  - 'lights'

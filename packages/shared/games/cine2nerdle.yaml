@@ -1,0 +1,29 @@
+slug: 'cine2nerdle'
+name: 'Cine2Nerdle'
+publisher: 'Cine2Nerdle'
+description: 'Grid puzzles about films: link movies through the actors and crew they share.'
+url: 'https://www.cinenerdle2.app/'
+category: 'trivia'
+difficulty: 'hard'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#7A1F5C'
+icon: 'film'
+attribution: 'Made and hosted by Cine2Nerdle.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'movies'

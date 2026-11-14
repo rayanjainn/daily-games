@@ -44,6 +44,7 @@ export function GameCard({ game, following }: { game: CatalogGame; following: bo
         </Badge>
         <CategoryBadge category={game.category} />
         <Badge>{DIFFICULTY_LABELS[game.difficulty]}</Badge>
+        {game.hasAnswers ? <Badge tone="mint">Answer after play</Badge> : null}
         {game.status === 'possibly_down' ? <Badge tone="warn">May be down</Badge> : null}
       </div>
     </li>

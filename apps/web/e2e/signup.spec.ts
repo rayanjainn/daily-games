@@ -1,19 +1,111 @@
 import AxeBuilder from '@axe-core/playwright';
-import { addVirtualAuthenticator, expect, test } from './support/fixtures';
-import { apiPost, fillConfirmation, gateAnswer, signUpViaUi, solveGateInUi } from './support/auth';
+import type { Page } from '@playwright/test';
+import { apiPost, signUpViaUi } from './support/auth';
+import { e2eSql } from './support/db';
+import { addVirtualAuthenticator, expect, randomIp, test } from './support/fixtures';
 
 const uniqueName = () => `tester_${Math.random().toString(36).slice(2, 8)}`;
+const PASSWORD = 'tidal velvet otter harbour';
+
+/** Solves a proof-of-work challenge in the page, the way the browser does in the background. */
+async function solvePow(page: Page) {
+  const pow = await (await apiPost(page, '/api/auth/pow', {})).json();
+  const nonce = await page.evaluate(async ({ salt, difficulty }) => {
+    const enc = new TextEncoder();
+    for (let n = 0; ; n++) {
+      const d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(`${salt}:${n}`)));
+      let bits = 0;
+      for (const b of d) {
+        if (b === 0) {
+          bits += 8;
+          continue;
+        }
+        bits += Math.clz32(b) - 24;
+        break;
+      }
+      if (bits >= difficulty) return String(n);
+    }
+  }, pow);
+  return { id: pow.id as string, nonce };
+}
+
+async function userRow(username: string) {
+  const sql = e2eSql();
+  const [u] = await sql`SELECT u.id, u.password_hash IS NOT NULL AS has_password,
+      (SELECT count(*)::int FROM passkey_credentials c WHERE c.user_id = u.id) AS passkeys
+    FROM users u WHERE u.username = ${username}`;
+  await sql.end();
+  return u!;
+}
 
 test.describe('sign-up', () => {
-  test('completes the full flow with a virtual passkey', async ({ page }) => {
+  test('with a passkey: two steps, no puzzle and nothing to write down', async ({ page }) => {
     const auth = await addVirtualAuthenticator(page);
-    const { username, phrase } = await signUpViaUi(page, uniqueName());
-    expect(phrase).toHaveLength(6);
+    const { username } = await signUpViaUi(page, uniqueName());
     await expect(page.getByRole('heading', { name: `Hi, ${username}` })).toBeVisible();
-
     const creds = await auth.credentials();
     expect(creds).toHaveLength(1);
     expect(creds[0]!.isResidentCredential).toBe(true);
+    expect(await userRow(username)).toMatchObject({ has_password: false, passkeys: 1 });
+  });
+
+  test('with a passkey, then a password that works on another device', async ({
+    page,
+    browser,
+  }) => {
+    await addVirtualAuthenticator(page);
+    const username = uniqueName();
+    await page.goto('/start');
+    await page.getByLabel('Player name').fill(username);
+    await expect(page.getByLabel('Available')).toBeVisible();
+    await page.getByRole('button', { name: "That's me" }).click();
+    await page.getByRole('button', { name: 'Create passkey' }).click();
+    await expect(page.getByRole('heading', { name: /Signing in elsewhere/ })).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByLabel('Type it again').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Save password' }).click();
+    await page.waitForURL(/\/today/);
+    expect(await userRow(username)).toMatchObject({ has_password: true, passkeys: 1 });
+
+    // A second device with no passkey signs in with the password and is offered one.
+    const other = await browser.newContext({ extraHTTPHeaders: { 'x-forwarded-for': randomIp() } });
+    const laptop = await other.newPage();
+    await laptop.addInitScript(() => {
+      PublicKeyCredential.isConditionalMediationAvailable = async () => false;
+    });
+    await addVirtualAuthenticator(laptop);
+    await laptop.goto('/login');
+    await laptop.getByRole('button', { name: 'Sign in with a password' }).click();
+    await laptop.getByLabel('Player name for password sign-in').fill(username);
+    await laptop.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await laptop.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await laptop.waitForURL(/\/login\/add-passkey/);
+    await laptop.getByRole('button', { name: 'Add a passkey' }).click();
+    await laptop.waitForURL((u) => u.pathname === '/today');
+    expect(await userRow(username)).toMatchObject({ passkeys: 2 });
+    await other.close();
+  });
+
+  test('with only a password, then a passkey offered for this device', async ({ page }) => {
+    await addVirtualAuthenticator(page);
+    const username = uniqueName();
+    await page.goto('/start');
+    await page.getByLabel('Player name').fill(username);
+    await expect(page.getByLabel('Available')).toBeVisible();
+    await page.getByRole('button', { name: "That's me" }).click();
+    await page.getByRole('button', { name: 'Use a password instead' }).click();
+    const create = page.getByRole('button', { name: 'Create account with password' });
+    await page.getByLabel('Password', { exact: true }).fill('short');
+    await expect(page.getByText('Use at least 10 characters.').first()).toBeVisible();
+    await expect(create).toBeDisabled();
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.getByLabel('Type it again').fill(PASSWORD);
+    await create.click();
+    await expect(page.getByRole('heading', { name: /One more thing/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Not now' }).click();
+    await page.waitForURL(/\/today/);
+    expect(await userRow(username)).toMatchObject({ has_password: true, passkeys: 0 });
   });
 
   test('suggests an available adjective_noun name', async ({ page }) => {
@@ -23,6 +115,7 @@ test.describe('sign-up', () => {
     const before = await page.getByLabel('Player name').inputValue();
     await page.getByRole('button', { name: 'Shuffle' }).click();
     await expect(page.getByLabel('Player name')).not.toHaveValue(before);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   });
 
   test('explains why a name is not allowed', async ({ page }) => {
@@ -64,226 +157,62 @@ test.describe('sign-up', () => {
       page.getByRole('alert').filter({ hasText: 'Someone already has that one.' }),
     ).toBeVisible();
   });
-
-  test('a wrong gate answer shakes and lets you retry', async ({ page }) => {
-    await page.goto('/start');
-    await expect(page.getByLabel('Available')).toBeVisible();
-    await page.getByRole('button', { name: "That's me" }).click();
-    const gate = page.getByTestId('puzzle-gate');
-    const tiles = gate.getByRole('button', { name: /^Letter [A-Z]$/ });
-    await expect(tiles.first()).toBeVisible();
-    const letters = (await tiles.allInnerTexts()).map((t) => t.trim());
-    // Type the letters in the scrambled order: guaranteed wrong.
-    await page.keyboard.type(letters.join('').toLowerCase(), { delay: 30 });
-    await expect(gate.getByText('Not quite. Try again!')).toBeVisible();
-    await expect(gate.getByRole('status', { name: 'Your answer: empty' })).toBeVisible();
-    await page.keyboard.type(gateAnswer(letters).toLowerCase(), { delay: 30 });
-    await expect(page.getByRole('heading', { name: 'Create your passkey' })).toBeVisible();
-  });
-
-  test('cancelling the passkey prompt shows a friendly error and allows retry', async ({
-    page,
-  }) => {
-    await addVirtualAuthenticator(page);
-    // Browsers reject with NotAllowedError when the user dismisses the OS prompt.
-    await page.addInitScript(() => {
-      const original = navigator.credentials.create.bind(navigator.credentials);
-      let calls = 0;
-      navigator.credentials.create = (opts) =>
-        calls++ === 0
-          ? Promise.reject(new DOMException('cancelled', 'NotAllowedError'))
-          : original(opts);
-    });
-    await page.goto('/start');
-    await expect(page.getByLabel('Available')).toBeVisible();
-    await page.getByRole('button', { name: "That's me" }).click();
-    await solveGateInUi(page);
-    await page.getByRole('button', { name: 'Create passkey' }).click();
-    await expect(
-      page.getByRole('alert').filter({ hasText: 'The passkey prompt was closed or timed out' }),
-    ).toBeVisible();
-    await page.getByRole('button', { name: 'Create passkey' }).click();
-    await expect(page.getByRole('heading', { name: 'Save your recovery phrase' })).toBeVisible();
-  });
-
-  test('the recovery check rejects wrong words', async ({ page }) => {
-    await addVirtualAuthenticator(page);
-    await page.goto('/start');
-    await page.getByLabel('Player name').fill(uniqueName());
-    await expect(page.getByLabel('Available')).toBeVisible();
-    await page.getByRole('button', { name: "That's me" }).click();
-    await solveGateInUi(page);
-    await page.getByRole('button', { name: 'Create passkey' }).click();
-    await expect(page.getByTestId('recovery-phrase').locator('[data-word]')).toHaveCount(6);
-    const words = await page.getByTestId('recovery-phrase').locator('[data-word]').allInnerTexts();
-    await page.getByLabel('I saved my recovery phrase somewhere safe').check();
-    await page.getByRole('button', { name: 'Continue' }).click();
-    await fillConfirmation(
-      page,
-      words.map(() => 'zebra'),
-    );
-    await page.getByRole('button', { name: 'Finish' }).click();
-    await expect(
-      page.getByRole('alert').filter({ hasText: "Those words don't match" }),
-    ).toBeVisible();
-    await fillConfirmation(page, words);
-    await page.getByRole('button', { name: 'Finish' }).click();
-    await page.waitForURL(/\/today/);
-  });
-
-  test('has no axe violations on each step', async ({ page }) => {
-    await addVirtualAuthenticator(page);
-    await page.goto('/start');
-    await expect(page.getByLabel('Available')).toBeVisible();
-    const check = async () => {
-      const r = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-        .analyze();
-      expect(
-        r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`),
-      ).toEqual([]);
-    };
-    await check();
-    await page.getByRole('button', { name: "That's me" }).click();
-    await expect(
-      page
-        .getByTestId('puzzle-gate')
-        .getByRole('button', { name: /^Letter/ })
-        .first(),
-    ).toBeVisible();
-    await check();
-    await solveGateInUi(page);
-    await expect(page.getByRole('button', { name: 'Create passkey' })).toBeVisible();
-    await check();
-    await page.getByRole('button', { name: 'Create passkey' }).click();
-    await expect(page.getByTestId('recovery-phrase')).toBeVisible();
-    await check();
-  });
 });
 
-test.describe('sign-up bot protection (API level, puzzle UI bypassed)', () => {
+test.describe('sign-up bot protection (API level)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/start');
   });
 
-  test('requires a gate pass', async ({ page }) => {
-    const pow = await (await apiPost(page, '/api/auth/pow', {})).json();
-    const res = await apiPost(page, '/api/auth/signup/options', {
-      username: uniqueName(),
-      gatePass: 'forged.token',
-      pow: { id: pow.id, nonce: '0' },
-    });
-    expect(res.status()).toBe(403);
-    expect((await res.json()).error.code).toBe('gate_required');
-  });
-
-  test('requires a valid, single-use proof of work even with a real gate pass', async ({
-    page,
-  }) => {
-    const gate = await (await apiPost(page, '/api/auth/gate/start', {})).json();
-    const solved = await (
-      await apiPost(page, '/api/auth/gate/solve', { id: gate.id, answer: gateAnswer(gate.letters) })
-    ).json();
-    expect(solved.pass).toBeTruthy();
-
+  test('requires a valid, single-use proof of work', async ({ page }) => {
     const pow = await (await apiPost(page, '/api/auth/pow', {})).json();
     const bad = await apiPost(page, '/api/auth/signup/options', {
       username: uniqueName(),
-      gatePass: solved.pass,
-      pow: { id: pow.id, nonce: '1' },
+      pow: { id: pow.id, nonce: 'x' },
     });
     expect((await bad.json()).error.code).toBe('pow_invalid');
 
-    // A correct solution for a challenge that was already consumed is still rejected.
-    const nonce = await page.evaluate(async ({ salt, difficulty }) => {
-      const enc = new TextEncoder();
-      for (let n = 0; ; n++) {
-        const d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(`${salt}:${n}`)));
-        let bits = 0;
-        for (const b of d) {
-          if (b === 0) {
-            bits += 8;
-            continue;
-          }
-          bits += Math.clz32(b) - 24;
-          break;
-        }
-        if (bits >= difficulty) return String(n);
-      }
-    }, pow);
-    const replay = await apiPost(page, '/api/auth/signup/options', {
-      username: uniqueName(),
-      gatePass: solved.pass,
-      pow: { id: pow.id, nonce },
-    });
-    expect((await replay.json()).error.code).toBe('pow_invalid');
-
-    const fresh = await (await apiPost(page, '/api/auth/pow', {})).json();
-    const freshNonce = await page.evaluate(async ({ salt, difficulty }) => {
-      const enc = new TextEncoder();
-      for (let n = 0; ; n++) {
-        const d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(`${salt}:${n}`)));
-        let bits = 0;
-        for (const b of d) {
-          if (b === 0) {
-            bits += 8;
-            continue;
-          }
-          bits += Math.clz32(b) - 24;
-          break;
-        }
-        if (bits >= difficulty) return String(n);
-      }
-    }, fresh);
+    const good = await solvePow(page);
     const ok = await apiPost(page, '/api/auth/signup/options', {
       username: uniqueName(),
-      gatePass: solved.pass,
-      pow: { id: fresh.id, nonce: freshNonce },
+      pow: good,
     });
     expect(ok.status()).toBe(200);
     expect((await ok.json()).options.authenticatorSelection).toMatchObject({
       residentKey: 'required',
       userVerification: 'required',
     });
-  });
-
-  test('a gate pass is bound to the device that earned it', async ({ page, browser }) => {
-    const gate = await (await apiPost(page, '/api/auth/gate/start', {})).json();
-    const { pass } = await (
-      await apiPost(page, '/api/auth/gate/solve', { id: gate.id, answer: gateAnswer(gate.letters) })
-    ).json();
-    const other = await browser.newContext({
-      extraHTTPHeaders: { 'x-forwarded-for': '10.201.0.1' },
-    });
-    const p2 = await other.newPage();
-    await p2.goto('/start');
-    const pow = await (await apiPost(p2, '/api/auth/pow', {})).json();
-    const res = await apiPost(p2, '/api/auth/signup/options', {
+    const replay = await apiPost(page, '/api/auth/signup/options', {
       username: uniqueName(),
-      gatePass: pass,
-      pow: { id: pow.id, nonce: '0' },
+      pow: good,
     });
-    expect((await res.json()).error.code).toBe('gate_required');
-    await other.close();
+    expect((await replay.json()).error.code).toBe('pow_invalid');
   });
 
-  test('gate allows three tries per puzzle', async ({ page }) => {
-    const gate = await (await apiPost(page, '/api/auth/gate/start', {})).json();
-    const codes = [];
-    for (let i = 0; i < 3; i++)
-      codes.push(
-        (
-          await (
-            await apiPost(page, '/api/auth/gate/solve', { id: gate.id, answer: 'XXXXX' })
-          ).json()
-        ).error.code,
-      );
-    expect(codes).toEqual(['gate_wrong', 'gate_wrong', 'gate_too_many']);
-    const after = await apiPost(page, '/api/auth/gate/solve', {
-      id: gate.id,
-      answer: gateAnswer(gate.letters),
+  test('password sign-up passes the same checks and refuses weak passwords', async ({ page }) => {
+    const noPow = await apiPost(page, '/api/auth/signup/password', {
+      username: uniqueName(),
+      password: PASSWORD,
+      pow: { id: 'xxxxxxxx', nonce: '0' },
+      timezone: 'UTC',
     });
-    expect((await after.json()).error.code).toBe('gate_expired');
+    expect((await noPow.json()).error.code).toBe('pow_invalid');
+    const name = uniqueName();
+    const weak = await apiPost(page, '/api/auth/signup/password', {
+      username: name,
+      password: 'password123',
+      pow: await solvePow(page),
+      timezone: 'UTC',
+    });
+    expect(weak.status()).toBe(422);
+    expect((await weak.json()).error.code).toBe('weak_password');
+    const fromName = await apiPost(page, '/api/auth/signup/password', {
+      username: name,
+      password: `${name}-forever`,
+      pow: await solvePow(page),
+      timezone: 'UTC',
+    });
+    expect((await fromName.json()).error.message).toMatch(/player name/);
   });
 
   test('rate-limits sign-up attempts per IP', async ({ page }) => {
@@ -293,7 +222,6 @@ test.describe('sign-up bot protection (API level, puzzle UI bypassed)', () => {
         (
           await apiPost(page, '/api/auth/signup/options', {
             username: uniqueName(),
-            gatePass: 'x',
             pow: { id: 'xxxxxxxx', nonce: '0' },
           })
         ).status(),

@@ -1,0 +1,29 @@
+slug: 'sixes'
+name: 'Sixes'
+publisher: 'EveryDaily'
+description: 'A six-by-six sudoku: every row, column and box holds 1 to 6 once. Three checks, against the clock.'
+url: 'https://everydaily.raycode.tech/games/sixes/play'
+category: 'logic'
+difficulty: 'easy'
+tier: 1
+embedMode: 'native'
+reset:
+  mode: 'user_local'
+  hour: 0
+numbering:
+  epoch: '2026-11-01'
+  epochNumber: 1
+  public: true
+parserId: null
+scoring:
+  type: 'time'
+shareTextSamples: []
+accentColor: '#0B7A75'
+icon: 'sudoku'
+attribution: 'An original EveryDaily game, played right here.'
+verifiedLiveAt: '2026-11-09T00:00:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'original'
+  - 'numbers'

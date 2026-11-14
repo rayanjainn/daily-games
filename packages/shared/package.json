@@ -10,7 +10,8 @@
     "./realtime": "./src/realtime/index.ts",
     "./native": "./src/native/index.ts",
     "./registry": "./src/registry/index.ts",
-    "./*": "./src/*.ts"
+    "./*": "./src/*.ts",
+    "./answers": "./src/answers/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Check,
-  Copy,
-  Download,
-  KeyRound,
-  Laptop,
-  Pencil,
-  Plus,
-  RefreshCw,
-  ShieldAlert,
-  Trash2,
-  Usb,
-} from 'lucide-react';
+import { Download, KeyRound, Laptop, Pencil, Plus, ShieldAlert, Trash2, Usb } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Switch } from '@/components/ui/switch';
@@ -63,7 +51,7 @@ interface Props {
   };
   passkeys: Passkey[];
   sessions: SessionRow[];
-  recovery: { exists: boolean; confirmed: boolean; createdAt: string | null };
+  password: { set: boolean; setAt: string | null };
   reminders: ReminderSettingsProps;
   email: EmailSettingsProps;
   extension: { appUrl: string; tokens: CaptureTokenRow[] };
@@ -115,12 +103,12 @@ export function SettingsView({
   user,
   passkeys,
   sessions,
-  recovery,
+  password,
   reminders,
   email,
   extension,
 }: Props) {
-  const atRisk = !user.email && (passkeys.length <= 1 || !recovery.confirmed);
+  const atRisk = !user.email && !password.set && passkeys.length <= 1;
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -137,9 +125,8 @@ export function SettingsView({
           <span className="flex gap-2">
             <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
             <span>
-              If you lose {passkeys.length <= 1 ? 'your only passkey' : 'your passkeys'} and your
-              recovery phrase, and have no email on the account, nobody can get you back in. Add a
-              second passkey and keep your phrase somewhere safe.
+              Your only way in is {passkeys.length ? 'one passkey' : 'nothing yet'}. If you lose
+              that device, nobody can get you back in. Add a password, a second passkey or an email.
             </span>
           </span>
         </Notice>
@@ -150,7 +137,7 @@ export function SettingsView({
       <ReminderSettings {...reminders} />
       <EmailSettings {...email} />
       <PasskeysSection passkeys={passkeys} />
-      <RecoverySection recovery={recovery} />
+      <PasswordSection password={password} />
       <SessionsSection sessions={sessions} />
       <ExtensionSection {...extension} />
       <DataSection username={user.username} />
@@ -474,167 +461,149 @@ function RemovePasskey({ passkey }: { passkey: Passkey }) {
 
 // ---------------------------------------------------------------------------
 
-function RecoverySection({ recovery }: { recovery: Props['recovery'] }) {
+function PasswordSection({ password }: { password: Props['password'] }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const toast = useToast();
+  const [mode, setMode] = useState<'set' | 'remove' | null>(null);
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [again, setAgain] = useState('');
   const [busy, setBusy] = useState(false);
-  const [phrase, setPhrase] = useState<string[] | null>(null);
-  const [indices, setIndices] = useState<number[]>([]);
-  const [answers, setAnswers] = useState<string[]>(['', '']);
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
 
   function reset() {
-    setPhrase(null);
-    setAnswers(['', '']);
+    setMode(null);
+    setCurrent('');
+    setNext('');
+    setAgain('');
     setError(null);
-    setDone(false);
+  }
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    try {
+      if (mode === 'remove') await api('/api/me/password', { current }, 'DELETE');
+      else
+        await api(
+          '/api/me/password',
+          password.set ? { password: next, current } : { password: next },
+          'PUT',
+        );
+      toast({
+        tone: 'success',
+        title:
+          mode === 'remove'
+            ? 'Password removed'
+            : password.set
+              ? 'Password changed'
+              : 'Password saved',
+      });
+      reset();
+      router.refresh();
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <Section
-      id="recovery"
-      title="Recovery phrase"
+      id="password"
+      title="Password"
       description={
-        recovery.exists
-          ? `Created ${fmt(recovery.createdAt)}. Your way back in if you lose every passkey.`
-          : 'You have no recovery phrase.'
+        password.set
+          ? `Set ${fmt(password.setAt)}. Use it with your player name on a device without your passkey.`
+          : 'No password. Add one to sign in on a device that doesn\u2019t have your passkey.'
       }
-      action={
-        !recovery.exists ? (
-          <Badge tone="danger">None</Badge>
-        ) : recovery.confirmed ? (
-          <Badge tone="success">Saved and checked</Badge>
-        ) : (
-          <Badge tone="warn">Not checked</Badge>
-        )
-      }
+      action={<Badge tone={password.set ? 'mint' : 'neutral'}>{password.set ? 'On' : 'Off'}</Badge>}
     >
-      <Dialog
-        open={open}
-        onOpenChange={(o) => {
-          setOpen(o);
-          if (!o) {
-            if (phrase) router.refresh();
-            reset();
-          }
-        }}
-      >
-        <DialogTrigger asChild>
-          <Button variant="secondary" className="self-start">
-            <RefreshCw aria-hidden /> Make a new phrase
-          </Button>
-        </DialogTrigger>
-        <DialogContent
-          title={phrase ? 'Your new recovery phrase' : 'Make a new recovery phrase?'}
-          description={
-            phrase
-              ? 'Shown once. Your old phrase no longer works.'
-              : 'Your current phrase will stop working immediately.'
-          }
+      {mode ? (
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void submit();
+          }}
         >
-          {!phrase ? (
-            <div className="flex flex-col gap-2 sm:flex-row-reverse">
-              <Button
-                loading={busy}
-                onClick={async () => {
-                  setBusy(true);
-                  try {
-                    const res = await api<{ recoveryPhrase: string[]; confirm: number[] }>(
-                      '/api/me/recovery/regenerate',
-                      {},
-                    );
-                    setPhrase(res.recoveryPhrase);
-                    setIndices(res.confirm);
-                  } catch (err) {
-                    setError(errorText(err));
-                  } finally {
-                    setBusy(false);
-                  }
-                }}
+          {password.set ? (
+            <Field label="Current password">
+              {({ id }) => (
+                <Input
+                  id={id}
+                  type="password"
+                  value={current}
+                  onChange={(e) => setCurrent(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              )}
+            </Field>
+          ) : null}
+          {mode === 'set' ? (
+            <>
+              <Field label="New password" hint="At least 10 characters.">
+                {({ id, describedBy }) => (
+                  <Input
+                    id={id}
+                    type="password"
+                    value={next}
+                    aria-describedby={describedBy}
+                    onChange={(e) => setNext(e.target.value)}
+                    autoComplete="new-password"
+                    minLength={10}
+                    maxLength={128}
+                    required
+                  />
+                )}
+              </Field>
+              <Field
+                label="Type it again"
+                error={again && again !== next ? "The passwords don't match." : undefined}
               >
-                Make a new phrase
-              </Button>
-              <DialogClose asChild>
-                <Button variant="secondary">Cancel</Button>
-              </DialogClose>
-              {error ? <Notice tone="danger">{error}</Notice> : null}
-            </div>
-          ) : done ? (
-            <div className="flex flex-col gap-3">
-              <Notice tone="info">All set. Keep the new phrase safe.</Notice>
-              <DialogClose asChild>
-                <Button>Done</Button>
-              </DialogClose>
-            </div>
-          ) : (
-            <form
-              className="flex flex-col gap-4"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                  await api('/api/auth/recovery/confirm', {
-                    answers: indices.map((index, k) => ({ index, word: answers[k] ?? '' })),
-                  });
-                  setDone(true);
-                } catch (err) {
-                  setError(errorText(err));
-                }
-              }}
+                {({ id, describedBy, invalid }) => (
+                  <Input
+                    id={id}
+                    type="password"
+                    value={again}
+                    aria-describedby={describedBy}
+                    aria-invalid={invalid}
+                    onChange={(e) => setAgain(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                  />
+                )}
+              </Field>
+            </>
+          ) : null}
+          {error ? <Notice tone="danger">{error}</Notice> : null}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="submit"
+              loading={busy}
+              variant={mode === 'remove' ? 'danger' : 'primary'}
+              disabled={mode === 'set' && (next.length < 10 || next !== again)}
             >
-              <ol
-                className="grid grid-cols-2 gap-2 sm:grid-cols-3"
-                data-testid="new-recovery-phrase"
-              >
-                {phrase.map((w, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 rounded-md border-2 border-line bg-surface-2 px-3 py-2"
-                  >
-                    <span className="font-display text-xs font-bold text-ink-soft">{i + 1}</span>
-                    <span className="font-display font-semibold" data-word>
-                      {w}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(phrase.join(' '));
-                  setCopied(true);
-                }}
-              >
-                {copied ? <Check aria-hidden /> : <Copy aria-hidden />}{' '}
-                {copied ? 'Copied' : 'Copy words'}
-              </Button>
-              <p className="text-sm text-ink-soft">To finish, type these two words:</p>
-              <div className="grid grid-cols-2 gap-3">
-                {indices.map((index, k) => (
-                  <Field key={index} label={`Word #${index + 1}`}>
-                    {({ id }) => (
-                      <Input
-                        id={id}
-                        value={answers[k]}
-                        onChange={(e) =>
-                          setAnswers((a) => a.map((x, j) => (j === k ? e.target.value : x)))
-                        }
-                        autoComplete="off"
-                        autoCapitalize="none"
-                        required
-                      />
-                    )}
-                  </Field>
-                ))}
-              </div>
-              {error ? <Notice tone="danger">{error}</Notice> : null}
-              <Button type="submit">Check and save</Button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+              {mode === 'remove' ? 'Remove password' : 'Save password'}
+            </Button>
+            <Button type="button" variant="ghost" onClick={reset}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => setMode('set')}>
+            {password.set ? 'Change password' : 'Add a password'}
+          </Button>
+          {password.set ? (
+            <Button variant="ghost" onClick={() => setMode('remove')}>
+              Remove
+            </Button>
+          ) : null}
+        </div>
+      )}
     </Section>
   );
 }
@@ -645,6 +614,7 @@ const METHOD: Record<string, string> = {
   passkey: 'Passkey',
   signup: 'Sign-up',
   recovery: 'Recovery phrase',
+  password: 'Password',
   pairing: 'Device pairing',
   email: 'Email link',
 };
@@ -752,7 +722,7 @@ function DataSection({ username }: { username: string }) {
           </DialogTrigger>
           <DialogContent
             title="Delete your account?"
-            description="Your passkeys and recovery phrase stop working right away. Your results are erased for good after 7 days."
+            description="Your passkeys and password stop working right away. Your results are erased for good after 7 days."
           >
             <form
               className="flex flex-col gap-4"

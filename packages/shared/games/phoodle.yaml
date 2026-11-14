@@ -1,0 +1,30 @@
+slug: 'phoodle'
+name: 'Phoodle'
+publisher: 'Phoodle'
+description: 'Guess the five-letter food word in six tries, then try its mini crossword.'
+url: 'https://phoodle.net/'
+category: 'word'
+difficulty: 'easy'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#B5471B'
+icon: 'grid'
+attribution: 'Made and hosted by Phoodle.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'food'
+  - 'wordle-like'

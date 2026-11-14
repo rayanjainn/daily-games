@@ -1,0 +1,30 @@
+slug: 'poeltl'
+name: 'Poeltl'
+publisher: 'Poeltl'
+description: 'Guess the mystery NBA player from team, conference, position, height, age and number clues.'
+url: 'https://poeltl.dunk.town/'
+category: 'trivia'
+difficulty: 'medium'
+tier: 3
+embedMode: 'popout'
+reset:
+  mode: 'user_local'
+  hour: 0
+  note: 'Assumed to change at local midnight; not confirmed by the publisher.'
+numbering:
+  epoch: '2025-01-01'
+  epochNumber: 1
+  public: false
+parserId: null
+scoring:
+  type: 'completion'
+shareTextSamples: []
+accentColor: '#C8102E'
+icon: 'ball'
+attribution: 'Made and hosted by Poeltl.'
+verifiedLiveAt: '2026-11-09T04:50:00Z'
+verifiedEmbeddableAt: null
+status: 'active'
+tags:
+  - 'sports'
+  - 'basketball'

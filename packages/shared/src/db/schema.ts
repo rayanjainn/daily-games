@@ -96,6 +96,16 @@ export const users = pgTable(
       .notNull()
       .default({}),
     role: text('role').$type<(typeof USER_ROLES)[number]>().notNull().default('user'),
+    /**
+     * argon2id hash of an optional password, for signing in on a device without the passkey.
+     * Null when the player only uses passkeys (or email links).
+     */
+    passwordHash: text('password_hash'),
+    passwordSetAt: timestamp('password_set_at', { withTimezone: true }),
+    /**
+     * Legacy (recovery phrases were removed in v2). Kept, unused, so the release before v2 keeps
+     * working while v2 rolls out; drop it in a later release.
+     */
     recoveryConfirmedAt: timestamp('recovery_confirmed_at', { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -137,6 +147,10 @@ export const passkeyCredentials = pgTable(
   ],
 );
 
+/**
+ * Legacy (recovery phrases were removed in v2). Kept, unused, so the release before v2 keeps
+ * working while v2 rolls out; drop it in a later release.
+ */
 export const recoveryPhraseHashes = pgTable('recovery_phrase_hashes', {
   userId: uuid('user_id')
     .primaryKey()
@@ -160,7 +174,7 @@ export const sessions = pgTable(
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
     userAgent: text('user_agent'),
     ipHash: text('ip_hash'),
-    /** how the session was created: passkey | recovery | pairing | email */
+    /** how the session was created: passkey | password | pairing | email | signup */
     method: text('method').notNull(),
   },
   (t) => [
@@ -219,6 +233,25 @@ export const notifications = pgTable(
     index('notifications_user_idx').on(t.userId, t.createdAt),
     check('notifications_kind_check', oneOf('kind', NOTIFICATION_KINDS)),
   ],
+);
+
+/**
+ * Answers fetched from the publisher, cached once per game and puzzle date. Only ever shown to a
+ * player who has logged that puzzle.
+ */
+export const officialAnswers = pgTable(
+  'official_answers',
+  {
+    id: id(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    puzzleDate: date('puzzle_date').notNull(),
+    answer: jsonb('answer').notNull(),
+    sourceUrl: text('source_url').notNull(),
+    fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('official_answers_game_date_key').on(t.gameId, t.puzzleDate)],
 );
 
 export const devicePairings = pgTable(

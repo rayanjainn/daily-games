@@ -1,7 +1,10 @@
 import { createHmac } from 'node:crypto';
 import {
   cipherCode,
+  glowPuzzle,
   makeItPuzzle,
+  sixesPuzzle,
+  solveGlow,
   rngFromBytes,
   scramblePuzzle,
   scrambleCandidates,
@@ -27,4 +30,9 @@ export const scrambleAnswer = (n: number) =>
 export function makeItAnswer(n: number) {
   const puzzle = makeItPuzzle(rng('make-it', n));
   return { ...puzzle, solution: solveMakeIt(puzzle.numbers, puzzle.target)! };
+}
+export const sixesAnswer = (n: number) => sixesPuzzle(rng('sixes', n));
+export function glowRoute(n: number) {
+  const p = glowPuzzle(rng('glow', n));
+  return { ...p, route: solveGlow(p.board)! };
 }

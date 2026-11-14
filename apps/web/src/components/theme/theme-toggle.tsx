@@ -12,7 +12,7 @@ const OPTIONS = [
 ] as const;
 
 /** Browser chrome colour for each look, kept in step with the theme tokens. */
-const CHROME: Record<'light' | 'dark', string> = { light: '#FDF2E1', dark: '#170A2C' };
+const CHROME: Record<'light' | 'dark', string> = { light: '#FDF2E1', dark: '#0b0b0c' };
 
 function read(): Theme {
   try {

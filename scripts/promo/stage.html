@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>EveryDaily launch video stage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* EveryDaily's own dark tokens (apps/web/src/styles/tokens.css). */
+        --paper: #0b0b0c;
+        --paper-dot: #18181a;
+        --surface: #141416;
+        --surface-2: #1d1d20;
+        --surface-3: #29292d;
+        --ink: #f4f4f5;
+        --ink-soft: #b4b4bb;
+        --ink-faint: #8b8b93;
+        --line: #6e6e76;
+        --line-soft: #27272a;
+        --edge: #000;
+        --pop: #ff7043;
+        --on-pop: #0b0b0c;
+        --grape: #a98dff;
+        --mint: #34e3a6;
+        --sun: #ffd352;
+        --sky: #5cc0ff;
+        --bubblegum: #ff94d4;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--paper);
+      }
+      body {
+        font-family: 'Nunito', system-ui, sans-serif;
+        color: var(--ink);
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 1px 1px, var(--paper-dot) 1.2px, transparent 1.6px) 0 0 / 26px
+            26px,
+          var(--paper);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      .display {
+        font-family: 'Fredoka', system-ui, sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 0.98;
+      }
+      .caption {
+        position: absolute;
+        font-family: 'Fredoka';
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        line-height: 1.04;
+      }
+      .caption em {
+        font-style: normal;
+        color: var(--pop);
+      }
+      .frame {
+        position: absolute;
+        border-radius: 22px;
+        border: 3px solid var(--line);
+        background: var(--surface);
+        box-shadow:
+          0 14px 0 0 var(--edge),
+          0 40px 120px -20px rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+        transform-style: preserve-3d;
+      }
+      .frame .bar {
+        height: 40px;
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        padding: 0 16px;
+        background: var(--surface-2);
+        border-bottom: 2px solid var(--line-soft);
+      }
+      .frame .bar i {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--line);
+        display: block;
+      }
+      .frame .bar i:nth-child(1) {
+        background: #ff5f57;
+      }
+      .frame .bar i:nth-child(2) {
+        background: #febc2e;
+      }
+      .frame .bar i:nth-child(3) {
+        background: #28c840;
+      }
+      .frame .bar span {
+        margin-left: 14px;
+        font-size: 15px;
+        color: var(--ink-faint);
+        font-weight: 700;
+      }
+      .frame .view {
+        position: relative;
+        overflow: hidden;
+      }
+      .frame .view img {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block;
+      }
+      .phone {
+        border-radius: 54px;
+        border-width: 4px;
+      }
+      .phone .view {
+        border-radius: 48px;
+      }
+      .name {
+        position: absolute;
+        font-family: 'Fredoka';
+        font-weight: 700;
+        white-space: nowrap;
+        padding: 0.08em 0.4em 0.14em;
+        border-radius: 0.3em;
+        border: 3px solid var(--edge);
+        box-shadow: 0 6px 0 var(--edge);
+        color: var(--on-pop);
+      }
+      .board {
+        position: absolute;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+      }
+      .light {
+        border-radius: 18%;
+        border: 3px solid var(--line);
+        background: var(--surface-2);
+        display: grid;
+        place-items: center;
+      }
+      .light.on {
+        background: var(--sun);
+        box-shadow: 0 0 40px var(--sun);
+      }
+      .light svg {
+        width: 34%;
+        height: 34%;
+      }
+      .chip {
+        position: absolute;
+        font-family: 'Fredoka';
+        font-weight: 700;
+        background: var(--mint);
+        color: var(--on-pop);
+        border: 3px solid var(--edge);
+        box-shadow: 0 6px 0 var(--edge);
+        border-radius: 999px;
+        padding: 0.35em 0.9em;
+        white-space: nowrap;
+      }
+      .card {
+        position: absolute;
+        background: var(--surface);
+        border: 3px solid var(--line);
+        border-radius: 26px;
+        box-shadow:
+          0 12px 0 var(--edge),
+          0 40px 120px -30px #000;
+        padding: 40px;
+      }
+      .card h3 {
+        font-family: 'Fredoka';
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .tiles {
+        display: flex;
+        gap: 14px;
+      }
+      .tile {
+        perspective: 600px;
+      }
+      .tile > div {
+        border: 3px solid var(--line);
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-family: 'Fredoka';
+        font-weight: 700;
+        transform-style: preserve-3d;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border: 3px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface-2);
+        font-family: 'Fredoka';
+        font-weight: 600;
+        box-shadow: 0 6px 0 var(--edge);
+        padding: 0.55em 1.1em;
+      }
+      .cursor {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        z-index: 50;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+      }
+      .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 4px solid var(--ink);
+        z-index: 49;
+      }
+      .url {
+        font-family: 'Nunito';
+        font-weight: 800;
+        color: var(--ink-soft);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const FORMAT = params.get('format') || 'landscape';
+      const V = FORMAT === 'vertical';
+      const W = V ? 1080 : 1920,
+        H = V ? 1920 : 1080;
+      const SHOTS = params.get('shots') || '../../brag-output/work/shots';
+      const stage = document.getElementById('stage');
+
+      // ---- helpers ---------------------------------------------------------------------------------
+      const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+      const prog = (t, a, b) => clamp((t - a) / (b - a));
+      const outCubic = (x) => 1 - Math.pow(1 - x, 3);
+      const outQuint = (x) => 1 - Math.pow(1 - x, 5);
+      const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+      const outBack = (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+      const lerp = (a, b, x) => a + (b - a) * x;
+      const el = (html, parent = stage) => {
+        const d = document.createElement('div');
+        d.innerHTML = html.trim();
+        const n = d.firstChild;
+        parent.appendChild(n);
+        return n;
+      };
+      const css = (n, s) => Object.assign(n.style, s);
+      /** Dip through the background: content out over the last 0.25s, in over the first 0.35s. */
+      const sceneAlpha = (t, a, b) =>
+        t < a || t >= b ? 0 : Math.min(outCubic(prog(t, a, a + 0.35)), 1 - prog(t, b - 0.25, b));
+
+      const LOGO = `<svg viewBox="0 0 48 48"><rect x="3" y="6" width="42" height="40" rx="11" fill="#000"/><rect x="3" y="2" width="42" height="40" rx="11" fill="#ff7043" stroke="#6e6e76" stroke-width="3"/><circle cx="14" cy="13.5" r="4.5" fill="#34e3a6" stroke="#0b0b0c" stroke-width="2.5"/><path d="M12 13.6l1.5 1.5 3-3.2" fill="none" stroke="#0b0b0c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="22" y="11" width="16" height="5" rx="2.5" fill="#0b0b0c"/><circle cx="14" cy="23.5" r="4.5" fill="#141416" stroke="#0b0b0c" stroke-width="2.5"/><rect x="22" y="21" width="13" height="5" rx="2.5" fill="#0b0b0c" opacity="0.85"/><circle cx="14" cy="33.5" r="4.5" fill="#141416" stroke="#0b0b0c" stroke-width="2.5"/><rect x="22" y="31" width="10" height="5" rx="2.5" fill="#0b0b0c" opacity="0.7"/></svg>`;
+      const BULB = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`;
+      const LOCK = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+      const EYE = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      const KEY = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="#b4b4bb" stroke-width="2.4" stroke-linecap="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg>`;
+      const CURSOR = `<svg viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.6L9 20z" fill="#f4f4f5" stroke="#0b0b0c" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+
+      function browser(x, y, w, h, src, url) {
+        const f = el(
+          `<div class="frame"><div class="bar"><i></i><i></i><i></i><span>${url}</span></div><div class="view"><img src="${src}"></div></div>`,
+        );
+        css(f, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' });
+        css(f.querySelector('.view'), { height: h - 40 + 'px' });
+        return f;
+      }
+      function phone(x, y, w, h, src) {
+        const f = el(`<div class="frame phone"><div class="view"><img src="${src}"></div></div>`);
+        css(f, {
+          left: x + 'px',
+          top: y + 'px',
+          width: w + 'px',
+          height: h + 'px',
+          padding: '10px',
+        });
+        css(f.querySelector('.view'), { height: h - 28 + 'px' });
+        return f;
+      }
+      const shot = (name) => `${SHOTS}/${V ? 'phone' : 'desktop'}-${name}.png`;
+
+      const scenes = [];
+      const scene = (start, end, build) => {
+        const root = el('<div class="scene"></div>');
+        const update = build(root);
+        scenes.push((t) => {
+          const a = sceneAlpha(t, start, end);
+          root.style.opacity = a;
+          root.style.display = a > 0 ? 'block' : 'none';
+          if (a > 0) update(t - start, t);
+        });
+      };
+
+      // ---- 1. hook: the games pile up, then the promise --------------------------------------------
+      scene(0, 3, (root) => {
+        const names = [
+          'Wordle',
+          'Connections',
+          'Strands',
+          'Glow',
+          'Duotrigordle',
+          'Sixes',
+          'Pips',
+          'Contexto',
+        ];
+        const colors = [
+          '#34e3a6',
+          '#ffd352',
+          '#5cc0ff',
+          '#ff94d4',
+          '#a98dff',
+          '#ff7043',
+          '#34e3a6',
+          '#ffd352',
+        ];
+        const spots = V
+          ? [
+              [90, 330, -8],
+              [430, 520, 6],
+              [120, 760, 4],
+              [520, 980, -7],
+              [80, 1210, 7],
+              [470, 1420, -5],
+              [200, 1620, 3],
+              [560, 240, 9],
+            ]
+          : [
+              [140, 160, -8],
+              [880, 120, 6],
+              [1260, 380, -5],
+              [180, 640, 5],
+              [760, 800, -6],
+              [1380, 760, 7],
+              [560, 420, 3],
+              [1450, 110, -9],
+            ];
+        const size = V ? 96 : 92;
+        const items = names.map((n, i) => {
+          const node = el(`<div class="name">${n}</div>`, root);
+          css(node, {
+            left: spots[i][0] + 'px',
+            top: spots[i][1] + 'px',
+            background: colors[i],
+            fontSize: size + 'px',
+          });
+          return node;
+        });
+        const title = el(
+          `<div class="display" style="position:absolute;left:0;right:0;text-align:center;"></div>`,
+          root,
+        );
+        css(title, { top: (V ? 760 : 330) + 'px', fontSize: (V ? 150 : 170) + 'px' });
+        title.innerHTML = `<div class="l1">${V ? '94 daily<br>games.' : '94 daily games.'}</div><div class="l2" style="color:var(--pop);margin-top:0.12em">One streak.</div>`;
+        const l1 = title.querySelector('.l1'),
+          l2 = title.querySelector('.l2');
+        return (t) => {
+          items.forEach((n, i) => {
+            const a = i * 0.16;
+            const pin = outBack(prog(t, a, a + 0.32), 2.2);
+            const away = inOut(prog(t, 1.15, 1.55));
+            const dx = (spots[i][0] - W / 2) * away * 1.4,
+              dy = (spots[i][1] - H / 2) * away * 1.4;
+            css(n, {
+              opacity: Math.min(prog(t, a, a + 0.08), 1 - away),
+              transform: `translate(${dx}px,${dy}px) rotate(${spots[i][2] * (1 - away * 2)}deg) scale(${lerp(1.6, 1, pin) * (1 - away * 0.5)})`,
+            });
+          });
+          const p1 = outQuint(prog(t, 1.25, 1.6)),
+            p2 = outBack(prog(t, 1.5, 1.85), 2.4);
+          css(l1, {
+            opacity: p1,
+            transform: `translateY(${(1 - p1) * 60}px) scale(${lerp(0.92, 1, p1)})`,
+          });
+          css(l2, { opacity: prog(t, 1.5, 1.6), transform: `scale(${lerp(0.6, 1, p2)})` });
+          css(title, { transform: `scale(${1 + 0.03 * prog(t, 1.6, 3)})` });
+        };
+      });
+
+      // ---- 2. reveal: the logo lands, then Today rises into view ---------------------------------
+      scene(3, 6, (root) => {
+        const brand = el(
+          `<div style="position:absolute;display:flex;align-items:center;gap:22px;"><div class="m" style="width:96px;height:96px">${LOGO}</div><div class="display" style="font-size:78px">EveryDaily</div></div>`,
+          root,
+        );
+        css(
+          brand,
+          V
+            ? { left: '50%', top: '120px', transform: 'translateX(-50%)' }
+            : { left: '120px', top: '110px' },
+        );
+        const cap = el(
+          `<div class="caption">Your daily games,<br><em>one checklist.</em></div>`,
+          root,
+        );
+        css(
+          cap,
+          V
+            ? { left: '0', right: '0', textAlign: 'center', top: '270px', fontSize: '84px' }
+            : { left: '100px', top: '330px', fontSize: '76px', width: '720px' },
+        );
+        const dev = V
+          ? phone(150, 520, 780, 1480, shot('today'))
+          : browser(780, 120, 1120, 820, shot('today-full'), 'everydaily.raycode.tech/today');
+        root.appendChild(dev);
+        const img = dev.querySelector('img');
+        const mark = brand.querySelector('.m');
+        return (t) => {
+          const lp = outBack(prog(t, 0, 0.45), 2.6);
+          css(mark, { transform: `scale(${lerp(0.2, 1, lp)}) rotate(${(1 - lp) * -25}deg)` });
+          css(brand.querySelector('.display'), {
+            opacity: prog(t, 0.15, 0.4),
+            transform: `translateX(${(1 - outCubic(prog(t, 0.15, 0.5))) * -30}px)`,
+          });
+          const c = outQuint(prog(t, 0.35, 0.8));
+          css(cap, { opacity: c, transform: `translateY(${(1 - c) * 40}px)` });
+          const r = outQuint(prog(t, 0.2, 1.1));
+          const base = V ? '' : '';
+          css(dev, {
+            transform: `perspective(2200px) translateY(${(1 - r) * 500}px) rotateX(${lerp(24, V ? 6 : 8, r)}deg) rotateY(${V ? 0 : lerp(-18, -10, r)}deg) scale(${lerp(0.88, 1, r) + 0.03 * prog(t, 1, 3)})`,
+            opacity: prog(t, 0.2, 0.5),
+          });
+          // Camera pans down the page while it settles.
+          const room = Math.max(
+            0,
+            (img.naturalHeight / Math.max(1, img.naturalWidth)) * img.clientWidth -
+              img.parentElement.clientHeight,
+          );
+          css(img, {
+            transform: `translateY(${-inOut(prog(t, 1.1, 3)) * Math.min(room, V ? 0 : 380)}px)`,
+          });
+        };
+      });
+
+      // ---- 3. play here: a real Glow board, played tap by tap ------------------------------------
+      const TAPS = [6, 8, 12, 16, 18, 2, 22];
+      const TAP_T = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5];
+      function toggle(b, i) {
+        const r = Math.floor(i / 5),
+          c = i % 5;
+        for (const [y, x] of [
+          [r, c],
+          [r - 1, c],
+          [r + 1, c],
+          [r, c - 1],
+          [r, c + 1],
+        ])
+          if (y >= 0 && y < 5 && x >= 0 && x < 5) b[y * 5 + x] = !b[y * 5 + x];
+      }
+      scene(6, 10, (root) => {
+        const cap = el(
+          `<div class="caption">Original games,<br><em>played right here.</em></div>`,
+          root,
+        );
+        css(
+          cap,
+          V
+            ? { left: '0', right: '0', textAlign: 'center', top: '200px', fontSize: '84px' }
+            : { left: '120px', top: '330px', fontSize: '92px' },
+        );
+        const sub = el(
+          `<div style="position:absolute;font-weight:800;color:var(--ink-soft)">Glow · tap a light to flip it and its neighbours</div>`,
+          root,
+        );
+        css(
+          sub,
+          V
+            ? { left: 0, right: 0, textAlign: 'center', top: '420px', fontSize: '34px' }
+            : { left: '124px', top: '560px', fontSize: '32px' },
+        );
+        const size = V ? 860 : 640,
+          gap = V ? 18 : 14;
+        const bx = V ? (W - size) / 2 : 1120,
+          by = V ? 600 : (H - size) / 2;
+        const board = el('<div class="board"></div>', root);
+        css(board, {
+          left: bx + 'px',
+          top: by + 'px',
+          width: size + 'px',
+          height: size + 'px',
+          gap: gap + 'px',
+        });
+        const cells = [...Array(25)].map(() => el(`<div class="light">${BULB}</div>`, board));
+        const start = Array(25).fill(false);
+        TAPS.forEach((i) => toggle(start, i));
+        const cursor = el(`<div class="cursor">${CURSOR}</div>`, root);
+        const ring = el('<div class="ring"></div>', root);
+        const chip = el('<div class="chip">Lights out! 7 taps · on par</div>', root);
+        css(chip, {
+          fontSize: (V ? 54 : 46) + 'px',
+          left: V ? '50%' : bx + size / 2 + 'px',
+          top: by + size + (V ? 70 : 40) + 'px',
+        });
+        const step = (size - gap * 4) / 5 + gap;
+        const center = (i) => [
+          bx + (i % 5) * step + step / 2 - gap / 2,
+          by + Math.floor(i / 5) * step + step / 2 - gap / 2,
+        ];
+        return (t) => {
+          const b = [...start];
+          let last = -1;
+          TAP_T.forEach((tt, k) => {
+            if (t >= tt) {
+              toggle(b, TAPS[k]);
+              last = k;
+            }
+          });
+          cells.forEach((c, i) => {
+            c.classList.toggle('on', b[i]);
+            const hit =
+              last >= 0 && TAPS[last] === i ? prog(t, TAP_T[last], TAP_T[last] + 0.18) : 1;
+            c.style.transform = `scale(${hit < 1 ? 0.86 + 0.14 * outBack(hit, 3) : 1})`;
+            c.style.color = b[i] ? '#0b0b0c' : 'var(--ink-faint)';
+          });
+          const intro = outQuint(prog(t, 0, 0.5));
+          css(board, {
+            opacity: intro,
+            transform: `perspective(1800px) rotateX(${(1 - intro) * 30}deg) rotateY(${V ? 0 : -8 + 8 * prog(t, 0, 4)}deg) scale(${lerp(0.8, 1, intro)})`,
+          });
+          const c = outQuint(prog(t, 0.1, 0.5));
+          css(cap, { opacity: c, transform: `translateY(${(1 - c) * 40}px)` });
+          css(sub, { opacity: prog(t, 0.4, 0.7) });
+          // The cursor glides to each light just before it is tapped.
+          let k = TAP_T.findIndex((tt) => t < tt);
+          if (k < 0) k = TAP_T.length;
+          const from = center(TAPS[Math.max(0, k - 1)]),
+            to = center(TAPS[Math.min(TAPS.length - 1, k)]);
+          const segStart = k === 0 ? 0.25 : TAP_T[k - 1] + 0.05,
+            segEnd = k < TAP_T.length ? TAP_T[k] - 0.05 : segStart + 0.1;
+          const m = inOut(prog(t, segStart, segEnd));
+          const [cx, cy] =
+            k === 0
+              ? [lerp(W * 0.55, to[0], m), lerp(H * 0.9, to[1], m)]
+              : k >= TAP_T.length
+                ? from
+                : [lerp(from[0], to[0], m), lerp(from[1], to[1], m)];
+          const press = last >= 0 ? 1 - prog(t, TAP_T[last], TAP_T[last] + 0.12) : 0;
+          css(cursor, {
+            left: cx - 6 + 'px',
+            top: cy - 4 + 'px',
+            opacity: prog(t, 0.2, 0.4) * (1 - prog(t, 3.6, 3.8)),
+            transform: `scale(${1 - 0.15 * press})`,
+          });
+          const rr = last >= 0 ? prog(t, TAP_T[last], TAP_T[last] + 0.35) : 1;
+          const [rx, ry] = last >= 0 ? center(TAPS[last]) : [0, 0];
+          const rs = lerp(20, 120, outCubic(rr));
+          css(ring, {
+            left: rx - rs / 2 + 'px',
+            top: ry - rs / 2 + 'px',
+            width: rs + 'px',
+            height: rs + 'px',
+            opacity: (1 - rr) * 0.8,
+          });
+          const ch = outBack(prog(t, 3.6, 3.9), 2.6);
+          css(chip, {
+            opacity: prog(t, 3.6, 3.7),
+            transform: `translateX(-50%) scale(${lerp(0.4, 1, ch)})`,
+          });
+        };
+      });
+
+      // ---- 4. the answer: locked, then revealed, letter by letter ----------------------------------
+      scene(10, 14, (root) => {
+        const bg = el(
+          `<img style="position:absolute;width:100%;filter:blur(10px) brightness(0.35);" src="${shot('today')}">`,
+          root,
+        );
+        const cap = el(
+          `<div class="caption">The real answer.<br><em>Only after you play.</em></div>`,
+          root,
+        );
+        css(
+          cap,
+          V
+            ? { left: 0, right: 0, textAlign: 'center', top: '230px', fontSize: '84px' }
+            : { left: '120px', top: '150px', fontSize: '88px' },
+        );
+        const cw = V ? 900 : 1000;
+        const card = el(
+          `<div class="card"><h3>${KEY}<span>Today’s answer</span></h3><div class="body" style="position:relative;margin-top:30px;min-height:120px"></div></div>`,
+          root,
+        );
+        css(card, {
+          left: (W - cw) / 2 + (V ? 0 : 220) + 'px',
+          top: (V ? 760 : 520) + 'px',
+          width: cw + 'px',
+        });
+        card.querySelector('h3').style.fontSize = (V ? 54 : 50) + 'px';
+        const body = card.querySelector('.body');
+        const locked = el(
+          `<div style="position:absolute;inset:0;display:flex;align-items:center;gap:16px;color:var(--ink-soft);font-weight:700;font-size:${V ? 36 : 34}px">${LOCK}<span>Log today’s result and the answer unlocks.</span></div>`,
+          body,
+        );
+        const btn = el(
+          `<div class="btn" style="position:absolute;left:0;top:10px;font-size:${V ? 42 : 40}px">${EYE}<span>Reveal today’s answer</span></div>`,
+          body,
+        );
+        const tiles = el('<div class="tiles" style="position:absolute;left:0;top:0"></div>', body);
+        const ts = V ? 140 : 132;
+        const letters = 'CRANE'.split('').map((ch) => {
+          const tl = el(`<div class="tile"><div>${ch}</div></div>`, tiles);
+          css(tl.firstChild, { width: ts + 'px', height: ts + 'px', fontSize: ts * 0.55 + 'px' });
+          return tl.firstChild;
+        });
+        const src = el(
+          `<div style="position:absolute;color:var(--ink-soft);font-weight:800;font-size:${V ? 32 : 30}px;text-decoration:underline;text-underline-offset:6px">Answer from the publisher ↗</div>`,
+          body,
+        );
+        css(src, { top: ts + 34 + 'px', left: 0 });
+        const cursor = el(`<div class="cursor">${CURSOR}</div>`, root);
+        const FLIP = [1.0, 1.25, 1.5, 1.75, 2.0];
+        return (t) => {
+          css(bg, {
+            transform: `scale(${1.08 + 0.06 * prog(t, 0, 4)}) translateY(${-40 * prog(t, 0, 4)}px)`,
+          });
+          const c = outQuint(prog(t, 0.05, 0.45));
+          css(cap, { opacity: c, transform: `translateY(${(1 - c) * 40}px)` });
+          const k = outQuint(prog(t, 0.1, 0.55));
+          css(card, {
+            opacity: k,
+            transform: `perspective(2000px) rotateX(${(1 - k) * 25}deg) translateY(${(1 - k) * 120}px) scale(${1 + 0.025 * prog(t, 0.6, 4)})`,
+          });
+          // 0.1–0.55 locked (the player has now logged), 0.55–0.95 the button, then the tiles.
+          css(locked, { opacity: 1 - prog(t, 0.45, 0.55) });
+          const press = prog(t, 0.82, 0.92);
+          css(btn, {
+            opacity: prog(t, 0.5, 0.6) * (1 - prog(t, 0.95, 1.0)),
+            transform: `translateY(${press * 5}px)`,
+            boxShadow: `0 ${6 - press * 5}px 0 #000`,
+          });
+          const bxy = btn.getBoundingClientRect();
+          css(cursor, {
+            left: lerp(W * 0.8, bxy.left + bxy.width * 0.6, inOut(prog(t, 0.45, 0.8))) + 'px',
+            top: lerp(H * 0.95, bxy.top + bxy.height * 0.55, inOut(prog(t, 0.45, 0.8))) + 'px',
+            opacity: prog(t, 0.45, 0.55) * (1 - prog(t, 1.0, 1.15)),
+            transform: `scale(${1 - 0.15 * (press - prog(t, 0.92, 1.0))})`,
+          });
+          letters.forEach((n, i) => {
+            const f = prog(t, FLIP[i], FLIP[i] + 0.3);
+            const shown = f > 0.5;
+            css(n, {
+              opacity: prog(t, FLIP[i] - 0.02, FLIP[i]),
+              transform: `rotateX(${shown ? (1 - f) * 180 - 180 + 180 : f * 180}deg)`,
+              background: shown ? 'var(--mint)' : 'var(--surface-2)',
+              color: shown ? '#0b0b0c' : 'transparent',
+            });
+          });
+          css(src, { opacity: prog(t, 2.35, 2.6) });
+        };
+      });
+
+      // ---- 5. friends: rankings and the friends board drift past ----------------------------------
+      scene(14, 17, (root) => {
+        const cap = el(
+          `<div class="caption">Beat your friends.<br><em>Keep your streak.</em></div>`,
+          root,
+        );
+        css(
+          cap,
+          V
+            ? { left: 0, right: 0, textAlign: 'center', top: '170px', fontSize: '84px' }
+            : { left: 0, right: 0, textAlign: 'center', top: '70px', fontSize: '86px' },
+        );
+        const a = V
+          ? phone(60, 520, 640, 1300, shot('rankings'))
+          : browser(80, 270, 1040, 760, shot('rankings'), 'everydaily.raycode.tech/rankings');
+        const b = V
+          ? phone(400, 660, 640, 1300, shot('friends'))
+          : browser(820, 330, 1040, 760, shot('friends'), 'everydaily.raycode.tech/friends');
+        root.appendChild(a);
+        root.appendChild(b);
+        return (t) => {
+          const c = outQuint(prog(t, 0.05, 0.45));
+          css(cap, { opacity: c, transform: `translateY(${(1 - c) * 40}px)` });
+          const pa = outQuint(prog(t, 0.05, 0.7)),
+            pb = outQuint(prog(t, 0.25, 0.9));
+          const drift = inOut(prog(t, 0, 3));
+          css(a, {
+            opacity: prog(t, 0.05, 0.3),
+            transform: `perspective(2200px) translateX(${(1 - pa) * -300 + drift * 40}px) rotateY(${lerp(22, 12, pa)}deg) rotateZ(-2deg)`,
+          });
+          css(b, {
+            opacity: prog(t, 0.25, 0.5),
+            transform: `perspective(2200px) translateX(${(1 - pb) * 300 - drift * 60}px) translateY(${-drift * 30}px) rotateY(${lerp(-22, -12, pb)}deg) rotateZ(2deg)`,
+          });
+        };
+      });
+
+      // ---- 6. outro --------------------------------------------------------------------------------
+      scene(17, 20.01, (root) => {
+        const wrap = el(
+          `<div style="position:absolute;left:0;right:0;display:flex;flex-direction:column;align-items:center;text-align:center"></div>`,
+          root,
+        );
+        css(wrap, { top: (V ? 560 : 230) + 'px' });
+        const mark = el(
+          `<div style="width:${V ? 220 : 190}px;height:${V ? 220 : 190}px">${LOGO}</div>`,
+          wrap,
+        );
+        const word = el(
+          `<div class="display" style="font-size:${V ? 140 : 130}px;margin-top:30px">EveryDaily</div>`,
+          wrap,
+        );
+        const line = el(
+          `<div class="display" style="font-size:${V ? 66 : 64}px;margin-top:26px;color:var(--ink-soft)">Every daily game. <span style="color:var(--pop)">One place.</span></div>`,
+          wrap,
+        );
+        const url = el(
+          `<div class="url" style="font-size:${V ? 46 : 42}px;margin-top:${V ? 70 : 44}px">everydaily.raycode.tech · sign in with a passkey</div>`,
+          wrap,
+        );
+        if (V)
+          url.innerHTML =
+            'everydaily.raycode.tech<br><span style="font-size:0.8em;color:var(--ink-faint)">sign in with a passkey</span>';
+        return (t) => {
+          const m = outBack(prog(t, 0, 0.45), 2.4);
+          css(mark, {
+            transform: `scale(${lerp(0.3, 1, m)}) rotate(${(1 - m) * 20}deg) translateY(${-6 * Math.sin(t * 2)}px)`,
+          });
+          const w = outQuint(prog(t, 0.15, 0.55));
+          css(word, { opacity: w, transform: `translateY(${(1 - w) * 30}px)` });
+          const l = outQuint(prog(t, 0.35, 0.75));
+          css(line, { opacity: l, transform: `translateY(${(1 - l) * 30}px)` });
+          css(url, { opacity: prog(t, 0.6, 0.9) });
+          css(wrap, {
+            transform: `scale(${1 + 0.025 * prog(t, 0.5, 3)})`,
+            opacity: 1 - prog(t, 2.7, 3.0) * 0,
+          });
+        };
+      });
+
+      window.renderAt = (t) => {
+        scenes.forEach((s) => s(t));
+      };
+      window.__ready = (async () => {
+        css(stage, { width: W + 'px', height: H + 'px' });
+        await document.fonts.ready;
+        await Promise.all(
+          [...document.images].map((i) =>
+            i.complete
+              ? null
+              : new Promise((r) => {
+                  i.onload = r;
+                  i.onerror = r;
+                }),
+          ),
+        );
+        renderAt(0);
+        return true;
+      })();
+    </script>
+  </body>
+</html>

@@ -56,4 +56,11 @@ export default tseslint.config(
       },
     },
   },
+  {
+    // The launch-video renderer runs in Node and evaluates code in the page.
+    files: ['scripts/promo/**/*.mjs'],
+    languageOptions: {
+      globals: { process: 'readonly', console: 'readonly', window: 'readonly' },
+    },
+  },
 );

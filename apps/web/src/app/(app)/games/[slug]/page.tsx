@@ -20,6 +20,7 @@ import { GameActions } from '@/components/game/game-actions';
 import { GameIcon } from '@/components/game/game-icon';
 import { GameNotes } from '@/components/game/game-notes';
 import { YesterdaySolution } from '@/components/game/yesterday-solution';
+import { AnswerReveal } from '@/components/game/answer-reveal';
 import { TodayLog } from '@/components/game/today-log';
 import { GlobalBoard } from '@/components/native/global-board';
 import { Distribution, Heatmap, History, StatTiles } from '@/components/stats/game-stats';
@@ -32,6 +33,8 @@ import { attributionLine, followedAt, getGameBySlug, toCatalogGame } from '@/ser
 import { globalBoard } from '@/server/native';
 import { getNote } from '@/server/notes';
 import { existingResult } from '@/server/results';
+import { answersAvailable } from '@/server/answers';
+import { ANSWER_SOURCES } from '@everydaily/shared/answers';
 import { getGameStats } from '@/server/stats';
 import { requireSession } from '@/server/session';
 import { yesterdaysSolutions } from '@/server/solutions';
@@ -268,6 +271,21 @@ export default async function GamePage({ params }: { params: Params }) {
             Yesterday&apos;s answer
           </h2>
           <YesterdaySolution slug={row.slug} gameName={row.name} view={solution} />
+        </Card>
+      ) : null}
+
+      {answersAvailable(row.slug) ? (
+        <Card asSection className="flex flex-col gap-3 p-5 sm:p-6" aria-labelledby="answer-heading">
+          <h2 id="answer-heading" className="flex items-center gap-2 text-xl">
+            <KeyRound className="size-5 text-ink-soft" aria-hidden />
+            Today&apos;s answer
+          </h2>
+          <AnswerReveal
+            slug={row.slug}
+            date={todays?.puzzleDate ?? game.today.date}
+            logged={Boolean(todays)}
+            sourceLabel={ANSWER_SOURCES[row.slug]!.label}
+          />
         </Card>
       ) : null}
 
