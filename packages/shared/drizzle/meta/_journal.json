@@ -117,22 +117,8 @@
     {
       "idx": 16,
       "version": "7",
-      "when": 1794198148267,
-      "tag": "0016_drop_recovery_phrase",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1794198149380,
-      "tag": "0017_password_login",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1794198970654,
-      "tag": "0018_official_answers",
+      "when": 1794636257033,
+      "tag": "0016_v2_passwords_answers",
       "breakpoints": true
     }
   ]

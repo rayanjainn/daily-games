@@ -33,7 +33,10 @@ visual baselines) before merging.
   checked against common passwords and locked out after repeated failures, but a reused password
   can still be phished. Passkeys stay the default.
 - **The recovery phrase is gone for existing players.** They keep their passkeys and can add a
-  password or email in Settings.
+  password or email in Settings. The old table and column stay in the database until a later
+  release, so the previous version keeps working during the switch.
+- **Deploys now migrate the database themselves** (`pnpm release:prepare` in the production
+  build), and a failure there stops the build instead of the site.
 
 ## Launch videos
 

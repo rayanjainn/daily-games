@@ -201,7 +201,8 @@ Settings and paste it, with the app address, into the extension's options.
 
 - Pushing to `main` deploys the web app on Vercel automatically.
 - Worker changes: `cd apps/worker && pnpm run deploy`.
-- New migrations: run `pnpm db:migrate` against the direct URL **before** the web deploy that
+- New migrations: the production build applies them itself (see Version 2 notes). To run them by
+  hand instead, use `pnpm db:migrate` against the direct URL **before** the web deploy that
   needs them. Catalog YAML changes: `pnpm seed:games`.
 - CI (`.github/workflows/ci.yml`) runs lint, types, unit, e2e and visual tests on every push.
   The weekly **Embed probe** workflow uploads a fresh `docs/embed-probe` report; read it before
@@ -242,9 +243,15 @@ If the site feels slow, it is almost always distance, not code:
 
 ## Version 2 notes
 
-- **Migrations 0016 to 0018** remove the recovery phrase table and column, add the optional
-  password columns, and add `official_answers`. Existing players lose their recovery phrase;
-  they keep their passkeys and can add a password in Settings.
+- **Migrations now run on deploy.** The production build (`apps/web/vercel.json`) runs
+  `pnpm release:prepare` first: it applies pending migrations and loads the game catalog, using
+  `DATABASE_URL_UNPOOLED` (or `DIRECT_DATABASE_URL`, else `DATABASE_URL`). If that step fails, the
+  build fails and Vercel keeps the previous deployment live. Preview builds skip it. Migrations
+  must stay additive for this to be safe: the previous release keeps serving while the new one
+  builds, so a column or table is dropped only in a later release.
+- **Migration 0016** adds the optional password columns and `official_answers`. The recovery
+  phrase table and column stay (unused) until a later release drops them; players can no longer
+  use a phrase, but keep their passkeys and can add a password in Settings.
 - **Official answers** are on by default (`FEATURE_OFFICIAL_ANSWERS=1`). They are fetched from the
   publishers' own public pages and endpoints, only after a player logs that puzzle, cached once
   per day, and linked to the source. Set `FEATURE_OFFICIAL_ANSWERS=0` to switch them off.

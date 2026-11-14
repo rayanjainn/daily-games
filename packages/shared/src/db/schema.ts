@@ -102,6 +102,11 @@ export const users = pgTable(
      */
     passwordHash: text('password_hash'),
     passwordSetAt: timestamp('password_set_at', { withTimezone: true }),
+    /**
+     * Legacy (recovery phrases were removed in v2). Kept, unused, so the release before v2 keeps
+     * working while v2 rolls out; drop it in a later release.
+     */
+    recoveryConfirmedAt: timestamp('recovery_confirmed_at', { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -141,6 +146,18 @@ export const passkeyCredentials = pgTable(
     index('passkey_credentials_user_idx').on(t.userId),
   ],
 );
+
+/**
+ * Legacy (recovery phrases were removed in v2). Kept, unused, so the release before v2 keeps
+ * working while v2 rolls out; drop it in a later release.
+ */
+export const recoveryPhraseHashes = pgTable('recovery_phrase_hashes', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  hash: text('hash').notNull(),
+  createdAt: createdAt(),
+});
 
 export const sessions = pgTable(
   'sessions',
